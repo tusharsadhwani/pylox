@@ -1,0 +1,4 @@
+print "Hello";
+var a = 5;
+a = false;
+print (6.75 * (3 + 5) / 2);

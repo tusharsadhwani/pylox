@@ -1,0 +1,220 @@
+from enum import Enum, unique
+from typing import NamedTuple, Optional
+
+
+class ParseError(Exception):
+    ...
+
+
+@unique
+class TokenType(Enum):
+    LEFT_PAREN = "("
+    RIGHT_PAREN = ")"
+    LEFT_BRACE = "{"
+    RIGHT_BRACE = "}"
+    COMMA = ","
+    DOT = "."
+    SEMICOLON = ";"
+
+    PLUS = "+"
+    MINUS = "-"
+    STAR = "*"
+    SLASH = "/"
+    PERCENT = "%"
+
+    EQUAL = "="
+    EQUAL_EQUAL = "=="
+    BANG = "!"
+    BANG_EQUAL = "!="
+    LESS = "<"
+    LESS_EQUAL = "<="
+    GREATER = ">"
+    GREATER_EQUAL = ">="
+
+    TRUE = "true"
+    FALSE = "false"
+    NIL = "nil"
+    PRINT = "print"
+    AND = "and"
+    OR = "or"
+    IF = "if"
+    ELSE = "else"
+    FOR = "for"
+    WHILE = "while"
+    FUN = "fun"
+    RETURN = "return"
+    CLASS = "class"
+    THIS = "this"
+    SUPER = "super"
+
+    IDENTIFIER = "Identifier"
+    STRING = "String"
+    NUMBER = "Number"
+
+    EOF = "EOF"
+
+
+class Token(NamedTuple):
+    token_type: TokenType
+    source: str
+    value: Optional[object]
+    # TODO: add location information
+
+
+
+def scan_comment(source: str, index: int) -> int:
+    char = source[index]
+    index += 1
+
+    while char != "\n":
+        char = source[index]
+        index += 1
+
+    return index
+
+
+def scan_string(source: str, index: int) -> tuple[Token, int]:
+    # TODO: single quote support
+    string = ""
+
+    char = source[index]
+    index += 1
+
+    while char != '"':
+        string += char
+        char = source[index]
+        index += 1
+
+    source = f'"{string}"'
+    token = Token(TokenType.STRING, source, string)
+    return token, index
+
+
+def scan_number(source: str, index: int, digit: str) -> tuple[Token, int]:
+    decimal_seen = False
+
+    number = digit
+    digit = source[index]
+    while digit.isdigit() or (not decimal_seen and digit == "."):
+        index += 1
+
+        if digit == ".":
+            decimal_seen = True
+
+        number += digit
+
+        digit = source[index]
+
+    token = Token(TokenType.NUMBER, number, float(number))
+    return token, index
+
+
+def scan_identifier(source: str, index: int, char: str) -> tuple[Token, int]:
+    identifier = char
+
+    char = source[index]
+    while char.isalnum() or char == "_":
+        index += 1
+
+        identifier += char
+        char = source[index]
+
+    token = Token(TokenType.IDENTIFIER, identifier, None)
+    return token, index
+
+
+def lex(source: str) -> list[Token]:
+    tokens: list[Token] = []
+
+    index = 0
+    while index < len(source):
+        char = source[index]
+        # index will always point at the next character to read.
+        index += 1
+
+        if char in (" ", "\t", "\r", "\n"):
+            pass
+
+        elif char == "(":
+            tokens.append(Token(TokenType.LEFT_PAREN, char, None))
+        elif char == ")":
+            tokens.append(Token(TokenType.RIGHT_PAREN, char, None))
+        elif char == "{":
+            tokens.append(Token(TokenType.LEFT_BRACE, char, None))
+        elif char == "}":
+            tokens.append(Token(TokenType.RIGHT_BRACE, char, None))
+        elif char == ",":
+            tokens.append(Token(TokenType.COMMA, char, None))
+        elif char == ".":
+            tokens.append(Token(TokenType.DOT, char, None))
+        elif char == ";":
+            tokens.append(Token(TokenType.SEMICOLON, char, None))
+        elif char == "+":
+            tokens.append(Token(TokenType.PLUS, char, None))
+        elif char == "-":
+            tokens.append(Token(TokenType.MINUS, char, None))
+        elif char == "*":
+            tokens.append(Token(TokenType.STAR, char, None))
+        elif char == "%":
+            tokens.append(Token(TokenType.PERCENT, char, None))
+
+        elif char == "/":
+            next_char = source[index]
+            if next_char == "/":
+                index = scan_comment(source, index)
+            else:
+                tokens.append(Token(TokenType.SLASH, char, None))
+
+        elif char == "=":
+            next_char = source[index]
+            if next_char == "=":
+                index += 1
+                tokens.append(Token(TokenType.EQUAL_EQUAL, "==", None))
+            else:
+                tokens.append(Token(TokenType.EQUAL, char, None))
+
+        elif char == "!":
+            next_char = source[index]
+            if next_char == "=":
+                index += 1
+                tokens.append(Token(TokenType.BANG_EQUAL, "!=", None))
+            else:
+                tokens.append(Token(TokenType.BANG, char, None))
+
+        elif char == "<":
+            next_char = source[index]
+            if next_char == "=":
+                index += 1
+                tokens.append(Token(TokenType.LESS_EQUAL, "<=", None))
+            else:
+                tokens.append(Token(TokenType.LESS, char, None))
+
+        elif char == ">":
+            next_char = source[index]
+            if next_char == "=":
+                index += 1
+                tokens.append(Token(TokenType.GREATER_EQUAL, ">=", None))
+            else:
+                tokens.append(Token(TokenType.GREATER, char, None))
+
+        elif char == '"':
+            token, index = scan_string(source, index)
+            tokens.append(token)
+
+        elif char.isdigit():
+            token, index = scan_number(source, index, char)
+            tokens.append(token)
+
+        elif char.isalpha() or char == "_":
+            token, index = scan_identifier(source, index, char)
+            tokens.append(token)
+
+        else:
+            raise ParseError(f"Unknown character found: {char}")
+
+    return tokens
+
+
+def parse(source: str) -> None:
+    tokens = lex(source)
+    # TODO: parse
