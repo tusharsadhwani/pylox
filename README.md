@@ -1,6 +1,6 @@
-# plox
+# pylox
 
-My first implementation of Lox, written in Python
+My first implementation of Lox, written in Python.
 
 ## Design decisions
 
@@ -8,6 +8,7 @@ It'll be a reference implementation, except for a few additions:
 
 - Allowing single quotes
 - Modulo operator
+- _Much_ better error messages
 
 ## Ideas to tinker with
 
