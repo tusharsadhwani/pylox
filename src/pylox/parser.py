@@ -31,6 +31,7 @@ class TokenType(Enum):
     GREATER = ">"
     GREATER_EQUAL = ">="
 
+    VAR = "var"
     TRUE = "true"
     FALSE = "false"
     NIL = "nil"
@@ -54,12 +55,31 @@ class TokenType(Enum):
     EOF = "EOF"
 
 
+KEYWORD_TOKENS = {
+    "var": TokenType.VAR,
+    "true": TokenType.TRUE,
+    "false": TokenType.FALSE,
+    "nil": TokenType.NIL,
+    "print": TokenType.PRINT,
+    "and": TokenType.AND,
+    "or": TokenType.OR,
+    "if": TokenType.IF,
+    "else": TokenType.ELSE,
+    "for": TokenType.FOR,
+    "while": TokenType.WHILE,
+    "fun": TokenType.FUN,
+    "return": TokenType.RETURN,
+    "class": TokenType.CLASS,
+    "this": TokenType.THIS,
+    "super": TokenType.SUPER,
+}
+
+
 class Token(NamedTuple):
     token_type: TokenType
     source: str
     value: Optional[object]
     # TODO: add location information
-
 
 
 def scan_comment(source: str, index: int) -> int:
@@ -119,7 +139,11 @@ def scan_identifier(source: str, index: int, char: str) -> tuple[Token, int]:
         identifier += char
         char = source[index]
 
-    token = Token(TokenType.IDENTIFIER, identifier, None)
+    if identifier in KEYWORD_TOKENS:
+        token_type = KEYWORD_TOKENS[identifier]
+        token = Token(token_type, identifier, None)
+    else:
+        token = Token(TokenType.IDENTIFIER, identifier, None)
     return token, index
 
 
