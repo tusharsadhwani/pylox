@@ -78,7 +78,7 @@ KEYWORD_TOKENS = {
 class Token(NamedTuple):
     token_type: TokenType
     source: str
-    value: Optional[object]
+    value: Optional[object] = None
     # TODO: add location information
 
 
@@ -141,9 +141,9 @@ def scan_identifier(source: str, index: int, char: str) -> tuple[Token, int]:
 
     if identifier in KEYWORD_TOKENS:
         token_type = KEYWORD_TOKENS[identifier]
-        token = Token(token_type, identifier, None)
+        token = Token(token_type, identifier)
     else:
-        token = Token(TokenType.IDENTIFIER, identifier, None)
+        token = Token(TokenType.IDENTIFIER, identifier)
     return token, index
 
 
@@ -160,66 +160,66 @@ def lex(source: str) -> list[Token]:
             pass
 
         elif char == "(":
-            tokens.append(Token(TokenType.LEFT_PAREN, char, None))
+            tokens.append(Token(TokenType.LEFT_PAREN, char))
         elif char == ")":
-            tokens.append(Token(TokenType.RIGHT_PAREN, char, None))
+            tokens.append(Token(TokenType.RIGHT_PAREN, char))
         elif char == "{":
-            tokens.append(Token(TokenType.LEFT_BRACE, char, None))
+            tokens.append(Token(TokenType.LEFT_BRACE, char))
         elif char == "}":
-            tokens.append(Token(TokenType.RIGHT_BRACE, char, None))
+            tokens.append(Token(TokenType.RIGHT_BRACE, char))
         elif char == ",":
-            tokens.append(Token(TokenType.COMMA, char, None))
+            tokens.append(Token(TokenType.COMMA, char))
         elif char == ".":
-            tokens.append(Token(TokenType.DOT, char, None))
+            tokens.append(Token(TokenType.DOT, char))
         elif char == ";":
-            tokens.append(Token(TokenType.SEMICOLON, char, None))
+            tokens.append(Token(TokenType.SEMICOLON, char))
         elif char == "+":
-            tokens.append(Token(TokenType.PLUS, char, None))
+            tokens.append(Token(TokenType.PLUS, char))
         elif char == "-":
-            tokens.append(Token(TokenType.MINUS, char, None))
+            tokens.append(Token(TokenType.MINUS, char))
         elif char == "*":
-            tokens.append(Token(TokenType.STAR, char, None))
+            tokens.append(Token(TokenType.STAR, char))
         elif char == "%":
-            tokens.append(Token(TokenType.PERCENT, char, None))
+            tokens.append(Token(TokenType.PERCENT, char))
 
         elif char == "/":
             next_char = source[index]
             if next_char == "/":
                 index = scan_comment(source, index)
             else:
-                tokens.append(Token(TokenType.SLASH, char, None))
+                tokens.append(Token(TokenType.SLASH, char))
 
         elif char == "=":
             next_char = source[index]
             if next_char == "=":
                 index += 1
-                tokens.append(Token(TokenType.EQUAL_EQUAL, "==", None))
+                tokens.append(Token(TokenType.EQUAL_EQUAL, "=="))
             else:
-                tokens.append(Token(TokenType.EQUAL, char, None))
+                tokens.append(Token(TokenType.EQUAL, char))
 
         elif char == "!":
             next_char = source[index]
             if next_char == "=":
                 index += 1
-                tokens.append(Token(TokenType.BANG_EQUAL, "!=", None))
+                tokens.append(Token(TokenType.BANG_EQUAL, "!="))
             else:
-                tokens.append(Token(TokenType.BANG, char, None))
+                tokens.append(Token(TokenType.BANG, char))
 
         elif char == "<":
             next_char = source[index]
             if next_char == "=":
                 index += 1
-                tokens.append(Token(TokenType.LESS_EQUAL, "<=", None))
+                tokens.append(Token(TokenType.LESS_EQUAL, "<="))
             else:
-                tokens.append(Token(TokenType.LESS, char, None))
+                tokens.append(Token(TokenType.LESS, char))
 
         elif char == ">":
             next_char = source[index]
             if next_char == "=":
                 index += 1
-                tokens.append(Token(TokenType.GREATER_EQUAL, ">=", None))
+                tokens.append(Token(TokenType.GREATER_EQUAL, ">="))
             else:
-                tokens.append(Token(TokenType.GREATER, char, None))
+                tokens.append(Token(TokenType.GREATER, char))
 
         elif char == '"':
             token, index = scan_string(source, index)
