@@ -41,6 +41,7 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.NUMBER, "2", 2.0),
                 Token(TokenType.RIGHT_PAREN, ")", None),
                 Token(TokenType.SEMICOLON, ";", None),
+                Token(TokenType.EOF, "", None),
             ],
         ),
         (
@@ -82,6 +83,7 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.IDENTIFIER, "b", None),
                 Token(TokenType.SEMICOLON, ";", None),
                 Token(TokenType.RIGHT_BRACE, "}", None),
+                Token(TokenType.EOF, "", None),
             ],
         ),
     ),

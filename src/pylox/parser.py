@@ -236,6 +236,7 @@ def lex(source: str) -> list[Token]:
         else:
             raise ParseError(f"Unknown character found: {char}")
 
+    tokens.append(Token(TokenType.EOF, "", None))
     return tokens
 
 
