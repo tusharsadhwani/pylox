@@ -82,6 +82,10 @@ class Token(NamedTuple):
     # TODO: add location information
 
 
+EOF = Token(TokenType.EOF, "")
+
+# TODO: I think the `while char !=` loops can be refactored out.
+# plus there has to be a better way to find out when the string has ended
 def scan_comment(source: str, index: int) -> int:
     char = source[index]
     index += 1
@@ -134,9 +138,9 @@ def scan_identifier(source: str, index: int, char: str) -> tuple[Token, int]:
 
     char = source[index]
     while char.isalnum() or char == "_":
-        index += 1
-
         identifier += char
+
+        index += 1
         char = source[index]
 
     if identifier in KEYWORD_TOKENS:
@@ -236,7 +240,7 @@ def lex(source: str) -> list[Token]:
         else:
             raise ParseError(f"Unknown character found: {char}")
 
-    tokens.append(Token(TokenType.EOF, "", None))
+    tokens.append(EOF)
     return tokens
 
 

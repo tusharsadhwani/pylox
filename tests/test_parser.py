@@ -2,12 +2,21 @@ import os.path
 
 import pytest
 
-from pylox.parser import Token, TokenType, lex
+from pylox.parser import EOF, Token, TokenType, lex
 
 
 def read_file(filepath: str) -> str:
     with open(filepath) as file:
         return file.read()
+
+
+@pytest.mark.parametrize(
+    ("code", "tokens"),
+    (("abc", [Token(TokenType.IDENTIFIER, "abc"), EOF]),),
+)
+def test_lex(code: str, tokens: list[Token]) -> None:
+    output = lex(code)
+    assert output == tokens
 
 
 @pytest.mark.parametrize(
@@ -41,7 +50,7 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.NUMBER, "2", 2.0),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.SEMICOLON, ";"),
-                Token(TokenType.EOF, ""),
+                EOF,
             ],
         ),
         (
@@ -83,12 +92,12 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.IDENTIFIER, "b"),
                 Token(TokenType.SEMICOLON, ";"),
                 Token(TokenType.RIGHT_BRACE, "}"),
-                Token(TokenType.EOF, ""),
+                EOF,
             ],
         ),
     ),
 )
-def test_lex(filename: str, tokens: list[Token]) -> None:
+def test_lex_files(filename: str, tokens: list[Token]) -> None:
     test_dir = os.path.join(os.path.dirname(__file__), "testdata")
     filepath = os.path.join(test_dir, filename)
     source = read_file(filepath)
