@@ -77,173 +77,204 @@ KEYWORD_TOKENS = {
 
 class Token(NamedTuple):
     token_type: TokenType
-    source: str
+    string: str
     value: Optional[object] = None
     # TODO: add location information
 
 
 EOF = Token(TokenType.EOF, "")
 
-# TODO: I think the `while char !=` loops can be refactored out.
-# plus there has to be a better way to find out when the string has ended
-def scan_comment(source: str, index: int) -> int:
-    char = source[index]
-    index += 1
 
-    while char != "\n":
-        char = source[index]
-        index += 1
+class Lexer:
+    def __init__(self, source: str) -> None:
+        self.source = source
+        self.tokens: list[Token] = []
+        # Start and current represent the two ends of the current token
+        self.start = self.current = 0
 
-    return index
+        self.lex()
 
+    @property
+    def scanned(self) -> int:
+        """Returns True if the source has been fully scanned."""
+        return self.current >= len(self.source)
 
-def scan_string(source: str, index: int) -> tuple[Token, int]:
-    # TODO: single quote support
-    string = ""
+    def advance(self) -> None:
+        """Advance the current pointer."""
+        self.current += 1
 
-    char = source[index]
-    index += 1
+    def peek(self) -> str:
+        """Returns the current character, without actually consuming it."""
+        if self.scanned:
+            return ""
 
-    while char != '"':
-        string += char
-        char = source[index]
-        index += 1
+        return self.source[self.current]
 
-    source = f'"{string}"'
-    token = Token(TokenType.STRING, source, string)
-    return token, index
+    def peek_next(self) -> str:
+        """Returns the next character, without actually consuming it."""
+        if self.current + 1 >= len(self.source):
+            return ""
 
+        return self.source[self.current + 1]
 
-def scan_number(source: str, index: int, digit: str) -> tuple[Token, int]:
-    decimal_seen = False
+    def read_char(self) -> str:
+        """
+        Reads one character from the source.
+        If the source has been exhausted, returns an empty string.
+        """
+        if self.scanned:
+            return ""
 
-    number = digit
-    digit = source[index]
-    while digit.isdigit() or (not decimal_seen and digit == "."):
-        index += 1
+        char = self.source[self.current]
+        # current will always point at the next character to read.
+        self.advance()
 
-        if digit == ".":
-            decimal_seen = True
+        return char
 
-        number += digit
+    def match_next(self, char: str) -> bool:
+        """
+        Returns True and reads one character from source, but only if it
+        matches the given character. Returns False otherwise.
+        """
+        if self.scanned:
+            return False
 
-        digit = source[index]
+        if self.source[self.current] == char:
+            self.advance()
+            return True
 
-    token = Token(TokenType.NUMBER, number, float(number))
-    return token, index
+        return False
 
+    def add_token(self, token_type: TokenType, value: object = None) -> None:
+        """Adds a new token for the just-scanned characters."""
+        string = self.source[self.start : self.current]
+        self.tokens.append(Token(token_type, string, value))
+        self.start = self.current
 
-def scan_identifier(source: str, index: int, char: str) -> tuple[Token, int]:
-    identifier = char
+    def lex(self) -> list[Token]:
+        """Scans the source to produce tokens of variables, operators, strings etc."""
+        while not self.scanned:
+            char = self.read_char()
 
-    char = source[index]
-    while char.isalnum() or char == "_":
-        identifier += char
+            if char in (" ", "\t", "\r", "\n"):
+                # Ignore whitespace
+                self.start += 1
 
-        index += 1
-        char = source[index]
+            elif char == "(":
+                self.add_token(TokenType.LEFT_PAREN)
+            elif char == ")":
+                self.add_token(TokenType.RIGHT_PAREN)
+            elif char == "{":
+                self.add_token(TokenType.LEFT_BRACE)
+            elif char == "}":
+                self.add_token(TokenType.RIGHT_BRACE)
+            elif char == ",":
+                self.add_token(TokenType.COMMA)
+            elif char == ".":
+                self.add_token(TokenType.DOT)
+            elif char == ";":
+                self.add_token(TokenType.SEMICOLON)
+            elif char == "+":
+                self.add_token(TokenType.PLUS)
+            elif char == "-":
+                self.add_token(TokenType.MINUS)
+            elif char == "*":
+                self.add_token(TokenType.STAR)
+            elif char == "%":
+                self.add_token(TokenType.PERCENT)
 
-    if identifier in KEYWORD_TOKENS:
-        token_type = KEYWORD_TOKENS[identifier]
-        token = Token(token_type, identifier)
-    else:
-        token = Token(TokenType.IDENTIFIER, identifier)
-    return token, index
+            elif char == "/":
+                if self.match_next("/"):
+                    self.scan_comment()
+                else:
+                    self.add_token(TokenType.SLASH)
 
+            elif char == "=":
+                if self.match_next("="):
+                    self.add_token(TokenType.EQUAL_EQUAL)
+                else:
+                    self.add_token(TokenType.EQUAL)
 
-def lex(source: str) -> list[Token]:
-    tokens: list[Token] = []
+            elif char == "!":
+                if self.match_next("="):
+                    self.add_token(TokenType.BANG_EQUAL)
+                else:
+                    self.add_token(TokenType.BANG)
 
-    index = 0
-    while index < len(source):
-        char = source[index]
-        # index will always point at the next character to read.
-        index += 1
+            elif char == "<":
+                if self.match_next("="):
+                    self.add_token(TokenType.LESS_EQUAL)
+                else:
+                    self.add_token(TokenType.LESS)
 
-        if char in (" ", "\t", "\r", "\n"):
-            pass
+            elif char == ">":
+                if self.match_next("="):
+                    self.add_token(TokenType.GREATER_EQUAL)
+                else:
+                    self.add_token(TokenType.GREATER)
 
-        elif char == "(":
-            tokens.append(Token(TokenType.LEFT_PAREN, char))
-        elif char == ")":
-            tokens.append(Token(TokenType.RIGHT_PAREN, char))
-        elif char == "{":
-            tokens.append(Token(TokenType.LEFT_BRACE, char))
-        elif char == "}":
-            tokens.append(Token(TokenType.RIGHT_BRACE, char))
-        elif char == ",":
-            tokens.append(Token(TokenType.COMMA, char))
-        elif char == ".":
-            tokens.append(Token(TokenType.DOT, char))
-        elif char == ";":
-            tokens.append(Token(TokenType.SEMICOLON, char))
-        elif char == "+":
-            tokens.append(Token(TokenType.PLUS, char))
-        elif char == "-":
-            tokens.append(Token(TokenType.MINUS, char))
-        elif char == "*":
-            tokens.append(Token(TokenType.STAR, char))
-        elif char == "%":
-            tokens.append(Token(TokenType.PERCENT, char))
+            elif char == '"':
+                self.scan_string()
 
-        elif char == "/":
-            next_char = source[index]
-            if next_char == "/":
-                index = scan_comment(source, index)
+            elif char.isdigit():
+                self.scan_number()
+
+            elif char.isalpha() or char == "_":
+                self.scan_identifier()
+
             else:
-                tokens.append(Token(TokenType.SLASH, char))
+                raise ParseError(f"Unknown character found: {char}")
 
-        elif char == "=":
-            next_char = source[index]
-            if next_char == "=":
-                index += 1
-                tokens.append(Token(TokenType.EQUAL_EQUAL, "=="))
-            else:
-                tokens.append(Token(TokenType.EQUAL, char))
+        self.tokens.append(EOF)
+        return self.tokens
 
-        elif char == "!":
-            next_char = source[index]
-            if next_char == "=":
-                index += 1
-                tokens.append(Token(TokenType.BANG_EQUAL, "!="))
-            else:
-                tokens.append(Token(TokenType.BANG, char))
+    def scan_comment(self) -> None:
+        """Reads and discards a comment. A comment goes on till a newline."""
+        while not self.scanned and self.peek() != "\n":
+            self.advance()
 
-        elif char == "<":
-            next_char = source[index]
-            if next_char == "=":
-                index += 1
-                tokens.append(Token(TokenType.LESS_EQUAL, "<="))
-            else:
-                tokens.append(Token(TokenType.LESS, char))
+        # Since comments are thrown away, reset the start pointer
+        self.start = self.current
 
-        elif char == ">":
-            next_char = source[index]
-            if next_char == "=":
-                index += 1
-                tokens.append(Token(TokenType.GREATER_EQUAL, ">="))
-            else:
-                tokens.append(Token(TokenType.GREATER, char))
+    def scan_identifier(self) -> None:
+        """Scans keywords and variable names."""
+        while not self.scanned and (self.peek().isalnum() or self.peek() == "_"):
+            self.advance()
 
-        elif char == '"':
-            token, index = scan_string(source, index)
-            tokens.append(token)
+        identifier = self.source[self.start : self.current]
 
-        elif char.isdigit():
-            token, index = scan_number(source, index, char)
-            tokens.append(token)
-
-        elif char.isalpha() or char == "_":
-            token, index = scan_identifier(source, index, char)
-            tokens.append(token)
-
+        if identifier in KEYWORD_TOKENS:
+            token_type = KEYWORD_TOKENS[identifier]
+            self.add_token(token_type)
         else:
-            raise ParseError(f"Unknown character found: {char}")
+            self.add_token(TokenType.IDENTIFIER)
 
-    tokens.append(EOF)
-    return tokens
+    def scan_string(self) -> None:
+        # TODO: single quote support
+        while not self.scanned and self.peek() != '"':
+            self.advance()
 
+        if self.scanned:
+            # TODO: better error handling
+            raise ParseError("Unterminated string")
 
-def parse(source: str) -> None:
-    tokens = lex(source)
-    # TODO: parse
+        string = self.source[self.start + 1 : self.current]
+
+        # Advance past the closing quote
+        self.advance()
+
+        self.add_token(TokenType.STRING, string)
+
+    def scan_number(self) -> None:
+        while self.peek().isdigit():
+            self.advance()
+
+        # decimal support
+        if self.peek() == ".":
+            if self.peek_next().isdigit():
+                self.advance()
+                while self.peek().isdigit():
+                    self.advance()
+
+        number = float(self.source[self.start : self.current])
+        self.add_token(TokenType.NUMBER, number)

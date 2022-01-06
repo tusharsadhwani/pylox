@@ -2,7 +2,7 @@
 import sys
 from typing import List, Optional
 
-from .parser import parse, ParseError
+from .parser import Lexer, ParseError
 
 
 def read_file(filename: str) -> str:
@@ -40,7 +40,8 @@ def run_interactive() -> int:
 
 def run(source: str) -> int:
     try:
-        parse(source)
+        tokens = Lexer(source).tokens
+        # TODO: parse
     except ParseError:
         return 1
 

@@ -2,7 +2,7 @@ import os.path
 
 import pytest
 
-from pylox.parser import EOF, Token, TokenType, lex
+from pylox.parser import EOF, Token, TokenType, Lexer
 
 
 def read_file(filepath: str) -> str:
@@ -12,10 +12,24 @@ def read_file(filepath: str) -> str:
 
 @pytest.mark.parametrize(
     ("code", "tokens"),
-    (("abc", [Token(TokenType.IDENTIFIER, "abc"), EOF]),),
+    (
+        ("abc", [Token(TokenType.IDENTIFIER, "abc"), EOF]),
+        ("nil", [Token(TokenType.NIL, "nil"), EOF]),
+        ("12", [Token(TokenType.NUMBER, "12", 12), EOF]),
+        ('"abc\n123"', [Token(TokenType.STRING, '"abc\n123"', "abc\n123"), EOF]),
+        (
+            "a=1",
+            [
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "1", 1),
+                EOF,
+            ],
+        ),
+    ),
 )
 def test_lex(code: str, tokens: list[Token]) -> None:
-    output = lex(code)
+    output = Lexer(code).tokens
     assert output == tokens
 
 
@@ -102,7 +116,7 @@ def test_lex_files(filename: str, tokens: list[Token]) -> None:
     filepath = os.path.join(test_dir, filename)
     source = read_file(filepath)
 
-    output = lex(source)
+    output = Lexer(source).tokens
     assert output == tokens
 
 
