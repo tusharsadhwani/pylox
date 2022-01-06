@@ -92,7 +92,7 @@ class Lexer:
         # Start and current represent the two ends of the current token
         self.start = self.current = 0
 
-        self.lex()
+        self.scan_tokens()
 
     @property
     def scanned(self) -> int:
@@ -151,82 +151,85 @@ class Lexer:
         self.tokens.append(Token(token_type, string, value))
         self.start = self.current
 
-    def lex(self) -> list[Token]:
+    def scan_tokens(self) -> list[Token]:
         """Scans the source to produce tokens of variables, operators, strings etc."""
         while not self.scanned:
-            char = self.read_char()
-
-            if char in (" ", "\t", "\r", "\n"):
-                # Ignore whitespace
-                self.start += 1
-
-            elif char == "(":
-                self.add_token(TokenType.LEFT_PAREN)
-            elif char == ")":
-                self.add_token(TokenType.RIGHT_PAREN)
-            elif char == "{":
-                self.add_token(TokenType.LEFT_BRACE)
-            elif char == "}":
-                self.add_token(TokenType.RIGHT_BRACE)
-            elif char == ",":
-                self.add_token(TokenType.COMMA)
-            elif char == ".":
-                self.add_token(TokenType.DOT)
-            elif char == ";":
-                self.add_token(TokenType.SEMICOLON)
-            elif char == "+":
-                self.add_token(TokenType.PLUS)
-            elif char == "-":
-                self.add_token(TokenType.MINUS)
-            elif char == "*":
-                self.add_token(TokenType.STAR)
-            elif char == "%":
-                self.add_token(TokenType.PERCENT)
-
-            elif char == "/":
-                if self.match_next("/"):
-                    self.scan_comment()
-                else:
-                    self.add_token(TokenType.SLASH)
-
-            elif char == "=":
-                if self.match_next("="):
-                    self.add_token(TokenType.EQUAL_EQUAL)
-                else:
-                    self.add_token(TokenType.EQUAL)
-
-            elif char == "!":
-                if self.match_next("="):
-                    self.add_token(TokenType.BANG_EQUAL)
-                else:
-                    self.add_token(TokenType.BANG)
-
-            elif char == "<":
-                if self.match_next("="):
-                    self.add_token(TokenType.LESS_EQUAL)
-                else:
-                    self.add_token(TokenType.LESS)
-
-            elif char == ">":
-                if self.match_next("="):
-                    self.add_token(TokenType.GREATER_EQUAL)
-                else:
-                    self.add_token(TokenType.GREATER)
-
-            elif char == '"':
-                self.scan_string()
-
-            elif char.isdigit():
-                self.scan_number()
-
-            elif char.isalpha() or char == "_":
-                self.scan_identifier()
-
-            else:
-                raise ParseError(f"Unknown character found: {char}")
+            self.scan_token()
 
         self.tokens.append(EOF)
         return self.tokens
+
+    def scan_token(self) -> None:
+        char = self.read_char()
+
+        if char in (" ", "\t", "\r", "\n"):
+            # Ignore whitespace
+            self.start += 1
+
+        elif char == "(":
+            self.add_token(TokenType.LEFT_PAREN)
+        elif char == ")":
+            self.add_token(TokenType.RIGHT_PAREN)
+        elif char == "{":
+            self.add_token(TokenType.LEFT_BRACE)
+        elif char == "}":
+            self.add_token(TokenType.RIGHT_BRACE)
+        elif char == ",":
+            self.add_token(TokenType.COMMA)
+        elif char == ".":
+            self.add_token(TokenType.DOT)
+        elif char == ";":
+            self.add_token(TokenType.SEMICOLON)
+        elif char == "+":
+            self.add_token(TokenType.PLUS)
+        elif char == "-":
+            self.add_token(TokenType.MINUS)
+        elif char == "*":
+            self.add_token(TokenType.STAR)
+        elif char == "%":
+            self.add_token(TokenType.PERCENT)
+
+        elif char == "/":
+            if self.match_next("/"):
+                self.scan_comment()
+            else:
+                self.add_token(TokenType.SLASH)
+
+        elif char == "=":
+            if self.match_next("="):
+                self.add_token(TokenType.EQUAL_EQUAL)
+            else:
+                self.add_token(TokenType.EQUAL)
+
+        elif char == "!":
+            if self.match_next("="):
+                self.add_token(TokenType.BANG_EQUAL)
+            else:
+                self.add_token(TokenType.BANG)
+
+        elif char == "<":
+            if self.match_next("="):
+                self.add_token(TokenType.LESS_EQUAL)
+            else:
+                self.add_token(TokenType.LESS)
+
+        elif char == ">":
+            if self.match_next("="):
+                self.add_token(TokenType.GREATER_EQUAL)
+            else:
+                self.add_token(TokenType.GREATER)
+
+        elif char == '"':
+            self.scan_string()
+
+        elif char.isdigit():
+            self.scan_number()
+
+        elif char.isalpha() or char == "_":
+            self.scan_identifier()
+
+        else:
+            raise ParseError(f"Unknown character found: {char}")
 
     def scan_comment(self) -> None:
         """Reads and discards a comment. A comment goes on till a newline."""
