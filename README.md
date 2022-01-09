@@ -18,4 +18,5 @@ The following are ideas that I'm not 100% sure about, but would like to try:
 - No `nil`
 - Function scope vs. Block scope. The idea being, if we don't allow `nil`,
   block scope might cause an issue, but no `nil` + function scope might work.
-  
+- Adding whitespace tokens to the parser and AST, and adding a code formatting
+  module into the standard library.
