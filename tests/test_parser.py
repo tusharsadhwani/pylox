@@ -26,6 +26,30 @@ def read_file(filepath: str) -> str:
                 EOF,
             ],
         ),
+        (
+            "print a.b == c",
+            [
+                Token(TokenType.PRINT, "print"),
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.DOT, "."),
+                Token(TokenType.IDENTIFIER, "b"),
+                Token(TokenType.EQUAL_EQUAL, "=="),
+                Token(TokenType.IDENTIFIER, "c"),
+                EOF,
+            ],
+        ),
+        (
+            "f(x, y)",
+            [
+                Token(TokenType.IDENTIFIER, "f"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.COMMA, ","),
+                Token(TokenType.IDENTIFIER, "y"),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                EOF,
+            ],
+        ),
     ),
 )
 def test_lex(code: str, tokens: list[Token]) -> None:
