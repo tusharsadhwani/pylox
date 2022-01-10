@@ -9,7 +9,8 @@ It'll be a reference implementation, except for a few additions:
 - Allowing single quotes
 - Modulo operator
 - _Much_ better error messages
-- An actual standard library, and import system
+- An import system
+- An actual standard library
 
 ## Ideas to tinker with
 
