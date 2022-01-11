@@ -6,10 +6,6 @@ class ParseError(Exception):
     ...
 
 
-class LexError(ParseError):
-    ...
-
-
 @unique
 class TokenType(Enum):
     LEFT_PAREN = "("
@@ -84,6 +80,13 @@ class Token(NamedTuple):
     string: str
     value: Optional[object] = None
     # TODO: add location information
+
+
+class LexError(ParseError):
+    def __init__(self, message: str, index: int) -> None:
+        super().__init__(message, index)
+        self.message = message
+        self.index = index
 
 
 EOF = Token(TokenType.EOF, "")
@@ -233,7 +236,7 @@ class Lexer:
             self.scan_identifier()
 
         else:
-            raise LexError(f"Unknown character found: {char}")
+            raise LexError(f"Unknown character found: {char!r}", self.start)
 
     def scan_comment(self) -> None:
         """Reads and discards a comment. A comment goes on till a newline."""
@@ -263,7 +266,7 @@ class Lexer:
 
         if self.scanned:
             # TODO: better error handling
-            raise LexError("Unterminated string")
+            raise LexError("Unterminated string", self.current)
 
         string = self.source[self.start + 1 : self.current]
 

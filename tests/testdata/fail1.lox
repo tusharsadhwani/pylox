@@ -1,0 +1,5 @@
+print "Hello!";
+
+for (int i = 0; i < @; i++) {
+  print i;
+}

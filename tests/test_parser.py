@@ -148,7 +148,7 @@ def test_lex_files(filename: str, tokens: list[Token]) -> None:
 @pytest.mark.parametrize(
     ("code", "error_msg"),
     (
-        ("#", "Unknown character found: #"),
+        ("#", "Unknown character found: '#'"),
         ('string = "abc', "Unterminated string"),
     ),
 )
