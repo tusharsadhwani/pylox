@@ -6,6 +6,10 @@ class ParseError(Exception):
     ...
 
 
+class LexError(ParseError):
+    ...
+
+
 @unique
 class TokenType(Enum):
     LEFT_PAREN = "("
@@ -229,7 +233,7 @@ class Lexer:
             self.scan_identifier()
 
         else:
-            raise ParseError(f"Unknown character found: {char}")
+            raise LexError(f"Unknown character found: {char}")
 
     def scan_comment(self) -> None:
         """Reads and discards a comment. A comment goes on till a newline."""
@@ -259,7 +263,7 @@ class Lexer:
 
         if self.scanned:
             # TODO: better error handling
-            raise ParseError("Unterminated string")
+            raise LexError("Unterminated string")
 
         string = self.source[self.start + 1 : self.current]
 

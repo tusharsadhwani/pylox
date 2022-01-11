@@ -2,7 +2,7 @@ import os.path
 
 import pytest
 
-from pylox.parser import EOF, Token, TokenType, Lexer
+from pylox.parser import EOF, LexError, Token, TokenType, Lexer
 
 
 def read_file(filepath: str) -> str:
@@ -145,5 +145,19 @@ def test_lex_files(filename: str, tokens: list[Token]) -> None:
     assert output == tokens
 
 
-# TODO: add lots of failing tests, with proper error message location, etc.
+@pytest.mark.parametrize(
+    ("code", "error_msg"),
+    (
+        ("#", "Unknown character found: #"),
+        ('string = "abc', "Unterminated string"),
+    ),
+)
+def test_lex_fail(code: str, error_msg: str) -> None:
+    with pytest.raises(LexError) as exc:
+        output = Lexer(code).tokens
+
+    assert exc.value.args[0] == error_msg
+
+
+# TODO: add file based error tests for error location and code
 # TODO: add run_interactive tests
