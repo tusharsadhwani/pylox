@@ -13,6 +13,7 @@ def read_file(filepath: str) -> str:
 @pytest.mark.parametrize(
     ("code", "tokens"),
     (
+        ("", [EOF]),
         ("abc", [Token(TokenType.IDENTIFIER, "abc"), EOF]),
         ("nil", [Token(TokenType.NIL, "nil"), EOF]),
         ("12", [Token(TokenType.NUMBER, "12", 12), EOF]),
