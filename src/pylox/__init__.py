@@ -3,7 +3,7 @@ import os.path
 import sys
 from typing import List, Optional
 
-from .parser import Lexer, LexError
+from .lexer import Lexer, LexError
 
 
 def read_file(filename: str) -> str:

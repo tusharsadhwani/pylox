@@ -2,7 +2,7 @@ import os.path
 
 import pytest
 
-from pylox.parser import EOF, LexError, Token, TokenType, Lexer
+from pylox.lexer import EOF, Lexer, LexError, Token, TokenType
 
 
 def read_file(filepath: str) -> str:
