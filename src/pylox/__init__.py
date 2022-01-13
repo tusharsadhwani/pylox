@@ -1,7 +1,8 @@
 """pylox - A Lox interpreter written in Python."""
+from __future__ import annotations
+
 import os.path
 import sys
-from typing import List, Optional
 
 from .lexer import Lexer, LexError
 
@@ -39,7 +40,7 @@ def get_snippet_line_col(source: str, index: int) -> tuple[int, int, str]:
     return line, col, snippet
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     if argv is None:
         argv = sys.argv
 

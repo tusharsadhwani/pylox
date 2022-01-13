@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum, unique
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 
 @unique
@@ -74,7 +76,7 @@ KEYWORD_TOKENS = {
 class Token(NamedTuple):
     token_type: TokenType
     string: str
-    value: Optional[object] = None
+    value: object | None = None
     # TODO: add location information
 
 
