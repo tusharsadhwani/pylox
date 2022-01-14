@@ -5,6 +5,7 @@ import os.path
 import sys
 
 from .lexer import Lexer, LexError
+from .parser import Parser
 
 
 def read_file(filename: str) -> str:
@@ -82,6 +83,9 @@ def run(filepath: str) -> int:
         print(f"Syntax Error: {exc.message}")
         return 1
 
+    parser = Parser(tokens)
+    tree = parser.parse()
+    print(tree)
     # TODO: parse
     # TODO: run code
 
