@@ -4,8 +4,8 @@ from __future__ import annotations
 import os.path
 import sys
 
-from .lexer import Lexer, LexError
-from .parser import Parser
+from pylox.lexer import Lexer, LexError
+from pylox.parser import Parser
 
 
 def read_file(filename: str) -> str:

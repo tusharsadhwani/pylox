@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .tokens import Token
+from pylox.tokens import Token
 
 
 @dataclass

@@ -1,5 +1,5 @@
-from .expr import Binary, Expr, Grouping, Literal, Unary
-from .tokens import Token, TokenType
+from pylox.expr import Binary, Expr, Grouping, Literal, Unary
+from pylox.tokens import Token, TokenType
 
 
 class ParseError(Exception):
