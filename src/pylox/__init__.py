@@ -61,19 +61,27 @@ def run_interactive() -> int:
     while True:
         try:
             text = input("> ")
+        except EOFError:
+            return 0
         except KeyboardInterrupt:
             return 1
 
-        run(text)
+        # TODO: add multiline REPL support
+        run_code(text, filename="<input>")
 
 
 def run(filepath: str) -> int:
     source = read_file(filepath)
+    filename = os.path.basename(filepath)
 
+    return run_code(source, filename)
+
+
+def run_code(source: str, filename: str) -> int:
     try:
         tokens = Lexer(source).tokens
     except LexError as exc:
-        filename = os.path.basename(filepath)
+
         line, col, snippet = get_snippet_line_col(source, exc.index)
         print(f"Error in {filename}:{line}:{col}")
 
