@@ -1,7 +1,7 @@
 from pylox.expr import Binary, Expr, Grouping, Literal, Unary
 from pylox.lexer import Lexer
 from pylox.parser import Parser
-from pylox.utils.visitor import Visitor
+from pylox.visitor import Visitor
 
 
 class AstPrinter(Visitor[str]):
