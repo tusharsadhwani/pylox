@@ -1,4 +1,4 @@
-from pylox.expr import Binary, Grouping, Literal, Unary
+from pylox.expr import Binary, Expr, Grouping, Literal, Unary
 from pylox.lexer import Lexer
 from pylox.parser import Parser
 from pylox.utils.visitor import Visitor
@@ -7,6 +7,9 @@ from pylox.utils.visitor import Visitor
 class AstPrinter(Visitor[str]):
     # TODO: Find a way for mypy to enforce every visit function's
     # return value to be str.
+    def visit_Expr(self, expr: Expr) -> str:
+        return ""
+
     def visit_Literal(self, literal: Literal) -> str:
         if literal.value is None:
             return "nil"

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pylox.expr import Binary, Expr, Grouping, Literal, Unary
-from pylox.tokens import Token, TokenType
+from pylox.tokens import EOF, Token, TokenType
 
 
 class ParseError(Exception):
@@ -20,22 +22,30 @@ class Parser:
     """
 
     def __init__(self, tokens: list[Token]) -> None:
+        if tokens[-1] != EOF:
+            raise ValueError(f"Expected EOF as the last token, found {tokens[-1]}")
         self.tokens = tokens
         self.index = 0
 
     @property
     def scanned(self) -> int:
         """Returns True if tokens has been fully scanned."""
-        return self.index >= len(self.tokens)
+        if self.index >= len(self.tokens) - 1:
+            return True
 
-    def get_token(self) -> Token:
+        return False
+
+    def get_token(self) -> Token | None:
         if self.scanned:
-            raise ParseError("Unexpected end of file")
+            return None
 
         return self.tokens[self.index]
 
     def match_next(self, *token_types: TokenType) -> bool:
         token = self.get_token()
+
+        if token is None:
+            return False
 
         if token.token_type in token_types:
             self.index += 1
@@ -53,6 +63,9 @@ class Parser:
         return self.parse_expression()
 
     def parse_expression(self) -> Expr:
+        if self.scanned:
+            return Expr()
+
         return self.parse_equality()
 
     def parse_equality(self) -> Expr:
@@ -113,6 +126,10 @@ class Parser:
         return self.parse_primary()
 
     def parse_primary(self) -> Expr:
+        if self.match_next(TokenType.IDENTIFIER):
+            token = self.previous()
+            return Literal(token.string)
+
         if self.match_next(TokenType.STRING, TokenType.NUMBER):
             token = self.previous()
             return Literal(token.value)
@@ -134,6 +151,10 @@ class Parser:
     def consume(self, expected_type: TokenType) -> None:
         """Consumes one token. If it's not of the expected type, throws."""
         token = self.get_token()
+
+        if token is None:
+            raise ParseError(f"Expected to find {expected_type.value!r}, found EOF")
+
         if token.token_type != expected_type:
             raise ParseError(
                 f"Expected to find {expected_type.value!r}, found {token.string!r}"
