@@ -64,6 +64,7 @@ class Parser:
 
     def parse_expression(self) -> Expr:
         if self.scanned:
+            # TODO: change return type of parsing empty file
             return Expr()
 
         return self.parse_equality()
