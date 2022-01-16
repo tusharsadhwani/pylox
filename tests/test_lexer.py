@@ -160,5 +160,4 @@ def test_lex_fail(code: str, error_msg: str) -> None:
     assert exc.value.args[0] == error_msg
 
 
-# TODO: add file based error tests for error location and code
 # TODO: add run_interactive tests
