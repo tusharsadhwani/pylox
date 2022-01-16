@@ -4,6 +4,7 @@ from __future__ import annotations
 import os.path
 import sys
 
+from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer, LexError
 from pylox.parser import Parser
 
@@ -85,8 +86,11 @@ def run(filepath: str) -> int:
 
     parser = Parser(tokens)
     tree = parser.parse()
-    print(tree)
-    # TODO: parse
-    # TODO: run code
+
+    value = Interpreter().visit(tree)
+    if value is None:
+        print("nil")
+    else:
+        print(value)
 
     return 0
