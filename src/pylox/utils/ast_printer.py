@@ -4,7 +4,9 @@ from pylox.parser import Parser
 from pylox.utils.visitor import Visitor
 
 
-class AstPrinter(Visitor):
+class AstPrinter(Visitor[str]):
+    # TODO: Find a way for mypy to enforce every visit function's
+    # return value to be str.
     def visit_Literal(self, literal: Literal) -> str:
         if literal.value is None:
             return "nil"
