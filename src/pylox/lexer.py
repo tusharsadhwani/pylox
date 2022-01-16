@@ -1,3 +1,5 @@
+import sys
+
 from pylox.tokens import EOF, KEYWORD_TOKENS, Token, TokenType
 
 
@@ -204,3 +206,8 @@ class Lexer:
 
         number = float(self.source[self.start : self.current])
         self.add_token(TokenType.NUMBER, number)
+
+
+if __name__ == "__main__":
+    source = " ".join(sys.argv[1:])
+    print(Lexer(source).tokens)

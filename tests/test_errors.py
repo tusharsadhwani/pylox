@@ -40,3 +40,6 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
 
     stdout, _ = capsys.readouterr()
     assert stdout.rstrip() == dedent(error).rstrip()
+
+
+# TODO: add parse error tests
