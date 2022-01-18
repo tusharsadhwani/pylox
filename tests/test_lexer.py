@@ -2,8 +2,8 @@ import os.path
 
 import pytest
 
-from pylox.tokens import EOF, Token, TokenType
 from pylox.lexer import Lexer, LexError
+from pylox.tokens import EOF, Token, TokenType
 
 
 def read_file(filepath: str) -> str:
