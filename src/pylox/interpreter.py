@@ -1,11 +1,4 @@
-from pylox.nodes import (
-    Binary,
-    ExprStmt,
-    Grouping,
-    Literal,
-    Print,
-    Unary,
-)
+from pylox.nodes import Binary, ExprStmt, Grouping, Literal, Print, Unary
 from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name
 from pylox.visitor import Visitor

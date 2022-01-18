@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from pylox.lexer import Lexer
