@@ -79,5 +79,11 @@ class Token(NamedTuple):
     value: object | None = None
     # TODO: add location information
 
+    def __repr__(self) -> str:
+        if self.value is None:
+            return f"Token({self.token_type}, {self.string!r})"
+
+        return f"Token({self.token_type}, {self.string!r}, {self.value!r})"
+
 
 EOF = Token(TokenType.EOF, "")
