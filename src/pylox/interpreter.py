@@ -1,4 +1,11 @@
-from pylox.expr import Binary, Grouping, Literal, Unary
+from pylox.nodes import (
+    Binary,
+    ExprStmt,
+    Grouping,
+    Literal,
+    Print,
+    Unary,
+)
 from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name
 from pylox.visitor import Visitor
@@ -72,3 +79,13 @@ class Interpreter(Visitor[object]):
 
     def visit_Grouping(self, grouping: Grouping) -> object:
         return self.visit(grouping.expression)
+
+    def visit_Print(self, print_stmt: Print) -> None:
+        value = self.visit(print_stmt.value)
+        if value is None:
+            print("nil")
+        else:
+            print(value)
+
+    def visit_ExprStmt(self, expr_stmt: ExprStmt) -> None:
+        self.visit(expr_stmt.expression)

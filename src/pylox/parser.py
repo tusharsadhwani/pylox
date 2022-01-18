@@ -1,6 +1,16 @@
 from __future__ import annotations
 
-from pylox.expr import Binary, Expr, Grouping, Literal, Unary
+from pylox.nodes import (
+    Binary,
+    Expr,
+    ExprStmt,
+    Grouping,
+    Literal,
+    Print,
+    Program,
+    Stmt,
+    Unary,
+)
 from pylox.tokens import EOF, Token, TokenType
 
 
@@ -11,7 +21,10 @@ class ParseError(Exception):
 class Parser:
     """
     Current grammar:
-        program -> expression
+        program -> statement* EOF
+        statement -> print_stmt | expr_stmt
+        print_stmt -> "print" expression ";"
+        expr_stmt -> expression ";"
         expression -> equality
         equality -> comparison (("==" | "!=") comparison)*
         comparison -> term ((">" | ">=" | "<" | "<=") term)*
@@ -59,14 +72,30 @@ class Parser:
 
         return self.tokens[self.index - 1]
 
-    def parse(self) -> Expr:
-        return self.parse_expression()
+    def parse(self) -> Program:
+        body: list[Stmt] = []
+        while not self.scanned:
+            body.append(self.parse_statement())
+
+        return Program(body)
+
+    def parse_statement(self) -> Stmt:
+        if self.match_next(TokenType.PRINT):
+            return self.parse_print_stmt()
+
+        return self.parse_expr_stmt()
+
+    def parse_print_stmt(self) -> Print:
+        expression = self.parse_expression()
+        self.consume(TokenType.SEMICOLON)
+        return Print(expression)
+
+    def parse_expr_stmt(self) -> ExprStmt:
+        expression = self.parse_expression()
+        self.consume(TokenType.SEMICOLON)
+        return ExprStmt(expression)
 
     def parse_expression(self) -> Expr:
-        if self.scanned:
-            # TODO: change return type of parsing empty file
-            return Expr()
-
         return self.parse_equality()
 
     def parse_equality(self) -> Expr:
@@ -147,7 +176,8 @@ class Parser:
             self.consume(TokenType.RIGHT_PAREN)
             return Grouping(expression)
 
-        raise NotImplementedError  # TODO: exception handling
+        # TODO: exception handling
+        raise NotImplementedError(f"{self.get_token()} not implemented")
 
     def consume(self, expected_type: TokenType) -> None:
         """Consumes one token. If it's not of the expected type, throws."""

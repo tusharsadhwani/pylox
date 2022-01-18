@@ -96,9 +96,4 @@ def run_code(source: str, filename: str) -> int:
     tree = parser.parse()
 
     value = Interpreter().visit(tree)
-    if value is None:
-        print("nil")
-    else:
-        print(value)
-
     return 0

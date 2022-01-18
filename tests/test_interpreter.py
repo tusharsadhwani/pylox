@@ -1,6 +1,6 @@
 import pytest
 
-from pylox.expr import Binary, Expr, Literal
+from pylox.nodes import Binary, Expr, Literal
 from pylox.interpreter import Interpreter
 from pylox.tokens import EOF, Token, TokenType
 

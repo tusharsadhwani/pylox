@@ -29,3 +29,23 @@ class Binary(Expr):
 @dataclass
 class Grouping(Expr):
     expression: Expr
+
+
+@dataclass
+class Stmt:
+    ...
+
+
+@dataclass
+class Print(Stmt):
+    value: Expr
+
+
+@dataclass
+class ExprStmt(Stmt):
+    expression: Expr
+
+
+@dataclass
+class Program:
+    body: list[Stmt]

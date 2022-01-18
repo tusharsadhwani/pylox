@@ -1,6 +1,6 @@
 import pytest
 
-from pylox.expr import Binary, Expr, Grouping, Literal
+from pylox.nodes import Binary, Expr, Grouping, Literal
 from pylox.tokens import Token, TokenType
 from pylox.utils.ast_printer import AstPrinter
 

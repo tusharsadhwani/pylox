@@ -2,6 +2,7 @@ import os
 import pytest
 
 from pylox.lexer import Lexer
+from pylox.nodes import ExprStmt
 from pylox.parser import Parser
 from pylox.tokens import EOF, Token, TokenType
 from pylox.utils.ast_printer import AstPrinter
@@ -92,11 +93,20 @@ def read_file(filepath: str) -> str:
         ),
     ),
 )
-def test_parser(tokens: list[Token], expected_tree: str) -> None:
+def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:
     parser = Parser(tokens)
-    tree = parser.parse()
+    program = parser.parse()
 
-    tree_str = AstPrinter().visit(tree)
+    if len(program.body) == 0:
+        assert expected_tree == ""
+        return
+
+    assert len(program.body) == 1
+    statement = program.body[0]
+    assert isinstance(statement, ExprStmt)
+    expression = statement.expression
+
+    tree_str = AstPrinter().visit(expression)
     assert " ".join(tree_str.split()) == " ".join(expected_tree.split())
 
 
@@ -124,9 +134,14 @@ def test_parser_files(filename: str, expected_tree: str) -> None:
 
     tokens = Lexer(source).tokens
     parser = Parser(tokens)
-    tree = parser.parse()
+    program = parser.parse()
 
-    tree_str = AstPrinter().visit(tree)
+    assert len(program.body) == 1
+    statement = program.body[0]
+    assert isinstance(statement, ExprStmt)
+    expression = statement.expression
+
+    tree_str = AstPrinter().visit(expression)
     assert " ".join(tree_str.split()) == " ".join(expected_tree.split())
 
 
