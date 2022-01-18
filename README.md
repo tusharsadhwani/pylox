@@ -6,11 +6,15 @@ My first implementation of Lox, written in Python.
 
 It'll be a reference implementation, except for a few additions:
 
-- Allowing single quotes
-- Modulo operator
+- New data types: lists and dictionaries
+- Allowing single quotes for strings
+- Modulo `%` and power `**` operators
+- Comparison operators for strings
 - _Much_ better error messages
+- `try` / `except`
 - An import system
 - An actual standard library
+  - Can start with a `math` and a `random` module
 
 ## Ideas to tinker with
 
