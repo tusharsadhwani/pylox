@@ -6,7 +6,7 @@ My first implementation of Lox, written in Python.
 
 It'll be a reference implementation, except for a few additions:
 
-- New data types: lists and dictionaries
+- New data types: ints, lists and dictionaries
 - Allowing single quotes for strings
 - Modulo `%` and power `**` operators
 - Comparison operators for strings
