@@ -8,7 +8,8 @@ It'll be a reference implementation, except for a few additions:
 
 - New data types: ints, lists and dictionaries
 - Allowing single quotes for strings
-- Modulo `%` and power `**` operators
+- String escapes (things like `\\\\` and `\\"`)
+- Modulo `%`, integer division `\` and power `**` operators
 - Comparison operators for strings
 - _Much_ better error messages
 - `try` / `except`
