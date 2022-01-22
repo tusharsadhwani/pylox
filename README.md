@@ -17,7 +17,11 @@ Single quotes!
 
 ## Installation and usage
 
-> TODO: put this on pip
+- Install via pip:
+
+```console
+pip install mypylox
+```
 
 - Run it interactively:
 
