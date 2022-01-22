@@ -43,3 +43,4 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
 
 
 # TODO: add parse error tests
+# TODO: add synchronization and test for multiple errors in the same file
