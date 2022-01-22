@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys
+
+from pylox.lexer import Lexer
 from pylox.nodes import (
     Binary,
     Expr,
@@ -99,6 +102,7 @@ class Parser:
             return VarDeclaration(name)
 
         initializer = self.parse_expression()
+        self.consume(TokenType.SEMICOLON)
         return VarDeclaration(name, initializer)
 
     def parse_statement(self) -> Stmt:
@@ -215,3 +219,16 @@ class Parser:
 
         self.index += 1
         return token
+
+
+def main() -> None:
+    source = " ".join(sys.argv[1:])
+    tokens = Lexer(source).tokens
+
+    parser = Parser(tokens)
+    program = parser.parse()
+    print(program)
+
+
+if __name__ == "__main__":
+    main()

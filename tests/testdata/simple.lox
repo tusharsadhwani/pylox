@@ -1,4 +1,6 @@
 print "Hello";
 var a = 5;
-a = false;
+print a;
+var a = false;
+print a;
 print (6.75 * (3 + 5) / 2);

@@ -3,7 +3,15 @@ import os
 import pytest
 
 from pylox.lexer import Lexer
-from pylox.nodes import ExprStmt
+from pylox.nodes import (
+    Binary,
+    Grouping,
+    Literal,
+    Print,
+    Program,
+    VarDeclaration,
+    Variable,
+)
 from pylox.parser import Parser
 from pylox.tokens import EOF, Token, TokenType
 from pylox.utils.ast_printer import AstPrinter
@@ -128,7 +136,7 @@ def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:
         ),
     ),
 )
-def test_parser_files(filename: str, expected_tree: str) -> None:
+def test_parser_expr_files(filename: str, expected_tree: str) -> None:
     test_dir = os.path.join(os.path.dirname(__file__), "testdata")
     filepath = os.path.join(test_dir, filename)
     source = read_file(filepath)
@@ -138,6 +146,93 @@ def test_parser_files(filename: str, expected_tree: str) -> None:
     expression = parser.parse_expression()
     tree_str = AstPrinter().visit(expression)
     assert " ".join(tree_str.split()) == " ".join(expected_tree.split())
+
+
+@pytest.mark.parametrize(
+    ("tokens", "expected_tree"),
+    (
+        (
+            [
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "5", 5.0),
+                Token(TokenType.SEMICOLON, ";"),
+                Token(TokenType.PRINT, "print"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.SEMICOLON, ";"),
+                EOF,
+            ],
+            Program(
+                body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "x"),
+                        initializer=Literal(5),
+                    ),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "x"))),
+                ]
+            ),
+        ),
+        # TODO: add more tests
+    ),
+)
+def test_parser(tokens: list[Token], expected_tree: Program) -> None:
+    parser = Parser(tokens)
+    program = parser.parse()
+    assert program == expected_tree
+
+
+@pytest.mark.parametrize(
+    ("filename", "expected_tree"),
+    (
+        (
+            "simple.lox",
+            Program(
+                body=[
+                    Print(Literal("Hello")),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "a"),
+                        initializer=Literal(5.0),
+                    ),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a"))),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "a"),
+                        initializer=Literal(False),
+                    ),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a"))),
+                    Print(
+                        Grouping(
+                            expression=Binary(
+                                left=Binary(
+                                    left=Literal(6.75),
+                                    operator=Token(TokenType.STAR, "*"),
+                                    right=Grouping(
+                                        expression=Binary(
+                                            left=Literal(3.0),
+                                            operator=Token(TokenType.PLUS, "+"),
+                                            right=Literal(5.0),
+                                        )
+                                    ),
+                                ),
+                                operator=Token(TokenType.SLASH, "/"),
+                                right=Literal(2.0),
+                            )
+                        )
+                    ),
+                ]
+            ),
+        ),
+    ),
+)
+def test_parser_files(filename: str, expected_tree: Program) -> None:
+    test_dir = os.path.join(os.path.dirname(__file__), "testdata")
+    filepath = os.path.join(test_dir, filename)
+    source = read_file(filepath)
+
+    tokens = Lexer(source).tokens
+    parser = Parser(tokens)
+    program = parser.parse()
+    assert program == expected_tree
 
 
 # TODO: add failing tests
