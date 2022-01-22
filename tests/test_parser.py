@@ -17,7 +17,6 @@ def read_file(filepath: str) -> str:
 @pytest.mark.parametrize(
     ("tokens", "expected_tree"),
     (
-        ([EOF], ""),
         ([Token(TokenType.IDENTIFIER, "abc"), EOF], "abc"),
         ([Token(TokenType.NIL, "nil"), EOF], "nil"),
         (
@@ -82,7 +81,7 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.NUMBER, "5", 5.0),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.RIGHT_PAREN, ")"),
-                Token(TokenType.EOF, ""),
+                EOF,
             ],
             """
             (((x == y) == true) == 
@@ -96,17 +95,7 @@ def read_file(filepath: str) -> str:
 )
 def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:
     parser = Parser(tokens)
-    program = parser.parse()
-
-    if len(program.body) == 0:
-        assert expected_tree == ""
-        return
-
-    assert len(program.body) == 1
-    statement = program.body[0]
-    assert isinstance(statement, ExprStmt)
-    expression = statement.expression
-
+    expression = parser.parse_expression()
     tree_str = AstPrinter().visit(expression)
     assert " ".join(tree_str.split()) == " ".join(expected_tree.split())
 
@@ -135,13 +124,7 @@ def test_parser_files(filename: str, expected_tree: str) -> None:
 
     tokens = Lexer(source).tokens
     parser = Parser(tokens)
-    program = parser.parse()
-
-    assert len(program.body) == 1
-    statement = program.body[0]
-    assert isinstance(statement, ExprStmt)
-    expression = statement.expression
-
+    expression = parser.parse_expression()
     tree_str = AstPrinter().visit(expression)
     assert " ".join(tree_str.split()) == " ".join(expected_tree.split())
 
