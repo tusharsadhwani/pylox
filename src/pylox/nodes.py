@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from pylox.tokens import Token
@@ -11,6 +13,11 @@ class Expr:
 @dataclass
 class Literal(Expr):
     value: object
+
+
+@dataclass
+class Variable(Expr):
+    name: Token
 
 
 @dataclass
@@ -34,6 +41,17 @@ class Grouping(Expr):
 @dataclass
 class Stmt:
     ...
+
+
+@dataclass
+class Declaration(Stmt):
+    ...
+
+
+@dataclass
+class VarDeclaration(Declaration):
+    name: Token
+    initializer: Expr | None = None
 
 
 @dataclass

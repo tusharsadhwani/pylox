@@ -30,6 +30,17 @@ def read_file(filepath: str) -> str:
         ),
         (
             [
+                Token(TokenType.STRING, '"abc"', "abc"),
+                Token(TokenType.PLUS, "+"),
+                Token(TokenType.STRING, '"xyz"', "xyz"),
+                Token(TokenType.PLUS, "+"),
+                Token(TokenType.IDENTIFIER, "rest"),
+                EOF,
+            ],
+            '(("abc" + "xyz") + rest)',
+        ),
+        (
+            [
                 Token(TokenType.LEFT_PAREN, "("),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.SLASH, "/"),

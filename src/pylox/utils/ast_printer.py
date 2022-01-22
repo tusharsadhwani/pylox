@@ -1,5 +1,5 @@
 from pylox.lexer import Lexer
-from pylox.nodes import Binary, Expr, Grouping, Literal, Unary
+from pylox.nodes import Binary, Expr, Grouping, Literal, Unary, Variable
 from pylox.parser import Parser
 from pylox.visitor import Visitor
 
@@ -17,7 +17,14 @@ class AstPrinter(Visitor[str]):
         if isinstance(literal.value, bool):
             return f"{literal.value}".lower()
 
+        # TODO: replace these two with "literal.value!r" once single quotes are added
+        if isinstance(literal.value, str):
+            return f'"{literal.value}"'
+
         return f"{literal.value}"
+
+    def visit_Variable(self, variable: Variable) -> str:
+        return variable.name.string
 
     def visit_Unary(self, unary: Unary) -> str:
         return f"({unary.operator.string} {self.visit(unary.right)})"
