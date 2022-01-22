@@ -208,6 +208,10 @@ class Lexer:
         self.add_token(TokenType.NUMBER, number)
 
 
-if __name__ == "__main__":
+def main() -> None:
     source = " ".join(sys.argv[1:])
     print(Lexer(source).tokens)
+
+
+if __name__ == "__main__":
+    main()
