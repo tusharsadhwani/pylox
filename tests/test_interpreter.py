@@ -1,7 +1,7 @@
 import pytest
 
 from pylox.interpreter import Interpreter
-from pylox.nodes import Binary, Expr, Literal
+from pylox.nodes import Binary, Expr, Literal, Print, Program, VarDeclaration, Variable
 from pylox.tokens import EOF, Token, TokenType
 
 
@@ -23,9 +23,39 @@ from pylox.tokens import EOF, Token, TokenType
         # TODO: add more tests
     ),
 )
-def test_interpreter(tree: Expr, expected: object) -> None:
+def test_interpreter_expr(tree: Expr, expected: object) -> None:
     output = Interpreter().visit(tree)
     assert output == expected
+
+
+@pytest.mark.parametrize(
+    ("tree", "output"),
+    (
+        (
+            Program(
+                body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "greeting"),
+                        initializer=Literal("hello lox!"),
+                    ),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "greeting"))),
+                ]
+            ),
+            "hello lox!",
+        ),
+        # TODO: add more tests
+    ),
+)
+def test_interpreter(
+    tree: Program,
+    output: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    Interpreter().visit(tree)
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout.rstrip() == output
+    assert stderr == ""
 
 
 # TODO: add failing tests

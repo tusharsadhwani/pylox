@@ -1,4 +1,14 @@
-from pylox.nodes import Binary, ExprStmt, Grouping, Literal, Print, Unary
+from pylox.environment import Environment
+from pylox.nodes import (
+    Binary,
+    ExprStmt,
+    Grouping,
+    Literal,
+    Print,
+    Unary,
+    VarDeclaration,
+    Variable,
+)
 from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name
 from pylox.visitor import Visitor
@@ -9,6 +19,9 @@ class InterpreterError(Exception):
 
 
 class Interpreter(Visitor[object]):
+    def __init__(self) -> None:
+        self.environment = Environment()
+
     def visit_Literal(self, literal: Literal) -> object:
         return literal.value
 
@@ -82,3 +95,15 @@ class Interpreter(Visitor[object]):
 
     def visit_ExprStmt(self, expr_stmt: ExprStmt) -> None:
         self.visit(expr_stmt.expression)
+
+    def visit_VarDeclaration(self, var_decl: VarDeclaration) -> None:
+        if var_decl.initializer is None:
+            value = None
+        else:
+            value = self.visit(var_decl.initializer)
+
+        variable = var_decl.name.string
+        self.environment.define(variable, value)
+
+    def visit_Variable(self, variable: Variable) -> object:
+        return self.environment.get(variable.name.string)
