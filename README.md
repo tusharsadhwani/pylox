@@ -107,7 +107,9 @@ The following are ideas that I'm not 100% sure about, but would like to try.
 Some of these will not be compatible with the original lox language, so if I
 implement those, I'll do that in a separate branch.
 
-- No `nil`
+- No `nil`. Variables will always have to be initialized with a value, and
+  functions will either never return anything, or return in every case. This
+  will be checked at compile time.
 - Declaration scope vs. Block scope. The idea being, if we don't allow `nil`,
   block scope might cause an issue, but no `nil` + declaration scope might work.
 - Adding whitespace tokens to the lexer and AST, and adding a code formatting
