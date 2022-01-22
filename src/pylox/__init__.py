@@ -6,6 +6,7 @@ import sys
 
 from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer, LexError
+from pylox.nodes import Program
 from pylox.parser import Parser
 
 
@@ -58,6 +59,7 @@ def main(argv: list[str] | None = None) -> None:
 
 
 def run_interactive() -> int:
+    interpteter = Interpreter()
     while True:
         try:
             text = input("> ")
@@ -67,17 +69,24 @@ def run_interactive() -> int:
             return 1
 
         # TODO: add multiline REPL support
-        run_code(text, filename="<input>")
+        tree = parse_code(text, filename="<input>")
+        interpteter.visit(tree)
 
 
 def run(filepath: str) -> int:
     source = read_file(filepath)
     filename = os.path.basename(filepath)
+    try:
+        tree = parse_code(source, filename)
+    except LexError:
+        return 1
 
-    return run_code(source, filename)
+    # TODO: add ParseError and InterpreterError support
+    Interpreter().visit(tree)
+    return 0
 
 
-def run_code(source: str, filename: str) -> int:
+def parse_code(source: str, filename: str) -> Program:
     try:
         tokens = Lexer(source).tokens
     except LexError as exc:
@@ -90,10 +99,8 @@ def run_code(source: str, filename: str) -> int:
         print(indent + snippet)
         print(indent + "^".rjust(col))
         print(f"Syntax Error: {exc.message}")
-        return 1
+        raise
 
     parser = Parser(tokens)
     tree = parser.parse()
-
-    value = Interpreter().visit(tree)
-    return 0
+    return tree
