@@ -4,9 +4,9 @@ from __future__ import annotations
 import os.path
 import sys
 
-from pylox.interpreter import Interpreter
+from pylox.errors import LoxError
+from pylox.interpreter import Interpreter, InterpreterError
 from pylox.lexer import Lexer, LexError
-from pylox.nodes import Program
 from pylox.parser import ParseError, Parser
 
 
@@ -76,12 +76,20 @@ def run_interactive() -> int:
 
         code = "\n".join(lines)
         try:
-            tree = parse_code(code, filename="<input>")
+            tokens = Lexer(code).tokens
+            parser = Parser(tokens)
+            tree = parser.parse()
             lines = []
+        except LexError:
+            lines = []
+            continue
         except ParseError:
             # Incomplete command
+            # TODO: only allow those incomplete commands that died because of EOF.
+            # Counter example: 2 + )
             continue
 
+        # TODO: add InterpreterError support
         interpteter.visit(tree)
 
 
@@ -89,33 +97,28 @@ def run(filepath: str) -> int:
     source = read_file(filepath)
     filename = os.path.basename(filepath)
     try:
-        tree = parse_code(source, filename)
-    except LexError:
+        tokens = Lexer(source).tokens
+        parser = Parser(tokens)
+        tree = parser.parse()
+        Interpreter().visit(tree)
+    except (LexError, ParseError) as exc:
+        pretty_print_error(source, filename, exc)
         return 1
 
-    # TODO: add ParseError and InterpreterError support
+    # TODO: add InterpreterError support
     Interpreter().visit(tree)
     return 0
 
 
-def parse_code(source: str, filename: str) -> Program:
-    try:
-        tokens = Lexer(source).tokens
-    except LexError as exc:
+def pretty_print_error(source: str, filename: str, exc: LoxError) -> None:
+    line, col, snippet = get_snippet_line_col(source, exc.index)
+    print(f"Error in {filename}:{line}:{col}")
 
-        line, col, snippet = get_snippet_line_col(source, exc.index)
-        print(f"Error in {filename}:{line}:{col}")
-
-        indent = "    "
-        print()
-        print(indent + snippet)
-        print(indent + "^".rjust(col + 1))
-        print(f"Syntax Error: {exc.message}")
-        raise
-
-    parser = Parser(tokens)
-    tree = parser.parse()
-    return tree
+    indent = "    "
+    print()
+    print(indent + snippet)
+    print(indent + "^".rjust(col + 1))
+    print(f"{exc.__class__.__name__}: {exc.message}")
 
 
 # TODO: Document the entire codebase :(

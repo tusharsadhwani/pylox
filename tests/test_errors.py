@@ -17,7 +17,7 @@ from pylox import main as pylox_main
 
                 for (int i = 0; i < @; i++) {
                                     ^
-            Syntax Error: Unknown character found: '@'
+            LexError: Unknown character found: '@'
             """,
         ),
         (
@@ -27,7 +27,7 @@ from pylox import main as pylox_main
 
                 this is a multiline string.
                                            ^
-            Syntax Error: Unterminated string
+            LexError: Unterminated string
             """,
         ),
     ),
@@ -42,5 +42,33 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
     assert stdout.rstrip() == dedent(error).rstrip()
 
 
-# TODO: add parse error tests
+@pytest.mark.parametrize(
+    ("filename", "error"),
+    (
+        (
+            "fail3.lox",
+            """\
+            Error in fail3.lox:2:2
+
+                i++;
+                  ^
+            ParseError: Unexpected token: '+'
+            """,
+        ),
+    ),
+)
+def test_parse_fail_files(
+    filename: str,
+    error: str,
+    capsys: CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit) as exc:
+        test_dir = os.path.join(os.path.dirname(__file__), "testdata")
+        filepath = os.path.join(test_dir, filename)
+        pylox_main(argv=["pylox", filepath])
+
+    stdout, _ = capsys.readouterr()
+    assert stdout.rstrip() == dedent(error).rstrip()
+
+
 # TODO: add synchronization and test for multiple errors in the same file

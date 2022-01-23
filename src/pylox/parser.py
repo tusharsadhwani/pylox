@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 
+from pylox.errors import LoxError
 from pylox.lexer import Lexer
 from pylox.nodes import (
     Assignment,
@@ -20,12 +21,10 @@ from pylox.nodes import (
 from pylox.tokens import EOF, Token, TokenType
 
 
-class ParseError(Exception):
-    def __init__(self, message: str, token: Token, index: int) -> None:
-        super().__init__(message)
-        self.message = message
+class ParseError(LoxError):
+    def __init__(self, message: str, token: Token) -> None:
+        super().__init__(message, token.index)
         self.token = token
-        self.index = index
 
 
 class Parser:
@@ -136,7 +135,7 @@ class Parser:
             equals_token = self.previous()
             # Assume it to be assignment
             if not isinstance(expr, Variable):
-                raise ParseError("Invalid assign target", equals_token, self.index)
+                raise ParseError("Invalid assign target", equals_token)
 
             value = self.parse_assignment()
             return Assignment(expr.name, value)
@@ -204,9 +203,7 @@ class Parser:
     def parse_primary(self) -> Expr:
         if self.scanned:
             eof_token = self.get_token()
-            raise ParseError(
-                "Unexpected end of file while parsing", eof_token, self.index
-            )
+            raise ParseError("Unexpected end of file while parsing", eof_token)
 
         if self.match_next(TokenType.STRING, TokenType.NUMBER):
             token = self.previous()
@@ -228,8 +225,8 @@ class Parser:
             self.consume(TokenType.RIGHT_PAREN)
             return Grouping(expression)
 
-        # TODO: exception handling
-        raise NotImplementedError(f"{self.get_token()} not implemented")
+        token = self.get_token()
+        raise ParseError(f"Unexpected token: {token.string!r}", token)
 
     def consume(self, expected_type: TokenType) -> Token:
         """Consumes one token. If it's not of the expected type, throws."""
@@ -239,14 +236,12 @@ class Parser:
             raise ParseError(
                 f"Expected to find {expected_type.value!r}, found EOF",
                 token,
-                self.index,
             )
 
         if token.token_type != expected_type:
             raise ParseError(
                 f"Expected to find {expected_type.value!r}, found {token.string!r}",
                 token,
-                self.index,
             )
 
         self.index += 1
