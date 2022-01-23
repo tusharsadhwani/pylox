@@ -11,7 +11,7 @@ from pylox.nodes import (
     Variable,
 )
 from pylox.tokens import TokenType
-from pylox.utils import get_lox_type_name
+from pylox.utils import get_lox_type_name, is_truthy
 from pylox.visitor import Visitor
 
 
@@ -36,7 +36,13 @@ class Interpreter(Visitor[object]):
 
             return -right_value
 
-        # TODO: unary `!`
+        elif unary.operator.token_type == TokenType.BANG:
+            right_value = self.visit(unary.right)
+            if is_truthy(right_value):
+                return False
+
+            return True
+
         raise NotImplementedError(
             f"Unary {unary.operator.token_type.value!r} not supported"
         )
