@@ -7,8 +7,6 @@ from pylox.visitor import Visitor
 class AstPrinter(Visitor[str]):
     # TODO: Find a way for mypy to enforce every visit function's
     # return value to be str.
-    def visit_Expr(self, expr: Expr) -> str:
-        return ""  # TODO: remove this visitor, as empty file shouldn't return Expr()
 
     def visit_Literal(self, literal: Literal) -> str:
         if literal.value is None:

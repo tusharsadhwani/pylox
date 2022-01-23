@@ -183,7 +183,6 @@ class Lexer:
             self.advance()
 
         if self.scanned:
-            # TODO: better error handling
             raise LexError("Unterminated string", self.current)
 
         string = self.source[self.start + 1 : self.current]
