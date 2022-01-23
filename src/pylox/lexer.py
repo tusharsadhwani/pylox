@@ -5,7 +5,7 @@ from pylox.tokens import EOF, KEYWORD_TOKENS, Token, TokenType
 
 class LexError(Exception):
     def __init__(self, message: str, index: int) -> None:
-        super().__init__(message, index)
+        super().__init__(message)
         self.message = message
         self.index = index
 
