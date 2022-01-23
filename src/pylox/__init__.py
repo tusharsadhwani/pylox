@@ -115,3 +115,8 @@ def parse_code(source: str, filename: str) -> Program:
     parser = Parser(tokens)
     tree = parser.parse()
     return tree
+
+
+# TODO: Document the entire codebase :(
+# TODO: Move all the ugly if chains to match statements when
+# python 3.10 becomes the minimum supported version
