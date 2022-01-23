@@ -73,7 +73,7 @@ class Lexer:
     def add_token(self, token_type: TokenType, value: object = None) -> None:
         """Adds a new token for the just-scanned characters."""
         string = self.source[self.start : self.current]
-        self.tokens.append(Token(token_type, string, value))
+        self.tokens.append(Token(token_type, string, value, self.start))
         self.start = self.current
 
     def scan_tokens(self) -> list[Token]:

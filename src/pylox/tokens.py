@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 
 from enum import Enum, unique
 from typing import NamedTuple
@@ -73,17 +74,21 @@ KEYWORD_TOKENS = {
 }
 
 
-class Token(NamedTuple):
+@dataclass
+class Token:
     token_type: TokenType
     string: str
     value: object | None = None
-    # TODO: add location information
+    index: int = -1
 
     def __repr__(self) -> str:
         if self.value is None:
-            return f"Token({self.token_type}, {self.string!r})"
+            return f"Token({self.token_type}, {self.string!r}, index={self.index})"
 
-        return f"Token({self.token_type}, {self.string!r}, {self.value!r})"
+        return (
+            f"Token({self.token_type}, {self.string!r}, {self.value!r}, "
+            f"index={self.index})"
+        )
 
 
 EOF = Token(TokenType.EOF, "")

@@ -223,30 +223,32 @@ def test_parser(tokens: list[Token], expected_tree: Program) -> None:
                 body=[
                     Print(Literal("Hello")),
                     VarDeclaration(
-                        name=Token(TokenType.IDENTIFIER, "a"),
+                        name=Token(TokenType.IDENTIFIER, "a", index=19),
                         initializer=Literal(5.0),
                     ),
-                    Print(Variable(Token(TokenType.IDENTIFIER, "a"))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a", index=32))),
                     VarDeclaration(
-                        name=Token(TokenType.IDENTIFIER, "a"),
+                        name=Token(TokenType.IDENTIFIER, "a", index=39),
                         initializer=Literal(False),
                     ),
-                    Print(Variable(Token(TokenType.IDENTIFIER, "a"))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a", index=56))),
                     Print(
                         Grouping(
                             expression=Binary(
                                 left=Binary(
                                     left=Literal(6.75),
-                                    operator=Token(TokenType.STAR, "*"),
+                                    operator=Token(TokenType.STAR, "*", index=71),
                                     right=Grouping(
                                         expression=Binary(
                                             left=Literal(3.0),
-                                            operator=Token(TokenType.PLUS, "+"),
+                                            operator=Token(
+                                                TokenType.PLUS, "+", index=76
+                                            ),
                                             right=Literal(5.0),
                                         )
                                     ),
                                 ),
-                                operator=Token(TokenType.SLASH, "/"),
+                                operator=Token(TokenType.SLASH, "/", index=81),
                                 right=Literal(2.0),
                             )
                         )
