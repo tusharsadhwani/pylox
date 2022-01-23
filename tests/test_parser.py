@@ -4,7 +4,9 @@ import pytest
 
 from pylox.lexer import Lexer
 from pylox.nodes import (
+    Assignment,
     Binary,
+    ExprStmt,
     Grouping,
     Literal,
     Print,
@@ -173,6 +175,36 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                 ]
             ),
         ),
+        (
+            [
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.IDENTIFIER, "b"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "2", 2.0),
+                Token(TokenType.PLUS, "+"),
+                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.SEMICOLON, ";"),
+                EOF,
+            ],
+            Program(
+                body=[
+                    ExprStmt(
+                        Assignment(
+                            name=Token(TokenType.IDENTIFIER, "a"),
+                            value=Assignment(
+                                name=Token(TokenType.IDENTIFIER, "b"),
+                                value=Binary(
+                                    left=Literal(2.0),
+                                    operator=Token(TokenType.PLUS, "+"),
+                                    right=Literal(3.0),
+                                ),
+                            ),
+                        ),
+                    ),
+                ],
+            ),
+        )
         # TODO: add more tests
     ),
 )

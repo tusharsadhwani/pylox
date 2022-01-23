@@ -4,6 +4,7 @@ import sys
 
 from pylox.lexer import Lexer
 from pylox.nodes import (
+    Assignment,
     Binary,
     Expr,
     ExprStmt,
@@ -20,6 +21,7 @@ from pylox.tokens import EOF, Token, TokenType
 
 
 class ParseError(Exception):
+    # TODO: add which token to raise the error on
     ...
 
 
@@ -32,7 +34,8 @@ class Parser:
         statement -> print_stmt | expr_stmt
         print_stmt -> "print" expression ";"
         expr_stmt -> expression ";"
-        expression -> equality
+        expression -> assignment
+        assignment -> IDENTIFIER "=" assignment | equality
         equality -> comparison (("==" | "!=") comparison)*
         comparison -> term ((">" | ">=" | "<" | "<=") term)*
         term -> factor (("+" / "-") factor)*
@@ -122,7 +125,20 @@ class Parser:
         return ExprStmt(expression)
 
     def parse_expression(self) -> Expr:
-        return self.parse_equality()
+        return self.parse_assignment()
+
+    def parse_assignment(self) -> Expr:
+        expr = self.parse_equality()
+        if self.match_next(TokenType.EQUAL):
+            # Assume it to be assignment
+            if not isinstance(expr, Variable):
+                raise ParseError("Invalid assign target")
+
+            value = self.parse_assignment()
+            return Assignment(expr.name, value)
+
+        # If it's not assignment, it's equality (or anything below)
+        return expr
 
     def parse_equality(self) -> Expr:
         left = self.parse_comparison()

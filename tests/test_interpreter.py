@@ -1,7 +1,17 @@
 import pytest
 
 from pylox.interpreter import Interpreter
-from pylox.nodes import Binary, Expr, Literal, Print, Program, VarDeclaration, Variable
+from pylox.nodes import (
+    Assignment,
+    Binary,
+    Expr,
+    ExprStmt,
+    Literal,
+    Print,
+    Program,
+    VarDeclaration,
+    Variable,
+)
 from pylox.tokens import Token, TokenType
 
 
@@ -43,6 +53,28 @@ def test_interpreter_expr(tree: Expr, expected: object) -> None:
             ),
             "hello lox!",
         ),
+        (
+            Program(
+                body=[
+                    ExprStmt(
+                        Assignment(
+                            name=Token(TokenType.IDENTIFIER, "a"),
+                            value=Assignment(
+                                name=Token(TokenType.IDENTIFIER, "b"),
+                                value=Binary(
+                                    left=Literal(2.0),
+                                    operator=Token(TokenType.PLUS, "+"),
+                                    right=Literal(3.0),
+                                ),
+                            ),
+                        ),
+                    ),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a"))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "b"))),
+                ],
+            ),
+            "5.0\n5.0",
+        )
         # TODO: add more tests
     ),
 )

@@ -21,6 +21,12 @@ class Variable(Expr):
 
 
 @dataclass
+class Assignment(Expr):
+    name: Token
+    value: Expr
+
+
+@dataclass
 class Unary(Expr):
     operator: Token
     right: Expr

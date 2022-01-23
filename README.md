@@ -58,7 +58,7 @@ What has already been implemented:
 - [x] Print statements
 - [x] Variable declaration, and global scope
 - [x] Interactive REPL
-- [ ] Variable assignment
+- [x] Variable assignment
 - [ ] Proper runtime errors
 - [ ] Synchronization and reporting multiple errors
 - [ ] Local scope, enclosing scope, blocks and nesting

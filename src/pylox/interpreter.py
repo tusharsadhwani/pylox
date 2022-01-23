@@ -1,5 +1,6 @@
 from pylox.environment import Environment
 from pylox.nodes import (
+    Assignment,
     Binary,
     ExprStmt,
     Grouping,
@@ -107,3 +108,10 @@ class Interpreter(Visitor[object]):
 
     def visit_Variable(self, variable: Variable) -> object:
         return self.environment.get(variable.name.string)
+
+    def visit_Assignment(self, assignment: Assignment) -> object:
+        value = self.visit(assignment.value)
+        variable = assignment.name.string
+        self.environment.define(variable, value)
+        # Remember that assignment expressions return the assigned value
+        return value

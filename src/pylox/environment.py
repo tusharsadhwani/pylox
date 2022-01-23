@@ -14,8 +14,14 @@ class Environment:
         # We're allowing this, at global scope.
         self._environment[variable] = value
 
+    def assign(self, variable: str, value: object) -> None:
+        if variable not in self._environment:
+            raise EnvironmentLookupError(f"Undefined variable {variable!r}")
+
+        self._environment[variable] = value
+
     def get(self, variable: str) -> object:
         try:
             return self._environment[variable]
         except KeyError:
-            raise EnvironmentLookupError(f"Undefined variable {variable}")
+            raise EnvironmentLookupError(f"Undefined variable {variable!r}")
