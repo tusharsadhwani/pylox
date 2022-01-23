@@ -2,7 +2,7 @@ import pytest
 
 from pylox.interpreter import Interpreter
 from pylox.nodes import Binary, Expr, Literal, Print, Program, VarDeclaration, Variable
-from pylox.tokens import EOF, Token, TokenType
+from pylox.tokens import Token, TokenType
 
 
 @pytest.mark.parametrize(
