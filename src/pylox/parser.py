@@ -198,6 +198,9 @@ class Parser:
         return self.parse_primary()
 
     def parse_primary(self) -> Expr:
+        if self.scanned:
+            raise ParseError("Unexpected end of file while parsing")
+
         if self.match_next(TokenType.STRING, TokenType.NUMBER):
             token = self.previous()
             return Literal(token.value)

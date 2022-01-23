@@ -7,7 +7,7 @@ import sys
 from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer, LexError
 from pylox.nodes import Program
-from pylox.parser import Parser
+from pylox.parser import ParseError, Parser
 
 
 def read_file(filename: str) -> str:
@@ -60,16 +60,27 @@ def main(argv: list[str] | None = None) -> None:
 
 def run_interactive() -> int:
     interpteter = Interpreter()
+    lines: list[str] = []
     while True:
         try:
-            text = input("> ")
+            line = input("... " if lines else "> ")
+            lines.append(line)
         except EOFError:
+            # Close REPL
             return 0
         except KeyboardInterrupt:
-            return 1
+            print()
+            # Clear the stored lines
+            lines = []
 
-        # TODO: add multiline REPL support
-        tree = parse_code(text, filename="<input>")
+        code = "\n".join(lines)
+        try:
+            tree = parse_code(code, filename="<input>")
+            lines = []
+        except ParseError:
+            # Incomplete command
+            continue
+
         interpteter.visit(tree)
 
 
