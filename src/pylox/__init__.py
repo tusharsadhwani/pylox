@@ -31,8 +31,9 @@ def get_snippet_line_col(source: str, index: int) -> tuple[int, int, str]:
             snippet_start_index = current + 1
             line += 1
             col = 0
+        else:
+            col += 1
 
-        col += 1
         current += 1
 
     while current < len(source) and source[current] != "\n":
@@ -108,7 +109,7 @@ def parse_code(source: str, filename: str) -> Program:
         indent = "    "
         print()
         print(indent + snippet)
-        print(indent + "^".rjust(col))
+        print(indent + "^".rjust(col + 1))
         print(f"Syntax Error: {exc.message}")
         raise
 

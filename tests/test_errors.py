@@ -13,7 +13,7 @@ from pylox import main as pylox_main
         (
             "fail1.lox",
             """\
-            Error in fail1.lox:3:21
+            Error in fail1.lox:3:20
 
                 for (int i = 0; i < @; i++) {
                                     ^
@@ -23,7 +23,7 @@ from pylox import main as pylox_main
         (
             "fail2.lox",
             """\
-            Error in fail2.lox:3:28
+            Error in fail2.lox:3:27
 
                 this is a multiline string.
                                            ^
