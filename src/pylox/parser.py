@@ -7,6 +7,7 @@ from pylox.lexer import Lexer
 from pylox.nodes import (
     Assignment,
     Binary,
+    Block,
     Expr,
     ExprStmt,
     Grouping,
@@ -33,7 +34,8 @@ class Parser:
         program -> declaration* EOF
         declaration -> var_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
-        statement -> print_stmt | expr_stmt
+        statement -> block_stmt | print_stmt | expr_stmt
+        block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
         expr_stmt -> expression ";"
         expression -> assignment
@@ -66,6 +68,14 @@ class Parser:
             return EOF
 
         return self.tokens[self.index]
+
+    def peek_next(self, token_type: TokenType) -> bool:
+        token = self.get_token()
+
+        if token is EOF:
+            return False
+
+        return token.token_type == token_type
 
     def match_next(self, *token_types: TokenType) -> bool:
         token = self.get_token()
@@ -111,10 +121,25 @@ class Parser:
         return VarDeclaration(name, initializer)
 
     def parse_statement(self) -> Stmt:
+        if self.match_next(TokenType.LEFT_BRACE):
+            return self.parse_block()
+
         if self.match_next(TokenType.PRINT):
             return self.parse_print_stmt()
 
         return self.parse_expr_stmt()
+
+    def parse_block(self) -> Block:
+        statements = self.parse_block_statements()
+        self.consume(TokenType.RIGHT_BRACE)
+        return Block(body=statements)
+
+    def parse_block_statements(self) -> list[Stmt]:
+        statements: list[Stmt] = []
+        while not self.scanned and not self.peek_next(TokenType.RIGHT_BRACE):
+            statements.append(self.parse_declaration())
+
+        return statements
 
     def parse_print_stmt(self) -> Print:
         expression = self.parse_expression()

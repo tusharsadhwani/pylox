@@ -6,6 +6,7 @@ from pylox.lexer import Lexer
 from pylox.nodes import (
     Assignment,
     Binary,
+    Block,
     ExprStmt,
     Grouping,
     Literal,
@@ -203,6 +204,63 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                         ),
                     ),
                 ],
+            ),
+        ),
+        (
+            [
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "5", 5),
+                Token(TokenType.SEMICOLON, ";"),
+                Token(TokenType.LEFT_BRACE, "{"),
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "10", 10),
+                Token(TokenType.SEMICOLON, ";"),
+                Token(TokenType.LEFT_BRACE, "{"),
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "20", 20),
+                Token(TokenType.SEMICOLON, ";"),
+                Token(TokenType.RIGHT_BRACE, "}"),
+                Token(TokenType.RIGHT_BRACE, "}"),
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.NUMBER, "40", 40),
+                Token(TokenType.SEMICOLON, ";"),
+                EOF,
+            ],
+            Program(
+                body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "x"),
+                        initializer=Literal(5),
+                    ),
+                    Block(
+                        body=[
+                            VarDeclaration(
+                                name=Token(TokenType.IDENTIFIER, "x"),
+                                initializer=Literal(10),
+                            ),
+                            Block(
+                                body=[
+                                    VarDeclaration(
+                                        name=Token(TokenType.IDENTIFIER, "x"),
+                                        initializer=Literal(20),
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "x"),
+                        initializer=Literal(40),
+                    ),
+                ]
             ),
         )
         # TODO: add more tests

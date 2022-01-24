@@ -4,6 +4,7 @@ from pylox.interpreter import Interpreter
 from pylox.nodes import (
     Assignment,
     Binary,
+    Block,
     Expr,
     ExprStmt,
     Literal,
@@ -74,6 +75,72 @@ def test_interpreter_expr(tree: Expr, expected: object) -> None:
                 ],
             ),
             "5.0\n5.0",
+        ),
+        (
+            Program(
+                body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "a"),
+                        initializer=Literal(value="ga"),
+                    ),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "b"),
+                        initializer=Literal(value="gb"),
+                    ),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "c"),
+                        initializer=Literal(value="gc"),
+                    ),
+                    Block(
+                        body=[
+                            VarDeclaration(
+                                name=Token(TokenType.IDENTIFIER, "a"),
+                                initializer=Literal(value="ea"),
+                            ),
+                            VarDeclaration(
+                                name=Token(TokenType.IDENTIFIER, "b"),
+                                initializer=Literal(value="eb"),
+                            ),
+                            Block(
+                                body=[
+                                    VarDeclaration(
+                                        name=Token(TokenType.IDENTIFIER, "a"),
+                                        initializer=Literal(value="la"),
+                                    ),
+                                    Print(
+                                        value=Variable(
+                                            name=Token(TokenType.IDENTIFIER, "a")
+                                        )
+                                    ),
+                                    Print(
+                                        value=Variable(
+                                            name=Token(TokenType.IDENTIFIER, "b")
+                                        )
+                                    ),
+                                    Print(
+                                        value=Variable(
+                                            name=Token(TokenType.IDENTIFIER, "c")
+                                        )
+                                    ),
+                                ]
+                            ),
+                            Print(
+                                value=Variable(name=Token(TokenType.IDENTIFIER, "a"))
+                            ),
+                            Print(
+                                value=Variable(name=Token(TokenType.IDENTIFIER, "b"))
+                            ),
+                            Print(
+                                value=Variable(name=Token(TokenType.IDENTIFIER, "c"))
+                            ),
+                        ]
+                    ),
+                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "a"))),
+                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "b"))),
+                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "c"))),
+                ]
+            ),
+            "la\neb\ngc\nea\neb\ngc\nga\ngb\ngc",
         )
         # TODO: add more tests
     ),
@@ -91,4 +158,3 @@ def test_interpreter(
 
 
 # TODO: add failing tests
-# TODO: add file tests

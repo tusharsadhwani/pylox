@@ -2,6 +2,7 @@ from pylox.environment import Environment
 from pylox.nodes import (
     Assignment,
     Binary,
+    Block,
     ExprStmt,
     Grouping,
     Literal,
@@ -121,3 +122,12 @@ class Interpreter(Visitor[object]):
         self.environment.define(variable, value)
         # Remember that assignment expressions return the assigned value
         return value
+
+    def visit_Block(self, block: Block) -> None:
+        own_environment = self.environment
+        try:
+            child_environment = Environment(self.environment)
+            self.environment = child_environment
+            self.visit(block)
+        finally:
+            self.environment = own_environment

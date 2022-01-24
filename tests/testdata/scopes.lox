@@ -1,0 +1,29 @@
+var string = "global";
+print string;
+
+{
+  var string = "local";
+  print string;
+}
+
+{
+  var string = "local2";
+  print string;
+}
+
+print string;
+
+var x = 1;
+var bonus = 42;
+{
+  var y = 10;
+  var z = 20;
+  {
+    var z = 100;
+    var bonus = 1000;
+    print x + y + z + bonus;
+  }
+  print x + y + z;
+}
+print x * bonus;
+print y;

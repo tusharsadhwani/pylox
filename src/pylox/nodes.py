@@ -61,6 +61,11 @@ class VarDeclaration(Declaration):
 
 
 @dataclass
+class Block(Stmt):
+    body: list[Stmt]
+
+
+@dataclass
 class Print(Stmt):
     value: Expr
 
