@@ -4,9 +4,12 @@ from __future__ import annotations
 import os.path
 import sys
 
+from black import out
+
 from pylox.errors import LoxError
 from pylox.interpreter import Interpreter, InterpreterError
 from pylox.lexer import Lexer, LexError
+from pylox.nodes import ExprStmt
 from pylox.parser import ParseError, Parser
 
 
@@ -90,7 +93,15 @@ def run_interactive() -> int:
             continue
 
         # TODO: add InterpreterError support
-        interpteter.visit(tree)
+
+        # If the program is a single expression, print its output
+        if len(tree.body) == 1 and isinstance(tree.body[0], ExprStmt):
+            expression = tree.body[0].expression
+            output = interpteter.visit(expression)
+            if output is not None:
+                print(output)
+        else:
+            interpteter.visit(tree)
 
 
 def run(filepath: str) -> int:
