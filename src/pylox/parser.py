@@ -73,6 +73,12 @@ class Parser:
 
         return self.tokens[self.index]
 
+    def get_index(self) -> int:
+        if self.index == 0:
+            return self.get_token().index
+
+        return self.previous().index
+
     def peek_next(self, token_type: TokenType) -> bool:
         token = self.get_token()
 
@@ -101,10 +107,12 @@ class Parser:
 
     def parse(self) -> Program:
         body: list[Stmt] = []
+
+        index = self.get_index()
         while not self.scanned:
             body.append(self.parse_declaration())
 
-        return Program(body)
+        return Program(body, index=index)
 
     def parse_declaration(self) -> Stmt:
         if self.match_next(TokenType.VAR):
@@ -115,14 +123,15 @@ class Parser:
         # Do it by catching ParseError at this point.
 
     def parse_var_declaration(self) -> VarDeclaration:
+        index = self.get_index()
         name = self.consume(TokenType.IDENTIFIER)
 
         if not self.match_next(TokenType.EQUAL):
-            return VarDeclaration(name)
+            return VarDeclaration(name, index=index)
 
         initializer = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
-        return VarDeclaration(name, initializer)
+        return VarDeclaration(name, initializer, index=index)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -134,9 +143,10 @@ class Parser:
         return self.parse_expr_stmt()
 
     def parse_block(self) -> Block:
+        index = self.get_index()
         statements = self.parse_block_statements()
         self.consume(TokenType.RIGHT_BRACE)
-        return Block(body=statements)
+        return Block(body=statements, index=index)
 
     def parse_block_statements(self) -> list[Stmt]:
         statements: list[Stmt] = []
@@ -146,14 +156,15 @@ class Parser:
         return statements
 
     def parse_print_stmt(self) -> Print:
+        index = self.get_index()
         expression = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
-        return Print(expression)
+        return Print(expression, index=index)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
-        return ExprStmt(expression)
+        return ExprStmt(expression, index=expression.index)
 
     def parse_expression(self) -> Expr:
         return self.parse_assignment()
@@ -167,7 +178,7 @@ class Parser:
                 raise ParseError("Invalid assign target", equals_token)
 
             value = self.parse_assignment()
-            return Assignment(expr.name, value)
+            return Assignment(expr.name, value, index=expr.index)
 
         # If it's not assignment, it's equality (or anything below)
         return expr
@@ -179,7 +190,7 @@ class Parser:
             operator = self.previous()
             right = self.parse_comparison()
 
-            left = Binary(left, operator, right)
+            left = Binary(left, operator, right, index=left.index)
 
         return left
 
@@ -195,7 +206,7 @@ class Parser:
             operator = self.previous()
             right = self.parse_term()
 
-            left = Binary(left, operator, right)
+            left = Binary(left, operator, right, index=left.index)
 
         return left
 
@@ -206,7 +217,7 @@ class Parser:
             operator = self.previous()
             right = self.parse_factor()
 
-            left = Binary(left, operator, right)
+            left = Binary(left, operator, right, index=left.index)
 
         return left
 
@@ -217,7 +228,7 @@ class Parser:
             operator = self.previous()
             right = self.parse_unary()
 
-            left = Binary(left, operator, right)
+            left = Binary(left, operator, right, index=left.index)
 
         return left
 
@@ -225,7 +236,7 @@ class Parser:
         if self.match_next(TokenType.MINUS, TokenType.BANG):
             operator = self.previous()
             right = self.parse_unary()
-            return Unary(operator, right)
+            return Unary(operator, right, index=operator.index)
 
         return self.parse_primary()
 
@@ -236,23 +247,24 @@ class Parser:
 
         if self.match_next(TokenType.STRING, TokenType.NUMBER):
             token = self.previous()
-            return Literal(token.value)
+            return Literal(token.value, index=token.index)
 
         if self.match_next(TokenType.TRUE):
-            return Literal(True)
+            return Literal(True, index=self.get_index())
         if self.match_next(TokenType.FALSE):
-            return Literal(False)
+            return Literal(False, index=self.get_index())
         if self.match_next(TokenType.NIL):
-            return Literal(None)
+            return Literal(None, index=self.get_index())
 
         if self.match_next(TokenType.IDENTIFIER):
             name = self.previous()
-            return Variable(name)
+            return Variable(name, index=name.index)
 
         if self.match_next(TokenType.LEFT_PAREN):
+            index = self.get_index()
             expression = self.parse_expression()
             self.consume(TokenType.RIGHT_PAREN)
-            return Grouping(expression)
+            return Grouping(expression, index=index)
 
         token = self.get_token()
         raise ParseError(f"Unexpected token: {token.string!r}", token)

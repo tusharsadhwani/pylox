@@ -1,80 +1,85 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from attr import define, field
 
 from pylox.tokens import Token
 
 
-@dataclass
-class Expr:
+@define(kw_only=True)
+class Node:
+    index: int = field(default=-1, repr=True)
+
+
+@define
+class Expr(Node):
     ...
 
 
-@dataclass
+@define
 class Literal(Expr):
     value: object
 
 
-@dataclass
+@define
 class Variable(Expr):
     name: Token
 
 
-@dataclass
+@define
 class Assignment(Expr):
     name: Token
     value: Expr
 
 
-@dataclass
+@define
 class Unary(Expr):
     operator: Token
     right: Expr
 
 
-@dataclass
+@define
 class Binary(Expr):
     left: Expr
     operator: Token
     right: Expr
 
 
-@dataclass
+@define
 class Grouping(Expr):
     expression: Expr
 
 
-@dataclass
-class Stmt:
+@define
+class Stmt(Node):
     ...
 
 
-@dataclass
+@define
 class Declaration(Stmt):
     ...
 
 
-@dataclass
+@define
 class VarDeclaration(Declaration):
     name: Token
     initializer: Expr | None = None
 
 
-@dataclass
+@define
 class Block(Stmt):
     body: list[Stmt]
 
 
-@dataclass
+@define
 class Print(Stmt):
     value: Expr
 
 
-@dataclass
+@define
 class ExprStmt(Stmt):
     expression: Expr
 
 
-@dataclass
-class Program:
+@define
+class Program(Node):
     body: list[Stmt]

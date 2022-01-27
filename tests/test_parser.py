@@ -279,39 +279,54 @@ def test_parser(tokens: list[Token], expected_tree: Program) -> None:
             "simple.lox",
             Program(
                 body=[
-                    Print(Literal("Hello")),
+                    Print(Literal("Hello", index=6), index=0),
                     VarDeclaration(
                         name=Token(TokenType.IDENTIFIER, "a", index=19),
-                        initializer=Literal(5.0),
+                        initializer=Literal(5.0, index=23),
+                        index=15,
                     ),
-                    Print(Variable(Token(TokenType.IDENTIFIER, "a", index=32))),
+                    Print(
+                        Variable(Token(TokenType.IDENTIFIER, "a", index=32), index=32),
+                        index=26,
+                    ),
                     VarDeclaration(
                         name=Token(TokenType.IDENTIFIER, "a", index=39),
-                        initializer=Literal(False),
+                        initializer=Literal(False, index=43),
+                        index=35,
                     ),
-                    Print(Variable(Token(TokenType.IDENTIFIER, "a", index=56))),
+                    Print(
+                        Variable(Token(TokenType.IDENTIFIER, "a", index=56), index=56),
+                        index=50,
+                    ),
                     Print(
                         Grouping(
                             expression=Binary(
                                 left=Binary(
-                                    left=Literal(6.75),
+                                    left=Literal(6.75, index=66),
                                     operator=Token(TokenType.STAR, "*", index=71),
                                     right=Grouping(
                                         expression=Binary(
-                                            left=Literal(3.0),
+                                            left=Literal(3.0, index=74),
                                             operator=Token(
                                                 TokenType.PLUS, "+", index=76
                                             ),
-                                            right=Literal(5.0),
-                                        )
+                                            right=Literal(5.0, index=78),
+                                            index=74,
+                                        ),
+                                        index=73,
                                     ),
+                                    index=66,
                                 ),
                                 operator=Token(TokenType.SLASH, "/", index=81),
-                                right=Literal(2.0),
-                            )
-                        )
+                                right=Literal(2.0, index=83),
+                                index=66,
+                            ),
+                            index=65,
+                        ),
+                        index=59,
                     ),
-                ]
+                ],
+                index=0,
             ),
         ),
     ),
