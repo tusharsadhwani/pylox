@@ -103,7 +103,7 @@ def run_interactive() -> int:
             else:
                 interpteter.visit(tree)
         except InterpreterError as exc:
-            pass  # TODO: pretty_print_error(code, "<input>", exc)
+            pretty_print_error(code, "<input>", exc)
 
 
 def run(filepath: str) -> int:
@@ -114,12 +114,10 @@ def run(filepath: str) -> int:
         parser = Parser(tokens)
         tree = parser.parse()
         Interpreter().visit(tree)
-    except (LexError, ParseError) as exc:
+    except (LexError, ParseError, InterpreterError) as exc:
         pretty_print_error(source, filename, exc)
         return 1
 
-    # TODO: add InterpreterError support
-    Interpreter().visit(tree)
     return 0
 
 

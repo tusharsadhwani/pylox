@@ -71,4 +71,33 @@ def test_parse_fail_files(
     assert stdout.rstrip() == dedent(error).rstrip()
 
 
+@pytest.mark.parametrize(
+    ("filename", "error"),
+    (
+        (
+            "fail4.lox",
+            """\
+            Error in fail4.lox:2:0
+
+                y = x + 1;
+                ^
+            InterpreterError: Assigning to variable 'y' before declaration
+            """,
+        ),
+    ),
+)
+def test_interpret_fail_files(
+    filename: str,
+    error: str,
+    capsys: CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit):
+        test_dir = os.path.join(os.path.dirname(__file__), "testdata")
+        filepath = os.path.join(test_dir, filename)
+        pylox_main(argv=["pylox", filepath])
+
+    stdout, _ = capsys.readouterr()
+    assert stdout.rstrip() == dedent(error).rstrip()
+
+
 # TODO: add synchronization and test for multiple errors in the same file

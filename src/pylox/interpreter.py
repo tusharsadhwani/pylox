@@ -1,4 +1,5 @@
-from pylox.environment import Environment
+from pylox.environment import Environment, EnvironmentLookupError
+from pylox.errors import LoxError
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -6,6 +7,7 @@ from pylox.nodes import (
     ExprStmt,
     Grouping,
     Literal,
+    Node,
     Print,
     Unary,
     VarDeclaration,
@@ -16,8 +18,10 @@ from pylox.utils import get_lox_type_name, is_truthy
 from pylox.visitor import Visitor
 
 
-class InterpreterError(Exception):
-    ...
+class InterpreterError(LoxError):
+    def __init__(self, message: str, node: Node) -> None:
+        super().__init__(message, node.index)
+        self.node = node
 
 
 class Interpreter(Visitor[object]):
@@ -32,7 +36,8 @@ class Interpreter(Visitor[object]):
             right_value = self.visit(unary.right)
             if not isinstance(right_value, float):
                 raise InterpreterError(
-                    f"Expected number for unary '-', got {right_value}"
+                    f"Expected number for unary '-', got {right_value}",
+                    unary,
                 )
 
             return -right_value
@@ -88,7 +93,8 @@ class Interpreter(Visitor[object]):
 
         raise InterpreterError(
             f"Unsupported types for {binary.operator.token_type.value!r}: "
-            f"{get_lox_type_name(left_value)!r} and {get_lox_type_name(right_value)!r}"
+            f"{get_lox_type_name(left_value)!r} and {get_lox_type_name(right_value)!r}",
+            binary,
         )
 
     def visit_Grouping(self, grouping: Grouping) -> object:
@@ -114,12 +120,20 @@ class Interpreter(Visitor[object]):
         self.environment.define(variable, value)
 
     def visit_Variable(self, variable: Variable) -> object:
-        return self.environment.get(variable.name.string)
+        try:
+            return self.environment.get(variable.name.string)
+        except EnvironmentLookupError as exc:
+            raise InterpreterError(exc.message, variable)
 
     def visit_Assignment(self, assignment: Assignment) -> object:
         value = self.visit(assignment.value)
         variable = assignment.name.string
-        self.environment.assign(variable, value)
+
+        try:
+            self.environment.assign(variable, value)
+        except EnvironmentLookupError as exc:
+            raise InterpreterError(exc.message, assignment)
+
         # Remember that assignment expressions return the assigned value
         return value
 

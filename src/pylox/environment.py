@@ -2,7 +2,9 @@ from __future__ import annotations
 
 
 class EnvironmentLookupError(Exception):
-    ...
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
 
 
 class Environment:
@@ -26,7 +28,9 @@ class Environment:
 
         # So this will only be raised when enclosing is None,
         # i.e. when variable is not found even in the global scope.
-        raise EnvironmentLookupError(f"Undefined variable {variable!r}")
+        raise EnvironmentLookupError(
+            f"Assigning to variable {variable!r} before declaration"
+        )
 
     def get(self, variable: str) -> object:
         if variable in self._environment:
