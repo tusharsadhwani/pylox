@@ -8,7 +8,7 @@ from pylox.errors import LoxError
 from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer, LexError
 from pylox.nodes import ExprStmt
-from pylox.parser import ParseError, Parser
+from pylox.parser import ParseEOFError, ParseError, Parser
 
 
 def read_file(filename: str) -> str:
@@ -81,13 +81,16 @@ def run_interactive() -> int:
             parser = Parser(tokens)
             tree = parser.parse()
             lines = []
-        except LexError:
+        except LexError as exc:
+            pretty_print_error(code, "<input>", exc)
             lines = []
             continue
-        except ParseError:
+        except ParseEOFError:
             # Incomplete command
-            # TODO: only allow those incomplete commands that died because of EOF.
-            # Counter example: 2 + )
+            continue
+        except ParseError as exc:
+            pretty_print_error(code, "<input>", exc)
+            lines = []
             continue
 
         # TODO: add InterpreterError support

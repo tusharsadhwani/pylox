@@ -28,6 +28,10 @@ class ParseError(LoxError):
         self.token = token
 
 
+class ParseEOFError(ParseError):
+    ...
+
+
 class Parser:
     """
     Current grammar:
@@ -228,7 +232,7 @@ class Parser:
     def parse_primary(self) -> Expr:
         if self.scanned:
             eof_token = self.get_token()
-            raise ParseError("Unexpected end of file while parsing", eof_token)
+            raise ParseEOFError("Unexpected end of file while parsing", eof_token)
 
         if self.match_next(TokenType.STRING, TokenType.NUMBER):
             token = self.previous()
@@ -258,7 +262,7 @@ class Parser:
         token = self.get_token()
 
         if token == EOF:
-            raise ParseError(
+            raise ParseEOFError(
                 f"Expected to find {expected_type.value!r}, found EOF",
                 token,
             )
