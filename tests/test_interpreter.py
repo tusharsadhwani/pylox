@@ -57,6 +57,14 @@ def test_interpreter_expr(tree: Expr, expected: object) -> None:
         (
             Program(
                 body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "a"),
+                        initializer=Literal("Something"),
+                    ),
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "b"),
+                        initializer=Literal("Another thing"),
+                    ),
                     ExprStmt(
                         Assignment(
                             name=Token(TokenType.IDENTIFIER, "a"),

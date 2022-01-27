@@ -119,7 +119,7 @@ class Interpreter(Visitor[object]):
     def visit_Assignment(self, assignment: Assignment) -> object:
         value = self.visit(assignment.value)
         variable = assignment.name.string
-        self.environment.define(variable, value)
+        self.environment.assign(variable, value)
         # Remember that assignment expressions return the assigned value
         return value
 
