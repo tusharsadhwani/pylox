@@ -1,5 +1,5 @@
 from pylox.lexer import Lexer
-from pylox.nodes import Binary, Expr, Grouping, Literal, Unary, Variable
+from pylox.nodes import Binary, Grouping, Literal, Unary, Variable
 from pylox.parser import Parser
 from pylox.visitor import Visitor
 
