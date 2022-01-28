@@ -60,7 +60,7 @@ What has already been implemented:
 - [x] Interactive REPL
 - [x] Variable assignment
 - [x] Proper runtime errors
-- [ ] Synchronization and reporting multiple errors
+- [x] Synchronization and reporting multiple parse errors
 - [x] Local scope, enclosing scope, blocks and nesting
 - [ ] `if`-`else` statements
 - [ ] `while` loops

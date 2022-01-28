@@ -268,8 +268,9 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
 )
 def test_parser(tokens: list[Token], expected_tree: Program) -> None:
     parser = Parser(tokens)
-    program = parser.parse()
+    program, errors = parser.parse()
     assert program == expected_tree
+    assert errors == []
 
 
 @pytest.mark.parametrize(
@@ -338,8 +339,9 @@ def test_parser_files(filename: str, expected_tree: Program) -> None:
 
     tokens = Lexer(source).tokens
     parser = Parser(tokens)
-    program = parser.parse()
+    program, errors = parser.parse()
     assert program == expected_tree
+    assert errors == []
 
 
 # TODO: add failing tests

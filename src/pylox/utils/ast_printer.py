@@ -41,7 +41,7 @@ class AstPrinter(Visitor[str]):
 def main() -> None:
     tokens = Lexer("(8 / 2) + 3 * 5").tokens
     parser = Parser(tokens)
-    tree = parser.parse()
+    tree = parser.parse(mode="repl")
     tree_str = AstPrinter().visit(tree)
     print(tree_str)
 

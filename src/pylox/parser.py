@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Literal as LiteralType, overload
 
 from pylox.errors import LoxError
 from pylox.lexer import Lexer
@@ -67,6 +68,9 @@ class Parser:
 
         return False
 
+    def advance(self) -> None:
+        self.index += 1
+
     def get_token(self) -> Token:
         if self.scanned:
             return EOF
@@ -94,7 +98,7 @@ class Parser:
             return False
 
         if token.token_type in token_types:
-            self.index += 1
+            self.advance()
             return True
 
         return False
@@ -105,22 +109,50 @@ class Parser:
 
         return self.tokens[self.index - 1]
 
-    def parse(self) -> Program:
+    def synchronize(self) -> None:
+        """
+        Current synchronization process: keep scanning till next statement
+        (a.k.a. find a semicolon).
+        """
+        while not self.scanned and not self.match_next(TokenType.SEMICOLON):
+            self.advance()
+
+    @overload
+    def parse(
+        self, mode: LiteralType["file"] = "file"
+    ) -> tuple[Program, list[ParseError]]:
+        ...
+
+    @overload
+    def parse(self, mode: LiteralType["repl"]) -> Program:
+        ...
+
+    def parse(
+        self, mode: LiteralType["file", "repl"] = "file"
+    ) -> Program | tuple[Program, list[ParseError]]:
         body: list[Stmt] = []
+        # Errors are only stored in mode == "file"
+        errors: list[ParseError] = []
 
         index = self.get_index()
         while not self.scanned:
-            body.append(self.parse_declaration())
+            try:
+                body.append(self.parse_declaration())
+            except ParseError as exc:
+                if mode == "repl":
+                    raise
 
-        return Program(body, index=index)
+                errors.append(exc)
+                self.synchronize()
+
+        program = Program(body, index=index)
+        return (program, errors) if mode == "file" else program
 
     def parse_declaration(self) -> Stmt:
         if self.match_next(TokenType.VAR):
             return self.parse_var_declaration()
 
         return self.parse_statement()
-        # TODO: synchronization occurs here, at statement boundary.
-        # Do it by catching ParseError at this point.
 
     def parse_var_declaration(self) -> VarDeclaration:
         index = self.get_index()
@@ -285,7 +317,7 @@ class Parser:
                 token,
             )
 
-        self.index += 1
+        self.advance()
         return token
 
 

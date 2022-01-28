@@ -53,6 +53,14 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
                 i++;
                   ^
             ParseError: Unexpected token: '+'
+
+            Error in fail3.lox:4:0
+
+                ++j;
+                ^
+            ParseError: Unexpected token: '+'
+
+            Found 2 errors.
             """,
         ),
     ),
@@ -98,6 +106,3 @@ def test_interpret_fail_files(
 
     stdout, _ = capsys.readouterr()
     assert stdout.rstrip() == dedent(error).rstrip()
-
-
-# TODO: add synchronization and test for multiple errors in the same file

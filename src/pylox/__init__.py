@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os.path
 import sys
+from typing import Sequence
 
 from pylox.errors import LoxError
 from pylox.interpreter import Interpreter, InterpreterError
@@ -79,7 +80,7 @@ def run_interactive() -> int:
         try:
             tokens = Lexer(code).tokens
             parser = Parser(tokens)
-            tree = parser.parse()
+            tree = parser.parse(mode="repl")
             lines = []
         except LexError as exc:
             pretty_print_error(code, "<input>", exc)
@@ -111,14 +112,31 @@ def run(filepath: str) -> int:
     filename = os.path.basename(filepath)
     try:
         tokens = Lexer(source).tokens
-        parser = Parser(tokens)
-        tree = parser.parse()
+    except LexError as exc:
+        pretty_print_error(source, filename, exc)
+        return 1
+
+    parser = Parser(tokens)
+    tree, errors = parser.parse()
+    if errors:
+        pretty_print_errors(source, filename, errors)
+        return 1
+
+    try:
         Interpreter().visit(tree)
-    except (LexError, ParseError, InterpreterError) as exc:
+    except InterpreterError as exc:
         pretty_print_error(source, filename, exc)
         return 1
 
     return 0
+
+
+def pretty_print_errors(source: str, filename: str, errors: Sequence[LoxError]) -> None:
+    for error in errors:
+        pretty_print_error(source, filename, error)
+        print()
+
+    print(f"Found {len(errors)} errors.")
 
 
 def pretty_print_error(source: str, filename: str, exc: LoxError) -> None:
