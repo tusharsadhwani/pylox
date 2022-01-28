@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import sys
-from typing import Literal as LiteralType, overload
+from typing import Literal as LiteralType
+from typing import overload
 
 from pylox.errors import LoxError
 from pylox.lexer import Lexer
