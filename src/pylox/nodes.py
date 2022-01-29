@@ -83,6 +83,12 @@ class If(Stmt):
 
 
 @define
+class While(Stmt):
+    condition: Expr
+    body: Stmt
+
+
+@define
 class ExprStmt(Stmt):
     expression: Expr
 

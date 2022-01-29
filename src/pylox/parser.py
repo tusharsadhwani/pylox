@@ -21,6 +21,7 @@ from pylox.nodes import (
     Unary,
     VarDeclaration,
     Variable,
+    While,
 )
 from pylox.tokens import EOF, Token, TokenType
 
@@ -44,10 +45,12 @@ class Parser:
         statement -> block_stmt
                    | print_stmt
                    | if_stmt
+                   | while_stmt
                    | expr_stmt
         block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
         if_stmt -> "if" "(" expression ")" statement ("else" statement)?
+        while_stmt -> "while" "(" expression ")" statement
         expr_stmt -> expression ";"
         expression -> assignment
         assignment -> IDENTIFIER "=" assignment | equality
@@ -181,6 +184,9 @@ class Parser:
         if self.match_next(TokenType.IF):
             return self.parse_if_stmt()
 
+        if self.match_next(TokenType.WHILE):
+            return self.parse_while_stmt()
+
         return self.parse_expr_stmt()
 
     def parse_block(self) -> Block:
@@ -214,6 +220,22 @@ class Parser:
             return If(condition, body, else_body, index=index)
 
         return If(condition, body, index=index)
+
+    def parse_while_stmt(self) -> While:
+        index = self.get_index()
+        self.consume(TokenType.LEFT_PAREN)
+        condition = self.parse_expression()
+        self.consume(TokenType.RIGHT_PAREN)
+        body = self.parse_declaration()
+        return While(condition, body, index=index)
+
+    def parse_for_stmt(self) -> For:
+        index = self.get_index()
+        self.consume(TokenType.LEFT_PAREN)
+        condition = self.parse_expression()
+        self.consume(TokenType.RIGHT_PAREN)
+        body = self.parse_declaration()
+        return While(condition, body, index=index)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()

@@ -183,6 +183,9 @@ def test_interpreter(
             Number is positive
             Number is small
             Should run
+            2.0
+            4.0
+            8.0
             """,
         ),
     ),

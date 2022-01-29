@@ -63,7 +63,7 @@ What has already been implemented:
 - [x] Synchronization and reporting multiple parse errors
 - [x] Local scope, enclosing scope, blocks and nesting
 - [x] `if`-`else` statements
-- [ ] `while` loops
+- [x] `while` loops
 - [ ] `for` loops
 - [ ] Function declarations, calls, first class functions and callbacks
 - [ ] Local functions and closures

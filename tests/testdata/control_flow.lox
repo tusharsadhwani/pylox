@@ -14,3 +14,9 @@ if (0) {
   print "Shouldn't run";
 } else if (3000)
     print "Should run";
+
+var i = 2;
+while (i < 10) {
+  print i;
+  i = i * 2;
+}

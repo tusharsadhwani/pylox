@@ -13,6 +13,7 @@ from pylox.nodes import (
     Unary,
     VarDeclaration,
     Variable,
+    While,
 )
 from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name, is_truthy
@@ -153,3 +154,7 @@ class Interpreter(Visitor[object]):
             self._evaluate(if_stmt.body)
         elif if_stmt.else_body is not None:
             self._evaluate(if_stmt.else_body)
+
+    def visit_While(self, while_stmt: While) -> None:
+        while is_truthy(self.visit(while_stmt.condition)):
+            self._evaluate(while_stmt.body)
