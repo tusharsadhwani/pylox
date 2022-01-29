@@ -165,7 +165,7 @@ def test_lex_files(filename: str, tokens: list[Token]) -> None:
 )
 def test_lex_fail(code: str, error_msg: str) -> None:
     with pytest.raises(LexError) as exc:
-        output = Lexer(code).tokens
+        Lexer(code).tokens
 
     assert exc.value.args[0] == error_msg
 

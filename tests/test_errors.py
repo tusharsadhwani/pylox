@@ -33,7 +33,7 @@ from pylox import main as pylox_main
     ),
 )
 def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) -> None:
-    with pytest.raises(SystemExit) as exc:
+    with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
         pylox_main(argv=["pylox", filepath])
@@ -70,7 +70,7 @@ def test_parse_fail_files(
     error: str,
     capsys: CaptureFixture[str],
 ) -> None:
-    with pytest.raises(SystemExit) as exc:
+    with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
         pylox_main(argv=["pylox", filepath])
