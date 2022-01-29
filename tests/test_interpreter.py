@@ -1,6 +1,11 @@
+import os.path
+from textwrap import dedent
+
 import pytest
+from pytest import CaptureFixture
 
 from pylox.interpreter import Interpreter
+from pylox.lexer import Lexer
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -13,6 +18,7 @@ from pylox.nodes import (
     VarDeclaration,
     Variable,
 )
+from pylox.parser import Parser
 from pylox.tokens import Token, TokenType
 
 
@@ -166,3 +172,37 @@ def test_interpreter(
 
 
 # TODO: add failing tests
+
+
+@pytest.mark.parametrize(
+    ("filename", "output"),
+    (
+        (
+            "control_flow.lox",
+            """\
+            Number is positive
+            Number is small
+            Should run
+            """,
+        ),
+    ),
+)
+def test_interpreter_files(
+    filename: str,
+    output: str,
+    capsys: CaptureFixture[str],
+) -> None:
+    test_dir = os.path.join(os.path.dirname(__file__), "testdata")
+    filepath = os.path.join(test_dir, filename)
+    with open(filepath) as file:
+        source = file.read()
+
+    tokens = Lexer(source).tokens
+    parser = Parser(tokens)
+    program, errors = parser.parse()
+    assert not errors
+    Interpreter().visit(program)
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout.rstrip() == dedent(output).rstrip()
+    assert stderr == ""

@@ -6,6 +6,7 @@ from pylox.nodes import (
     Block,
     ExprStmt,
     Grouping,
+    If,
     Literal,
     Node,
     Print,
@@ -145,3 +146,10 @@ class Interpreter(Visitor[object]):
             self.visit(block)
         finally:
             self.environment = own_environment
+
+    def visit_If(self, if_stmt: If) -> None:
+        condition = self.visit(if_stmt.condition)
+        if is_truthy(condition):
+            self._evaluate(if_stmt.body)
+        elif if_stmt.else_body is not None:
+            self._evaluate(if_stmt.else_body)

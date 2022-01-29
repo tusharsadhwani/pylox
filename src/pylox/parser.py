@@ -13,6 +13,7 @@ from pylox.nodes import (
     Expr,
     ExprStmt,
     Grouping,
+    If,
     Literal,
     Print,
     Program,
@@ -40,9 +41,13 @@ class Parser:
         program -> declaration* EOF
         declaration -> var_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
-        statement -> block_stmt | print_stmt | expr_stmt
+        statement -> block_stmt
+                   | print_stmt
+                   | if_stmt
+                   | expr_stmt
         block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
+        if_stmt -> "if" "(" expression ")" statement ("else" statement)?
         expr_stmt -> expression ";"
         expression -> assignment
         assignment -> IDENTIFIER "=" assignment | equality
@@ -173,6 +178,9 @@ class Parser:
         if self.match_next(TokenType.PRINT):
             return self.parse_print_stmt()
 
+        if self.match_next(TokenType.IF):
+            return self.parse_if_stmt()
+
         return self.parse_expr_stmt()
 
     def parse_block(self) -> Block:
@@ -193,6 +201,19 @@ class Parser:
         expression = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
         return Print(expression, index=index)
+
+    def parse_if_stmt(self) -> If:
+        index = self.get_index()
+        self.consume(TokenType.LEFT_PAREN)
+        condition = self.parse_expression()
+        self.consume(TokenType.RIGHT_PAREN)
+        body = self.parse_declaration()
+
+        if self.match_next(TokenType.ELSE):
+            else_body = self.parse_declaration()
+            return If(condition, body, else_body, index=index)
+
+        return If(condition, body, index=index)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()

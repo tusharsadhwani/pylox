@@ -1,0 +1,16 @@
+var x = 5;
+
+if (x >= 0) {
+  print "Number is positive";
+
+  if (x > 10) print "Number is big";
+  else print "Number is small";
+
+} else {
+  print "Number is negative";
+}
+
+if (0) {
+  print "Shouldn't run";
+} else if (3000)
+    print "Should run";

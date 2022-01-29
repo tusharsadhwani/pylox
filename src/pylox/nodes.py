@@ -76,6 +76,13 @@ class Print(Stmt):
 
 
 @define
+class If(Stmt):
+    condition: Expr
+    body: Stmt
+    else_body: Stmt | None = None
+
+
+@define
 class ExprStmt(Stmt):
     expression: Expr
 
