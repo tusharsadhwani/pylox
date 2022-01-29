@@ -79,7 +79,7 @@ What has already been implemented:
 Here's the full set of extra features, and their progress:
 
 - [x] _Much_ better error messages
-- [ ] Allowing single quotes for strings
+- [x] Allowing single quotes for strings
 - [ ] String escapes (things like `\n`, `\\` and `\"`)
 - [ ] New operators:
   - [ ] Modulo `%`

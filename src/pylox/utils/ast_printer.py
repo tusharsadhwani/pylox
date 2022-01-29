@@ -15,11 +15,7 @@ class AstPrinter(Visitor[str]):
         if isinstance(literal.value, bool):
             return f"{literal.value}".lower()
 
-        # TODO: replace these two with "literal.value!r" once single quotes are added
-        if isinstance(literal.value, str):
-            return f'"{literal.value}"'
-
-        return f"{literal.value}"
+        return f"{literal.value!r}"
 
     def visit_Variable(self, variable: Variable) -> str:
         return variable.name.string

@@ -69,7 +69,7 @@ def test_lex(code: str, tokens: list[Token]) -> None:
             "simple.lox",
             [
                 Token(TokenType.PRINT, "print", index=0),
-                Token(TokenType.STRING, '"Hello"', "Hello", index=6),
+                Token(TokenType.STRING, "'Hello'", "Hello", index=6),
                 Token(TokenType.SEMICOLON, ";", index=13),
                 Token(TokenType.VAR, "var", index=15),
                 Token(TokenType.IDENTIFIER, "a", index=19),

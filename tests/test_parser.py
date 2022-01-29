@@ -48,7 +48,7 @@ def read_file(filepath: str) -> str:
                 Token(TokenType.IDENTIFIER, "rest"),
                 EOF,
             ],
-            '(("abc" + "xyz") + rest)',
+            "(('abc' + 'xyz') + rest)",
         ),
         (
             [

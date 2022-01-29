@@ -142,8 +142,8 @@ class Lexer:
             else:
                 self.add_token(TokenType.GREATER)
 
-        elif char == '"':
-            self.scan_string()
+        elif char in ('"', "'"):
+            self.scan_string(char)
 
         elif char.isdigit():
             self.scan_number()
@@ -175,9 +175,8 @@ class Lexer:
         else:
             self.add_token(TokenType.IDENTIFIER)
 
-    def scan_string(self) -> None:
-        # TODO: single quote support
-        while not self.scanned and self.peek() != '"':
+    def scan_string(self, quote_char: str) -> None:
+        while not self.scanned and self.peek() != quote_char:
             self.advance()
 
         if self.scanned:
