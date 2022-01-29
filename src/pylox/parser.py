@@ -12,6 +12,7 @@ from pylox.nodes import (
     Block,
     Expr,
     ExprStmt,
+    For,
     Grouping,
     If,
     Literal,
@@ -46,11 +47,14 @@ class Parser:
                    | print_stmt
                    | if_stmt
                    | while_stmt
+                   | for_stmt
                    | expr_stmt
         block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
         if_stmt -> "if" "(" expression ")" statement ("else" statement)?
         while_stmt -> "while" "(" expression ")" statement
+        for_stmt -> "for" "(" (var_decl | statement | ";")
+                    expression? ";" expression? ")" statement
         expr_stmt -> expression ";"
         expression -> assignment
         assignment -> IDENTIFIER "=" assignment | equality
@@ -187,6 +191,9 @@ class Parser:
         if self.match_next(TokenType.WHILE):
             return self.parse_while_stmt()
 
+        if self.match_next(TokenType.FOR):
+            return self.parse_for_stmt()
+
         return self.parse_expr_stmt()
 
     def parse_block(self) -> Block:
@@ -232,10 +239,32 @@ class Parser:
     def parse_for_stmt(self) -> For:
         index = self.get_index()
         self.consume(TokenType.LEFT_PAREN)
-        condition = self.parse_expression()
-        self.consume(TokenType.RIGHT_PAREN)
+
+        # Step 1: Initializer (optional)
+        initializer: VarDeclaration | Stmt | None
+        if self.match_next(TokenType.SEMICOLON):
+            initializer = None
+        elif self.match_next(TokenType.VAR):
+            initializer = self.parse_var_declaration()
+        else:
+            initializer = self.parse_statement()
+
+        # Step 2: Condition (optional)
+        if self.match_next(TokenType.SEMICOLON):
+            condition = None
+        else:
+            condition = self.parse_expression()
+            self.consume(TokenType.SEMICOLON)
+
+        # Step 3: Increment (optional)
+        if self.match_next(TokenType.RIGHT_PAREN):
+            increment = None
+        else:
+            increment = self.parse_expression()
+            self.consume(TokenType.RIGHT_PAREN)
+
         body = self.parse_declaration()
-        return While(condition, body, index=index)
+        return For(initializer, condition, increment, body, index=index)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()

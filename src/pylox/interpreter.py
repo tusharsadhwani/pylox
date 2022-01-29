@@ -5,6 +5,7 @@ from pylox.nodes import (
     Binary,
     Block,
     ExprStmt,
+    For,
     Grouping,
     If,
     Literal,
@@ -158,3 +159,12 @@ class Interpreter(Visitor[object]):
     def visit_While(self, while_stmt: While) -> None:
         while is_truthy(self.visit(while_stmt.condition)):
             self._evaluate(while_stmt.body)
+
+    def visit_For(self, for_stmt: For) -> None:
+        if for_stmt.initializer is not None:
+            self._evaluate(for_stmt.initializer)
+
+        while for_stmt.condition is None or is_truthy(self.visit(for_stmt.condition)):
+            self._evaluate(for_stmt.body)
+            if for_stmt.increment is not None:
+                self._evaluate(for_stmt.increment)

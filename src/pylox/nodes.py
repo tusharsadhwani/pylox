@@ -89,6 +89,14 @@ class While(Stmt):
 
 
 @define
+class For(Stmt):
+    initializer: VarDeclaration | Stmt | None
+    condition: Expr | None
+    increment: Expr | None
+    body: Stmt
+
+
+@define
 class ExprStmt(Stmt):
     expression: Expr
 

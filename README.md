@@ -64,7 +64,7 @@ What has already been implemented:
 - [x] Local scope, enclosing scope, blocks and nesting
 - [x] `if`-`else` statements
 - [x] `while` loops
-- [ ] `for` loops
+- [x] `for` loops
 - [ ] Function declarations, calls, first class functions and callbacks
 - [ ] Local functions and closures
 - [ ] Compile time variable resolution and binding
