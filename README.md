@@ -65,6 +65,7 @@ What has already been implemented:
 - [x] `if`-`else` statements
 - [x] `while` loops
 - [x] `for` loops
+- [x] Logical `and` and `or` operators
 - [ ] Function declarations, calls, first class functions and callbacks
 - [ ] Local functions and closures
 - [ ] Compile time variable resolution and binding

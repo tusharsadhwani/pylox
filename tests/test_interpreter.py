@@ -12,6 +12,7 @@ from pylox.nodes import (
     Block,
     Expr,
     ExprStmt,
+    Grouping,
     Literal,
     Print,
     Program,
@@ -155,6 +156,38 @@ def test_interpreter_expr(tree: Expr, expected: object) -> None:
                 ]
             ),
             "la\neb\ngc\nea\neb\ngc\nga\ngb\ngc",
+        ),
+        (
+            Program(
+                body=[
+                    Print(
+                        Binary(
+                            left=Literal(value=0.0),
+                            operator=Token(TokenType.OR, "or"),
+                            right=Binary(
+                                left=Binary(
+                                    left=Literal(value=True),
+                                    operator=Token(TokenType.AND, "and"),
+                                    right=Literal(value=3.0),
+                                ),
+                                operator=Token(TokenType.AND, "and"),
+                                right=Grouping(
+                                    Binary(
+                                        left=Literal(value=7.0),
+                                        operator=Token(TokenType.OR, "or"),
+                                        right=Binary(
+                                            left=Literal(value=0.0),
+                                            operator=Token(TokenType.SLASH, "/"),
+                                            right=Literal(value=0.0),
+                                        ),
+                                    )
+                                ),
+                            ),
+                        )
+                    )
+                ]
+            ),
+            "7.0",
         )
         # TODO: add more tests
     ),

@@ -113,6 +113,26 @@ def read_file(filepath: str) -> str:
                     (group ((1.0 + 3.0) > 5.0)))))
             """,
         ),
+        (
+            [
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.AND, "and"),
+                Token(TokenType.IDENTIFIER, "b"),
+                Token(TokenType.OR, "or"),
+                Token(TokenType.TRUE, "true"),
+                Token(TokenType.AND, "and"),
+                Token(TokenType.FALSE, "false"),
+                Token(TokenType.AND, "and"),
+                Token(TokenType.BANG, "!"),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.OR, "or"),
+                Token(TokenType.IDENTIFIER, "y"),
+                Token(TokenType.AND, "and"),
+                Token(TokenType.IDENTIFIER, "z"),
+                EOF,
+            ],
+            "(((a and b) or ((true and false) and (! x))) or (y and z))",
+        ),
     ),
 )
 def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:

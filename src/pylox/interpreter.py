@@ -59,7 +59,18 @@ class Interpreter(Visitor[object]):
     def visit_Binary(self, binary: Binary) -> object:
         """Note that we evaluate both sides before type checking."""
         left_value = self.visit(binary.left)
+
+        # Short circuited operators: `and` and `or`, can return early
+        if binary.operator.token_type == TokenType.OR and is_truthy(left_value):
+            return left_value
+        if binary.operator.token_type == TokenType.AND and not is_truthy(left_value):
+            return left_value
+
         right_value = self.visit(binary.right)
+
+        # If short circuits didn't return early, they'll return the right value
+        if binary.operator.token_type in (TokenType.AND, TokenType.OR):
+            return right_value
 
         if binary.operator.token_type == TokenType.EQUAL_EQUAL:
             return left_value == right_value

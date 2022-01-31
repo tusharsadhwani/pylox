@@ -57,7 +57,9 @@ class Parser:
                     expression? ";" expression? ")" statement
         expr_stmt -> expression ";"
         expression -> assignment
-        assignment -> IDENTIFIER "=" assignment | equality
+        assignment -> IDENTIFIER "=" assignment | logical_or
+        logical_or -> logical_and ("or" logical_and)*
+        logical_and -> equality ("and" equality)*
         equality -> comparison (("==" | "!=") comparison)*
         comparison -> term ((">" | ">=" | "<" | "<=") term)*
         term -> factor (("+" / "-") factor)*
@@ -275,7 +277,7 @@ class Parser:
         return self.parse_assignment()
 
     def parse_assignment(self) -> Expr:
-        expr = self.parse_equality()
+        expr = self.parse_logical_or()
         if self.match_next(TokenType.EQUAL):
             equals_token = self.previous()
             # Assume it to be assignment
@@ -287,6 +289,26 @@ class Parser:
 
         # If it's not assignment, it's equality (or anything below)
         return expr
+
+    def parse_logical_or(self) -> Expr:
+        left = self.parse_logical_and()
+        while self.match_next(TokenType.OR):
+            or_token = self.previous()
+            right = self.parse_logical_and()
+
+            left = Binary(left, or_token, right, index=left.index)
+
+        return left
+
+    def parse_logical_and(self) -> Expr:
+        left = self.parse_equality()
+        while self.match_next(TokenType.AND):
+            or_token = self.previous()
+            right = self.parse_equality()
+
+            left = Binary(left, or_token, right, index=left.index)
+
+        return left
 
     def parse_equality(self) -> Expr:
         left = self.parse_comparison()
