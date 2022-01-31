@@ -92,6 +92,7 @@ class Interpreter(Visitor[object]):
             if binary.operator.token_type == TokenType.STAR:
                 return left_value * right_value
             if binary.operator.token_type == TokenType.SLASH:
+                # TODO: catch ZeroDivisionError
                 return left_value / right_value
             if binary.operator.token_type == TokenType.PERCENT:
                 return left_value % right_value
