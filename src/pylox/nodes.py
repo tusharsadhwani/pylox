@@ -7,7 +7,7 @@ from pylox.tokens import Token
 
 @define(kw_only=True)
 class Node:
-    index: int = field(default=-1, repr=True)
+    index: int = field(default=-1, repr=False)
 
 
 @define
