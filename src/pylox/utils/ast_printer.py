@@ -1,5 +1,5 @@
 from pylox.lexer import Lexer
-from pylox.nodes import Binary, Grouping, Literal, Unary, Variable
+from pylox.nodes import Binary, Call, Grouping, Literal, Unary, Variable
 from pylox.parser import Parser
 from pylox.visitor import Visitor
 
@@ -32,6 +32,12 @@ class AstPrinter(Visitor[str]):
 
     def visit_Grouping(self, grouping: Grouping) -> str:
         return f"(group {self.visit(grouping.expression)})"
+
+    def visit_Call(self, call: Call) -> str:
+        return (
+            f"({self.visit(call.callee)} "
+            f"{' '.join(self.visit(arg) for arg in call.arguments)})"
+        )
 
 
 def main() -> None:

@@ -133,6 +133,26 @@ def read_file(filepath: str) -> str:
             ],
             "(((a and b) or ((true and false) and (! x))) or (y and z))",
         ),
+        (
+            [
+                Token(TokenType.IDENTIFIER, "fibonacci"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "5", 5.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.EQUAL_EQUAL, "=="),
+                Token(TokenType.IDENTIFIER, "fibonacci"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "4", 4.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.PLUS, "+"),
+                Token(TokenType.IDENTIFIER, "fibonacci"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                EOF,
+            ],
+            "((fibonacci 5.0) == ((fibonacci 4.0) + (fibonacci 3.0)))",
+        ),
     ),
 )
 def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:

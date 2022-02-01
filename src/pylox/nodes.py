@@ -51,6 +51,13 @@ class Grouping(Expr):
 
 
 @define
+class Call(Expr):
+    callee: Expr
+    paren: Token  # to store the location of the bracket, for error reporting
+    arguments: Sequence[Expr] = ()
+
+
+@define
 class Stmt(Node):
     ...
 

@@ -10,6 +10,7 @@ from pylox.nodes import (
     Assignment,
     Binary,
     Block,
+    Call,
     Expr,
     ExprStmt,
     For,
@@ -64,7 +65,9 @@ class Parser:
         comparison -> term ((">" | ">=" | "<" | "<=") term)*
         term -> factor (("+" / "-") factor)*
         factor -> unary (("*" / "/") unary)*
-        unary -> ("-" | "!") unary | primary
+        unary -> ("-" | "!") unary | call
+        call -> primary ("(" arguments? ")")*
+        arguments -> expression ("," expression)*
         primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
                 | IDENTIFIER
     """
@@ -365,7 +368,40 @@ class Parser:
             right = self.parse_unary()
             return Unary(operator, right, index=operator.index)
 
-        return self.parse_primary()
+        return self.parse_call()
+
+    def parse_call(self) -> Expr:
+        callee = self.parse_primary()
+
+        while self.match_next(TokenType.LEFT_PAREN):
+            bracket = self.previous()
+
+            # Case 1: No arguments
+            if self.match_next(TokenType.RIGHT_PAREN):
+                return Call(callee, bracket)
+
+            arguments: list[Expr] = []
+
+            # Case 2: One argument
+            arguments.append(self.parse_expression())
+            if self.match_next(TokenType.RIGHT_PAREN):
+                return Call(callee, bracket, arguments)
+
+            # Case 3: upto 255 arguments, preceded by a comma
+            while self.match_next(TokenType.COMMA):
+                # Only upto 255 arguments allowed
+                if len(arguments) >= 255:
+                    raise ParseError(
+                        "More than 255 arguments not allowed in a function call",
+                        bracket,
+                    )
+
+                arguments.append(self.parse_expression())
+
+            self.consume(TokenType.RIGHT_PAREN)
+            callee = Call(callee, bracket, arguments, index=callee.index)
+
+        return callee
 
     def parse_primary(self) -> Expr:
         if self.scanned:
