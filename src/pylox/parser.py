@@ -43,7 +43,7 @@ class Parser:
         program -> declaration* EOF
         declaration -> var_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
-        statement -> block_stmt
+        statement -> block
                    | print_stmt
                    | if_stmt
                    | while_stmt
