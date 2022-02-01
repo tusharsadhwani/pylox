@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Sequence
 
 from attr import define, field
 
@@ -67,7 +68,7 @@ class VarDeclaration(Declaration):
 
 @define
 class Block(Stmt):
-    body: list[Stmt]
+    body: Sequence[Stmt]
 
 
 @define
@@ -103,4 +104,4 @@ class ExprStmt(Stmt):
 
 @define
 class Program(Node):
-    body: list[Stmt]
+    body: Sequence[Stmt]
