@@ -1,5 +1,6 @@
 from pylox.environment import Environment, EnvironmentLookupError
 from pylox.errors import LoxError
+from pylox.lox_types import LoxType
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -27,14 +28,14 @@ class InterpreterError(LoxError):
         self.node = node
 
 
-class Interpreter(Visitor[object]):
+class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
         self.environment = Environment()
 
-    def visit_Literal(self, literal: Literal) -> object:
+    def visit_Literal(self, literal: Literal) -> LoxType:
         return literal.value
 
-    def visit_Unary(self, unary: Unary) -> object:
+    def visit_Unary(self, unary: Unary) -> LoxType:
         if unary.operator.token_type == TokenType.MINUS:
             right_value = self.visit(unary.right)
             if not isinstance(right_value, float):
@@ -56,7 +57,7 @@ class Interpreter(Visitor[object]):
             f"Unary {unary.operator.token_type.value!r} not supported"
         )
 
-    def visit_Binary(self, binary: Binary) -> object:
+    def visit_Binary(self, binary: Binary) -> LoxType:
         """Note that we evaluate both sides before type checking."""
         left_value = self.visit(binary.left)
 
@@ -112,7 +113,7 @@ class Interpreter(Visitor[object]):
             binary,
         )
 
-    def visit_Grouping(self, grouping: Grouping) -> object:
+    def visit_Grouping(self, grouping: Grouping) -> LoxType:
         return self.visit(grouping.expression)
 
     def visit_Print(self, print_stmt: Print) -> None:
@@ -134,13 +135,13 @@ class Interpreter(Visitor[object]):
         variable = var_decl.name.string
         self.environment.define(variable, value)
 
-    def visit_Variable(self, variable: Variable) -> object:
+    def visit_Variable(self, variable: Variable) -> LoxType:
         try:
             return self.environment.get(variable.name.string)
         except EnvironmentLookupError as exc:
             raise InterpreterError(exc.message, variable)
 
-    def visit_Assignment(self, assignment: Assignment) -> object:
+    def visit_Assignment(self, assignment: Assignment) -> LoxType:
         value = self.visit(assignment.value)
         variable = assignment.name.string
 

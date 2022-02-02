@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from attr import define, field
+from pylox.lox_types import LoxType
 
 from pylox.tokens import Token
 
@@ -19,7 +20,7 @@ class Expr(Node):
 
 @define
 class Literal(Expr):
-    value: object
+    value: LoxType
 
 
 @define

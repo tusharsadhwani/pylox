@@ -1,6 +1,7 @@
 import sys
 
 from pylox.errors import LoxError
+from pylox.lox_types import LoxType, Number
 from pylox.tokens import EOF, KEYWORD_TOKENS, Token, TokenType
 
 
@@ -68,7 +69,7 @@ class Lexer:
 
         return False
 
-    def add_token(self, token_type: TokenType, value: object = None) -> None:
+    def add_token(self, token_type: TokenType, value: LoxType = None) -> None:
         """Adds a new token for the just-scanned characters."""
         string = self.source[self.start : self.current]
         self.tokens.append(Token(token_type, string, value, self.start))
@@ -200,7 +201,7 @@ class Lexer:
                 while self.peek().isdigit():
                     self.advance()
 
-        number = float(self.source[self.start : self.current])
+        number = Number(self.source[self.start : self.current])
         self.add_token(TokenType.NUMBER, number)
 
 

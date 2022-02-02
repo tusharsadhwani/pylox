@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pylox.lox_types import LoxType
+
 
 class EnvironmentLookupError(Exception):
     def __init__(self, message: str) -> None:
@@ -9,15 +11,15 @@ class EnvironmentLookupError(Exception):
 
 class Environment:
     def __init__(self, enclosing: Environment | None = None) -> None:
-        self._environment: dict[str, object] = {}
+        self._environment: dict[str, LoxType] = {}
         self.enclosing = enclosing
 
-    def define(self, variable: str, value: object) -> None:
+    def define(self, variable: str, value: LoxType) -> None:
         # Note that this allows us to re-declare already declared variables.
         # We're allowing this, at global scope.
         self._environment[variable] = value
 
-    def assign(self, variable: str, value: object) -> None:
+    def assign(self, variable: str, value: LoxType) -> None:
         if variable in self._environment:
             self._environment[variable] = value
             return
@@ -32,7 +34,7 @@ class Environment:
             f"Assigning to variable {variable!r} before declaration"
         )
 
-    def get(self, variable: str) -> object:
+    def get(self, variable: str) -> LoxType:
         if variable in self._environment:
             return self._environment[variable]
 

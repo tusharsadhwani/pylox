@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, unique
 
+from pylox.lox_types import LoxType
+
 
 @unique
 class TokenType(Enum):
@@ -77,7 +79,7 @@ KEYWORD_TOKENS = {
 class Token:
     token_type: TokenType
     string: str
-    value: object | None = None
+    value: LoxType | None = None
     index: int = -1
 
     def __repr__(self) -> str:

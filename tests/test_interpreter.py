@@ -6,6 +6,7 @@ from pytest import CaptureFixture
 
 from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer
+from pylox.lox_types import LoxType
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -41,7 +42,7 @@ from pylox.tokens import Token, TokenType
         # TODO: add more tests
     ),
 )
-def test_interpreter_expr(tree: Expr, expected: object) -> None:
+def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
     output = Interpreter().visit(tree)
     assert output == expected
 

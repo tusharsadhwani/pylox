@@ -1,8 +1,11 @@
-def get_lox_type_name(value: object) -> str:
-    if isinstance(value, str):
+from pylox.lox_types import LoxType, Number, String
+
+
+def get_lox_type_name(value: LoxType) -> str:
+    if isinstance(value, String):
         return "String"
 
-    if isinstance(value, float):
+    if isinstance(value, Number):
         return "Number"
 
     if value is True:
@@ -15,7 +18,7 @@ def get_lox_type_name(value: object) -> str:
     raise NotImplementedError(f"Unknown type for value: {value}")
 
 
-def is_truthy(value: object) -> bool:
+def is_truthy(value: LoxType) -> bool:
     if value is None:
         return False
 
