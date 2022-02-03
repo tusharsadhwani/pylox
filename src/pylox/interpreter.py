@@ -165,19 +165,19 @@ class Interpreter(Visitor[LoxType]):
     def visit_If(self, if_stmt: If) -> None:
         condition = self.visit(if_stmt.condition)
         if is_truthy(condition):
-            self._evaluate(if_stmt.body)
+            self.visit_Stmt(if_stmt.body)
         elif if_stmt.else_body is not None:
-            self._evaluate(if_stmt.else_body)
+            self.visit_Stmt(if_stmt.else_body)
 
     def visit_While(self, while_stmt: While) -> None:
         while is_truthy(self.visit(while_stmt.condition)):
-            self._evaluate(while_stmt.body)
+            self.visit_Stmt(while_stmt.body)
 
     def visit_For(self, for_stmt: For) -> None:
         if for_stmt.initializer is not None:
-            self._evaluate(for_stmt.initializer)
+            self.visit_Stmt(for_stmt.initializer)
 
         while for_stmt.condition is None or is_truthy(self.visit(for_stmt.condition)):
-            self._evaluate(for_stmt.body)
+            self.visit_Stmt(for_stmt.body)
             if for_stmt.increment is not None:
-                self._evaluate(for_stmt.increment)
+                self.visit_Expr(for_stmt.increment)

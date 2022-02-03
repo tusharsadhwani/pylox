@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Generic, TypeVar, overload
 
-from pylox.nodes import Block, Expr, Program, Stmt
+from pylox.nodes import Block, Expr, Node, Program, Stmt
 
 T = TypeVar("T")
 
@@ -21,13 +21,19 @@ class Visitor(Generic[T]):
     def visit(self, node: Expr | Program | Block) -> T | None:
         if isinstance(node, (Program, Block)):
             for stmt in node.body:
-                self._evaluate(stmt)
+                self.visit_Stmt(stmt)
 
             return None
 
-        return self._evaluate(node)
+        return self.visit_Expr(node)
 
-    def _evaluate(self, node: Stmt | Expr) -> T:
+    def visit_Node(self, node: Node) -> T:
         visitor_name = "visit_" + node.__class__.__name__
         visitor: Callable[..., T] = getattr(self, visitor_name)
         return visitor(node)
+
+    def visit_Stmt(self, stmt: Stmt) -> None:
+        self.visit_Node(stmt)
+
+    def visit_Expr(self, expr: Expr) -> T:
+        return self.visit_Node(expr)
