@@ -1,6 +1,6 @@
 from pylox.environment import Environment, EnvironmentLookupError
 from pylox.errors import LoxError
-from pylox.lox_types import LoxType
+from pylox.lox_types import LoxType, Number
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -38,7 +38,7 @@ class Interpreter(Visitor[LoxType]):
     def visit_Unary(self, unary: Unary) -> LoxType:
         if unary.operator.token_type == TokenType.MINUS:
             right_value = self.visit(unary.right)
-            if not isinstance(right_value, float):
+            if not isinstance(right_value, Number):
                 raise InterpreterError(
                     f"Expected number for unary '-', got {right_value}",
                     unary,
@@ -85,7 +85,7 @@ class Interpreter(Visitor[LoxType]):
         ):
             return left_value + right_value
 
-        if isinstance(left_value, float) and isinstance(right_value, float):
+        if isinstance(left_value, Number) and isinstance(right_value, Number):
             if binary.operator.token_type == TokenType.PLUS:
                 return left_value + right_value
             if binary.operator.token_type == TokenType.MINUS:
