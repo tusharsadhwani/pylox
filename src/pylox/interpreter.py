@@ -26,7 +26,6 @@ from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name, is_lox_callable, is_truthy
 from pylox.visitor import Visitor
 
-
 GLOBALS = Environment()
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Protocol, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, Union
 
 if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
