@@ -76,6 +76,13 @@ class VarDeclaration(Declaration):
 
 
 @define
+class Function(Declaration):
+    name: Token
+    parameters: Sequence[Token]
+    body: Sequence[Stmt]
+
+
+@define
 class Block(Stmt):
     body: Sequence[Stmt]
 

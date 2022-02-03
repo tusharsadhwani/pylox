@@ -1,0 +1,9 @@
+fun getCallable() {
+  return "abc";
+}
+fun sideEffect() {
+  print "side effect!";
+}
+
+var xyz = getCallable();
+xyz(sideEffect());

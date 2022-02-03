@@ -1,0 +1,28 @@
+fun hello() {
+  print "Hello";
+}
+
+hello();
+
+var hello2 = hello;
+hello2();
+
+fun count(n) {
+  if (n > 1) count(n-1);
+  print n;
+}
+count(3);
+
+// TODO: implement return types
+// var global = 100;
+// fun a(x) {
+//   var nonlocal = 200;
+//   fun b(y) {
+//     fun c(z) {
+//       return x + y + z + global + nonlocal;
+//     }
+//     return c;
+//   }
+//   return b;
+// }
+// print a(10)(20)(30);

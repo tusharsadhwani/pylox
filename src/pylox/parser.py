@@ -14,6 +14,7 @@ from pylox.nodes import (
     Expr,
     ExprStmt,
     For,
+    Function,
     Grouping,
     If,
     Literal,
@@ -42,8 +43,11 @@ class Parser:
     """
     Current grammar:
         program -> declaration* EOF
-        declaration -> var_decl | statement
+        declaration -> var_decl | function_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
+        function_decl -> "fun" function
+        function -> IDENTIFIER "(" parameters? ")" block
+        parameters -> IDENTIFIER ("," IDENTIFIER)*
         statement -> block
                    | print_stmt
                    | if_stmt
@@ -170,6 +174,9 @@ class Parser:
         if self.match_next(TokenType.VAR):
             return self.parse_var_declaration()
 
+        if self.match_next(TokenType.FUN):
+            return self.parse_function_declaration()
+
         return self.parse_statement()
 
     def parse_var_declaration(self) -> VarDeclaration:
@@ -182,6 +189,45 @@ class Parser:
         initializer = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
         return VarDeclaration(name, initializer, index=index)
+
+    def parse_function_declaration(
+        self,
+        kind: LiteralType["function", "method"] = "function",
+    ) -> Function:
+        function_name = self.consume(TokenType.IDENTIFIER, name=f"{kind} name")
+        bracket = self.consume(TokenType.LEFT_PAREN)
+
+        parameters: list[Token] = []
+        # Case 1: No parameters
+        if self.match_next(TokenType.RIGHT_PAREN):
+            self.consume(TokenType.LEFT_BRACE)
+            block = self.parse_block()
+            return Function(function_name, parameters, block.body)
+
+        # Case 2: One parameter
+        parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
+        parameters.append(parameter)
+        if self.match_next(TokenType.RIGHT_PAREN):
+            self.consume(TokenType.LEFT_BRACE)
+            block = self.parse_block()
+            return Function(function_name, parameters, block.body)
+
+        # Case 3: upto 255 arguments, preceded by a comma
+        while self.match_next(TokenType.COMMA):
+            # Only upto 255 arguments allowed
+            if len(parameters) >= 255:
+                raise ParseError(
+                    "More than 255 parameters not allowed in a function definition",
+                    bracket,
+                )
+
+            parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
+            parameters.append(parameter)
+
+        self.consume(TokenType.RIGHT_PAREN)
+        self.consume(TokenType.LEFT_BRACE)
+        block = self.parse_block()
+        return Function(function_name, parameters, block.body)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -432,19 +478,24 @@ class Parser:
         token = self.get_token()
         raise ParseError(f"Unexpected token: {token.string!r}", token)
 
-    def consume(self, expected_type: TokenType) -> Token:
+    def consume(self, expected_type: TokenType, name: str = "") -> Token:
         """Consumes one token. If it's not of the expected type, throws."""
+        if name:
+            expected = name
+        else:
+            expected = repr(expected_type.value)
+
         token = self.get_token()
 
         if token == EOF:
             raise ParseEOFError(
-                f"Expected to find {expected_type.value!r}, found EOF",
+                f"Expected to find {expected}, found EOF",
                 token,
             )
 
         if token.token_type != expected_type:
             raise ParseError(
-                f"Expected to find {expected_type.value!r}, found {token.string!r}",
+                f"Expected to find {expected}, found {token.string!r}",
                 token,
             )
 

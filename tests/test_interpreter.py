@@ -234,6 +234,16 @@ def test_interpreter(
             true
             """,
         ),
+        (
+            "functions.lox",
+            """\
+            Hello
+            Hello
+            1.0
+            2.0
+            3.0
+            """,
+        ),
     ),
 )
 def test_interpreter_files(

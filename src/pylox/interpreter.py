@@ -12,6 +12,7 @@ from pylox.nodes import (
     Call,
     ExprStmt,
     For,
+    Function,
     Grouping,
     If,
     Literal,
@@ -27,9 +28,6 @@ from pylox.utils import get_lox_type_name, is_lox_callable, is_truthy
 from pylox.visitor import Visitor
 
 
-GLOBALS = Environment()
-
-
 class NativeClock:
     def __repr__(self) -> str:
         return "<native function 'clock'>"
@@ -41,7 +39,37 @@ class NativeClock:
         return 0
 
 
-GLOBALS.define("clock", NativeClock())
+def create_globals() -> Environment:
+    globals = Environment()
+    globals.define("clock", NativeClock())
+    return globals
+
+
+class LoxFunction:
+    def __init__(self, declaration: Function) -> None:
+        self.declaration = declaration
+
+    def __repr__(self) -> str:
+        function_name = self.declaration.name.string
+        return f"<function {function_name!r}>"
+
+    def arity(self) -> int:
+        return len(self.declaration.parameters)
+
+    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> None:
+        # Each function call creates a new local environment
+        environment = Environment(interpreter.environment)
+        for parameter, argument in zip(self.declaration.parameters, arguments):
+            # First, define the arguments
+            environment.define(parameter.string, argument)
+
+        # Then, run the code in the new context
+        parent_enviroment = interpreter.environment
+        interpreter.environment = environment
+        for statement in self.declaration.body:
+            interpreter.visit_Stmt(statement)
+
+        interpreter.environment = parent_enviroment
 
 
 class InterpreterError(LoxError):
@@ -52,7 +80,7 @@ class InterpreterError(LoxError):
 
 class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
-        self.environment = GLOBALS
+        self.environment = create_globals()
 
     def visit_Literal(self, literal: Literal) -> LoxType:
         return literal.value
@@ -230,3 +258,6 @@ class Interpreter(Visitor[LoxType]):
             )
 
         return function.call(self, arguments)
+
+    def visit_Function(self, function: Function) -> None:
+        self.environment.define(function.name.string, LoxFunction(function))
