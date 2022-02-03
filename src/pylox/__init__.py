@@ -100,7 +100,12 @@ def run_interactive() -> int:
                 expression = tree.body[0].expression
                 output = interpteter.visit(expression)
                 if output is not None:
-                    print(output)
+                    if output is True:
+                        print("true")
+                    elif output is False:
+                        print("false")
+                    else:
+                        print(output)
             else:
                 interpteter.visit(tree)
         except InterpreterError as exc:

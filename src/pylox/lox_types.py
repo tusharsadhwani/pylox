@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import Protocol, Union
+from typing import Protocol, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pylox.interpreter import Interpreter
 
 
 String = str
@@ -9,7 +12,7 @@ Boolean = bool
 
 
 class Callable(Protocol):
-    def call(self) -> LoxType:
+    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         ...
 
     def arity(self) -> int:

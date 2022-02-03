@@ -1,13 +1,19 @@
-from pylox.lox_types import Boolean, LoxType, Number, String
+from __future__ import annotations
+
+import typing
+
+if typing.TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+
+from pylox.lox_types import Boolean, Callable, LoxType, Number, String
 
 
 def get_lox_type_name(value: LoxType) -> str:
-    if value is True:
-        return "true"
-    if value is False:
-        return "false"
     if value is None:
         return "nil"
+
+    if isinstance(value, bool):
+        return "Boolean"
 
     if isinstance(value, String):
         return "String"
@@ -15,7 +21,14 @@ def get_lox_type_name(value: LoxType) -> str:
     if isinstance(value, Number):
         return "Number"
 
+    if is_lox_callable(value):
+        return "Callable"
+
     raise NotImplementedError(f"Unknown type for value: {value}")
+
+
+def is_lox_callable(value: LoxType) -> TypeGuard[Callable]:
+    return callable(getattr(value, "call", None))
 
 
 def is_truthy(value: LoxType) -> bool:

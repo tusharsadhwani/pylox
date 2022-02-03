@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import time
+
 from pylox.environment import Environment, EnvironmentLookupError
 from pylox.errors import LoxError
 from pylox.lox_types import LoxType, Number
@@ -5,6 +9,7 @@ from pylox.nodes import (
     Assignment,
     Binary,
     Block,
+    Call,
     ExprStmt,
     For,
     Grouping,
@@ -18,8 +23,25 @@ from pylox.nodes import (
     While,
 )
 from pylox.tokens import TokenType
-from pylox.utils import get_lox_type_name, is_truthy
+from pylox.utils import get_lox_type_name, is_lox_callable, is_truthy
 from pylox.visitor import Visitor
+
+
+GLOBALS = Environment()
+
+
+class NativeClock:
+    def __repr__(self) -> str:
+        return "<native function 'clock'>"
+
+    def call(self, _: Interpreter, __: list[LoxType]) -> Number:
+        return time.time()
+
+    def arity(self) -> int:
+        return 0
+
+
+GLOBALS.define("clock", NativeClock())
 
 
 class InterpreterError(LoxError):
@@ -30,7 +52,7 @@ class InterpreterError(LoxError):
 
 class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
-        self.environment = Environment()
+        self.environment = GLOBALS
 
     def visit_Literal(self, literal: Literal) -> LoxType:
         return literal.value
@@ -120,6 +142,10 @@ class Interpreter(Visitor[LoxType]):
         value = self.visit(print_stmt.value)
         if value is None:
             print("nil")
+        elif value is True:
+            print("true")
+        elif value is False:
+            print("false")
         else:
             print(value)
 
@@ -181,3 +207,26 @@ class Interpreter(Visitor[LoxType]):
             self.visit_Stmt(for_stmt.body)
             if for_stmt.increment is not None:
                 self.visit_Expr(for_stmt.increment)
+
+    def visit_Call(self, call: Call) -> LoxType:
+        function = self.visit(call.callee)
+
+        # We will evaluate all arguments before checking if the function
+        # is callable. This is done because that's what a programmer
+        # would expect to happen. Seeing abc(xyz()), you'd expect xyz()
+        # to finish before abc(...) is attempted.
+        arguments: list[LoxType] = []
+        for argument in call.arguments:
+            arguments.append(self.visit(argument))
+
+        if not is_lox_callable(function):
+            raise InterpreterError(f"{function!r} is not callable", call)
+
+        if function.arity() != len(arguments):
+            expected = function.arity()
+            got = len(arguments)
+            raise InterpreterError(
+                f"{function!r} expected {expected} arguments, got {got}", call
+            )
+
+        return function.call(self, arguments)

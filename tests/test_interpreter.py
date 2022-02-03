@@ -227,6 +227,13 @@ def test_interpreter(
             20.0
             """,
         ),
+        (
+            "native_functions.lox",
+            """\
+            true
+            true
+            """,
+        ),
     ),
 )
 def test_interpreter_files(
