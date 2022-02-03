@@ -66,8 +66,9 @@ What has already been implemented:
 - [x] `while` loops
 - [x] `for` loops
 - [x] Logical `and` and `or` operators
-- [ ] Function declarations, calls, first class functions and callbacks
-- [ ] Local functions and closures
+- [x] Function declarations, calls, first class functions and callbacks
+- [x] Local functions and closures
+- [ ] Return values
 - [ ] Compile time variable resolution and binding
 - [ ] Class declarations, and objects
 - [ ] Class properties
