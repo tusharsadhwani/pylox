@@ -87,6 +87,7 @@ Here's the full set of extra features, and their progress:
   - [ ] Modulo `%`
   - [ ] Integer division `\`
   - [ ] Power `**`
+- [ ] Augmented versions of all operators: `+=`, `**=`, etc.
 - [ ] New data types:
   - [ ] int: `42`
   - [ ] list: `[42, 56]`
