@@ -13,7 +13,34 @@ fun count(n) {
 }
 count(3);
 
-// TODO: implement return types
+fun add(a, b) {
+  return a + b;
+}
+print add(10, 20);
+
+fun getAdder() {
+  fun add(a, b) {
+    return a + b;
+  }
+  return add;
+}
+var adder = getAdder();
+print adder(30, 40);
+
+// TODO: implement closures
+// fun counter() {
+//   print "Counter starting";
+//   var count = 0;
+//   fun getCount() {
+//     count = count + 1;
+//     return count;
+//   }
+//   return getCount;
+// }
+// var count = counter();
+// print count();
+// print count();
+
 // var global = 100;
 // fun a(x) {
 //   var nonlocal = 200;

@@ -114,6 +114,11 @@ class For(Stmt):
 
 
 @define
+class ReturnStmt(Stmt):
+    value: Expr | None = None
+
+
+@define
 class ExprStmt(Stmt):
     expression: Expr
 

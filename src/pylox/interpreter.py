@@ -18,6 +18,7 @@ from pylox.nodes import (
     Literal,
     Node,
     Print,
+    ReturnStmt,
     Unary,
     VarDeclaration,
     Variable,
@@ -45,6 +46,13 @@ def create_globals() -> Environment:
     return globals
 
 
+class Return(Exception):
+    """Used to return a value from inside an executing function"""
+
+    def __init__(self, value: LoxType) -> None:
+        self.value = value
+
+
 class LoxFunction:
     def __init__(self, declaration: Function) -> None:
         self.declaration = declaration
@@ -56,7 +64,7 @@ class LoxFunction:
     def arity(self) -> int:
         return len(self.declaration.parameters)
 
-    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> None:
+    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         # Each function call creates a new local environment
         environment = Environment(interpreter.environment)
         for parameter, argument in zip(self.declaration.parameters, arguments):
@@ -64,12 +72,19 @@ class LoxFunction:
             environment.define(parameter.string, argument)
 
         # Then, run the code in the new context
+        # TODO: there's similar code in visit_Block. Refactor?
         parent_enviroment = interpreter.environment
         interpreter.environment = environment
-        for statement in self.declaration.body:
-            interpreter.visit_Stmt(statement)
 
-        interpreter.environment = parent_enviroment
+        try:
+            for statement in self.declaration.body:
+                interpreter.visit_Stmt(statement)
+        except Return as ret:
+            return ret.value
+        finally:
+            interpreter.environment = parent_enviroment
+
+        return None
 
 
 class InterpreterError(LoxError):
@@ -262,3 +277,11 @@ class Interpreter(Visitor[LoxType]):
 
     def visit_Function(self, function: Function) -> None:
         self.environment.define(function.name.string, LoxFunction(function))
+
+    def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
+        if return_stmt.value:
+            return_value = self.visit(return_stmt.value)
+        else:
+            return_value = None
+
+        raise Return(return_value)

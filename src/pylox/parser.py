@@ -20,6 +20,7 @@ from pylox.nodes import (
     Literal,
     Print,
     Program,
+    ReturnStmt,
     Stmt,
     Unary,
     VarDeclaration,
@@ -53,6 +54,7 @@ class Parser:
                    | if_stmt
                    | while_stmt
                    | for_stmt
+                   | return_stmt
                    | expr_stmt
         block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
@@ -60,6 +62,7 @@ class Parser:
         while_stmt -> "while" "(" expression ")" statement
         for_stmt -> "for" "(" (var_decl | statement | ";")
                     expression? ";" expression? ")" statement
+        return_stmt -> "return" expression? ";"
         expr_stmt -> expression ";"
         expression -> assignment
         assignment -> IDENTIFIER "=" assignment | logical_or
@@ -245,6 +248,9 @@ class Parser:
         if self.match_next(TokenType.FOR):
             return self.parse_for_stmt()
 
+        if self.match_next(TokenType.RETURN):
+            return self.parse_return_stmt()
+
         return self.parse_expr_stmt()
 
     def parse_block(self) -> Block:
@@ -316,6 +322,14 @@ class Parser:
 
         body = self.parse_declaration()
         return For(initializer, condition, increment, body, index=index)
+
+    def parse_return_stmt(self) -> ReturnStmt:
+        if self.match_next(TokenType.SEMICOLON):
+            return ReturnStmt()
+
+        expression = self.parse_expression()
+        self.consume(TokenType.SEMICOLON)
+        return ReturnStmt(expression)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()
