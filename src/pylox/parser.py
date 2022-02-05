@@ -424,14 +424,16 @@ class Parser:
 
             # Case 1: No arguments
             if self.match_next(TokenType.RIGHT_PAREN):
-                return Call(callee, bracket)
+                callee = Call(callee, bracket)
+                continue
 
             arguments: list[Expr] = []
 
             # Case 2: One argument
             arguments.append(self.parse_expression())
             if self.match_next(TokenType.RIGHT_PAREN):
-                return Call(callee, bracket, arguments)
+                callee = Call(callee, bracket, arguments)
+                continue
 
             # Case 3: upto 255 arguments, preceded by a comma
             while self.match_next(TokenType.COMMA):
