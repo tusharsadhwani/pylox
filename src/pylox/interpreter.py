@@ -248,7 +248,8 @@ class Interpreter(Visitor[LoxType]):
             arguments.append(self.visit(argument))
 
         if not is_lox_callable(function):
-            raise InterpreterError(f"{function!r} is not callable", call)
+            object_type = get_lox_type_name(function)
+            raise InterpreterError(f"{object_type} object is not callable", call)
 
         if function.arity() != len(arguments):
             expected = function.arity()
