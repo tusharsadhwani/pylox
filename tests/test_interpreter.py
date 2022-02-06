@@ -43,7 +43,7 @@ from pylox.tokens import Token, TokenType
     ),
 )
 def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
-    output = Interpreter().visit(tree)
+    output = Interpreter().evaluate(tree)
     assert output == expected
 
 

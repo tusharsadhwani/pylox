@@ -10,6 +10,7 @@ from pylox.nodes import (
     Binary,
     Block,
     Call,
+    Expr,
     ExprStmt,
     For,
     FunctionDef,
@@ -18,7 +19,9 @@ from pylox.nodes import (
     Literal,
     Node,
     Print,
+    Program,
     ReturnStmt,
+    Stmt,
     Unary,
     VarDeclaration,
     Variable,
@@ -79,7 +82,7 @@ class LoxFunction:
 
         try:
             for statement in self.declaration.body:
-                interpreter.visit_Stmt(statement)
+                interpreter.execute(statement)
         except Return as ret:
             return ret.value
         finally:
@@ -98,12 +101,22 @@ class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
         self.environment = create_globals()
 
+    def visit(self, node: Program | Block) -> None:
+        for stmt in node.body:
+            self.generic_visit(stmt)
+
+    def execute(self, stmt: Stmt) -> None:
+        self.generic_visit(stmt)
+
+    def evaluate(self, expr: Expr) -> LoxType:
+        return self.generic_visit(expr)
+
     def visit_Literal(self, literal: Literal) -> LoxType:
         return literal.value
 
     def visit_Unary(self, unary: Unary) -> LoxType:
         if unary.operator.token_type == TokenType.MINUS:
-            right_value = self.visit(unary.right)
+            right_value = self.evaluate(unary.right)
             if not isinstance(right_value, Number):
                 raise InterpreterError(
                     f"Expected number for unary '-', got {right_value}",
@@ -113,7 +126,7 @@ class Interpreter(Visitor[LoxType]):
             return -right_value
 
         elif unary.operator.token_type == TokenType.BANG:
-            right_value = self.visit(unary.right)
+            right_value = self.evaluate(unary.right)
             if is_truthy(right_value):
                 return False
 
@@ -125,7 +138,7 @@ class Interpreter(Visitor[LoxType]):
 
     def visit_Binary(self, binary: Binary) -> LoxType:
         """Note that we evaluate both sides before type checking."""
-        left_value = self.visit(binary.left)
+        left_value = self.evaluate(binary.left)
 
         # Short circuited operators: `and` and `or`, can return early
         if binary.operator.token_type == TokenType.OR and is_truthy(left_value):
@@ -133,7 +146,7 @@ class Interpreter(Visitor[LoxType]):
         if binary.operator.token_type == TokenType.AND and not is_truthy(left_value):
             return left_value
 
-        right_value = self.visit(binary.right)
+        right_value = self.evaluate(binary.right)
 
         # If short circuits didn't return early, they'll return the right value
         if binary.operator.token_type in (TokenType.AND, TokenType.OR):
@@ -180,10 +193,10 @@ class Interpreter(Visitor[LoxType]):
         )
 
     def visit_Grouping(self, grouping: Grouping) -> LoxType:
-        return self.visit(grouping.expression)
+        return self.evaluate(grouping.expression)
 
     def visit_Print(self, print_stmt: Print) -> None:
-        value = self.visit(print_stmt.value)
+        value = self.evaluate(print_stmt.value)
         if value is None:
             print("nil")
         elif value is True:
@@ -194,13 +207,13 @@ class Interpreter(Visitor[LoxType]):
             print(value)
 
     def visit_ExprStmt(self, expr_stmt: ExprStmt) -> None:
-        self.visit(expr_stmt.expression)
+        self.evaluate(expr_stmt.expression)
 
     def visit_VarDeclaration(self, var_decl: VarDeclaration) -> None:
         if var_decl.initializer is None:
             value = None
         else:
-            value = self.visit(var_decl.initializer)
+            value = self.evaluate(var_decl.initializer)
 
         variable = var_decl.name.string
         self.environment.define(variable, value)
@@ -212,7 +225,7 @@ class Interpreter(Visitor[LoxType]):
             raise InterpreterError(exc.message, variable)
 
     def visit_Assignment(self, assignment: Assignment) -> LoxType:
-        value = self.visit(assignment.value)
+        value = self.evaluate(assignment.value)
         variable = assignment.name.string
 
         try:
@@ -233,27 +246,29 @@ class Interpreter(Visitor[LoxType]):
             self.environment = own_environment
 
     def visit_If(self, if_stmt: If) -> None:
-        condition = self.visit(if_stmt.condition)
+        condition = self.evaluate(if_stmt.condition)
         if is_truthy(condition):
-            self.visit_Stmt(if_stmt.body)
+            self.execute(if_stmt.body)
         elif if_stmt.else_body is not None:
-            self.visit_Stmt(if_stmt.else_body)
+            self.execute(if_stmt.else_body)
 
     def visit_While(self, while_stmt: While) -> None:
-        while is_truthy(self.visit(while_stmt.condition)):
-            self.visit_Stmt(while_stmt.body)
+        while is_truthy(self.evaluate(while_stmt.condition)):
+            self.execute(while_stmt.body)
 
     def visit_For(self, for_stmt: For) -> None:
         if for_stmt.initializer is not None:
-            self.visit_Stmt(for_stmt.initializer)
+            self.execute(for_stmt.initializer)
 
-        while for_stmt.condition is None or is_truthy(self.visit(for_stmt.condition)):
-            self.visit_Stmt(for_stmt.body)
+        while for_stmt.condition is None or is_truthy(
+            self.evaluate(for_stmt.condition)
+        ):
+            self.execute(for_stmt.body)
             if for_stmt.increment is not None:
-                self.visit_Expr(for_stmt.increment)
+                self.evaluate(for_stmt.increment)
 
     def visit_Call(self, call: Call) -> LoxType:
-        function = self.visit(call.callee)
+        function = self.evaluate(call.callee)
 
         # We will evaluate all arguments before checking if the function
         # is callable. This is done because that's what a programmer
@@ -261,7 +276,7 @@ class Interpreter(Visitor[LoxType]):
         # to finish before abc(...) is attempted.
         arguments: list[LoxType] = []
         for argument in call.arguments:
-            arguments.append(self.visit(argument))
+            arguments.append(self.evaluate(argument))
 
         if not is_lox_callable(function):
             object_type = get_lox_type_name(function)
@@ -282,7 +297,7 @@ class Interpreter(Visitor[LoxType]):
 
     def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
         if return_stmt.value:
-            return_value = self.visit(return_stmt.value)
+            return_value = self.evaluate(return_stmt.value)
         else:
             return_value = None
 

@@ -98,7 +98,7 @@ def run_interactive() -> int:
             # If the program is a single expression, print its output
             if len(tree.body) == 1 and isinstance(tree.body[0], ExprStmt):
                 expression = tree.body[0].expression
-                output = interpteter.visit(expression)
+                output = interpteter.evaluate(expression)
                 if output is not None:
                     if output is True:
                         print("true")

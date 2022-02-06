@@ -1,5 +1,5 @@
 from pylox.lexer import Lexer
-from pylox.nodes import Binary, Call, Grouping, Literal, Unary, Variable
+from pylox.nodes import Binary, Call, Expr, ExprStmt, Grouping, Literal, Unary, Variable
 from pylox.parser import Parser
 from pylox.visitor import Visitor
 
@@ -7,6 +7,9 @@ from pylox.visitor import Visitor
 class AstPrinter(Visitor[str]):
     # TODO: Find a way for mypy to enforce every visit function's
     # return value to be str.
+
+    def visit(self, expr: Expr) -> str:
+        return self.generic_visit(expr)
 
     def visit_Literal(self, literal: Literal) -> str:
         if literal.value is None:
@@ -44,7 +47,10 @@ def main() -> None:
     tokens = Lexer("(8 / 2) + 3 * 5").tokens
     parser = Parser(tokens)
     tree = parser.parse(mode="repl")
-    tree_str = AstPrinter().visit(tree)
+    assert len(tree.body) == 1
+    stmt = tree.body
+    assert isinstance(stmt, ExprStmt)
+    tree_str = AstPrinter().visit(stmt.expression)
     print(tree_str)
 
 
