@@ -244,6 +244,10 @@ def test_interpreter(
             3.0
             30.0
             70.0
+            Counter starting
+            1.0
+            2.0
+            360.0
             """,
         ),
     ),

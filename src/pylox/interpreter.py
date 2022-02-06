@@ -54,8 +54,9 @@ class Return(Exception):
 
 
 class LoxFunction:
-    def __init__(self, declaration: Function) -> None:
+    def __init__(self, declaration: Function, closure: Environment) -> None:
         self.declaration = declaration
+        self.closure = closure
 
     def __repr__(self) -> str:
         function_name = self.declaration.name.string
@@ -66,7 +67,7 @@ class LoxFunction:
 
     def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         # Each function call creates a new local environment
-        environment = Environment(interpreter.environment)
+        environment = Environment(self.closure)
         for parameter, argument in zip(self.declaration.parameters, arguments):
             # First, define the arguments
             environment.define(parameter.string, argument)
@@ -276,7 +277,8 @@ class Interpreter(Visitor[LoxType]):
         return function.call(self, arguments)
 
     def visit_Function(self, function: Function) -> None:
-        self.environment.define(function.name.string, LoxFunction(function))
+        function_object = LoxFunction(function, self.environment)
+        self.environment.define(function.name.string, function_object)
 
     def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
         if return_stmt.value:
