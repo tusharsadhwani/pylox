@@ -5,7 +5,6 @@ from typing import Protocol, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
 
-
 String = str
 Number = float
 Boolean = bool
