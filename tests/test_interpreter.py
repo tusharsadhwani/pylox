@@ -267,3 +267,6 @@ def test_interpreter_files(
     stdout, stderr = capsys.readouterr()
     assert stdout.rstrip() == dedent(output).rstrip()
     assert stderr == ""
+
+
+# TODO: add benchmarks, eg. recusrive fibonacci(25)
