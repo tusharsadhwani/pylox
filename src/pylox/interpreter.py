@@ -12,7 +12,7 @@ from pylox.nodes import (
     Call,
     ExprStmt,
     For,
-    Function,
+    FunctionDef,
     Grouping,
     If,
     Literal,
@@ -54,7 +54,7 @@ class Return(Exception):
 
 
 class LoxFunction:
-    def __init__(self, declaration: Function, closure: Environment) -> None:
+    def __init__(self, declaration: FunctionDef, closure: Environment) -> None:
         self.declaration = declaration
         self.closure = closure
 
@@ -276,9 +276,9 @@ class Interpreter(Visitor[LoxType]):
 
         return function.call(self, arguments)
 
-    def visit_Function(self, function: Function) -> None:
-        function_object = LoxFunction(function, self.environment)
-        self.environment.define(function.name.string, function_object)
+    def visit_FunctionDef(self, function_def: FunctionDef) -> None:
+        function_object = LoxFunction(function_def, self.environment)
+        self.environment.define(function_def.name.string, function_object)
 
     def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
         if return_stmt.value:

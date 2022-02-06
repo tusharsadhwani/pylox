@@ -14,7 +14,7 @@ from pylox.nodes import (
     Expr,
     ExprStmt,
     For,
-    Function,
+    FunctionDef,
     Grouping,
     If,
     Literal,
@@ -196,7 +196,7 @@ class Parser:
     def parse_function_declaration(
         self,
         kind: LiteralType["function", "method"] = "function",
-    ) -> Function:
+    ) -> FunctionDef:
         function_name = self.consume(TokenType.IDENTIFIER, name=f"{kind} name")
         bracket = self.consume(TokenType.LEFT_PAREN)
 
@@ -205,7 +205,7 @@ class Parser:
         if self.match_next(TokenType.RIGHT_PAREN):
             self.consume(TokenType.LEFT_BRACE)
             block = self.parse_block()
-            return Function(function_name, parameters, block.body)
+            return FunctionDef(function_name, parameters, block.body)
 
         # Case 2: One parameter
         parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
@@ -213,7 +213,7 @@ class Parser:
         if self.match_next(TokenType.RIGHT_PAREN):
             self.consume(TokenType.LEFT_BRACE)
             block = self.parse_block()
-            return Function(function_name, parameters, block.body)
+            return FunctionDef(function_name, parameters, block.body)
 
         # Case 3: upto 255 arguments, preceded by a comma
         while self.match_next(TokenType.COMMA):
@@ -230,7 +230,7 @@ class Parser:
         self.consume(TokenType.RIGHT_PAREN)
         self.consume(TokenType.LEFT_BRACE)
         block = self.parse_block()
-        return Function(function_name, parameters, block.body)
+        return FunctionDef(function_name, parameters, block.body)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):

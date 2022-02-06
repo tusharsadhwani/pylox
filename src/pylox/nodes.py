@@ -76,7 +76,7 @@ class VarDeclaration(Declaration):
 
 
 @define
-class Function(Declaration):
+class FunctionDef(Declaration):
     name: Token
     parameters: Sequence[Token]
     body: Sequence[Stmt]
