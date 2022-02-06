@@ -153,6 +153,22 @@ def read_file(filepath: str) -> str:
             ],
             "((fibonacci 5.0) == ((fibonacci 4.0) + (fibonacci 3.0)))",
         ),
+        (
+            [
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "10", 10.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "20", 20.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.NUMBER, "30", 30.0),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                EOF,
+            ],
+            "(((a 10.0) 20.0) 30.0)",
+        ),
     ),
 )
 def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:

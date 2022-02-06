@@ -1,0 +1,10 @@
+fun innerError() {
+  x = "This variable doesn't exist";
+}
+
+fun outer(fn) {
+  print "Outer, which should not get printed";
+}
+
+outer(innerError());
+print "This will also never run";

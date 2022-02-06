@@ -14,11 +14,13 @@ from pylox.nodes import (
     Expr,
     ExprStmt,
     For,
+    FunctionDef,
     Grouping,
     If,
     Literal,
     Print,
     Program,
+    ReturnStmt,
     Stmt,
     Unary,
     VarDeclaration,
@@ -42,13 +44,17 @@ class Parser:
     """
     Current grammar:
         program -> declaration* EOF
-        declaration -> var_decl | statement
+        declaration -> var_decl | function_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
+        function_decl -> "fun" function
+        function -> IDENTIFIER "(" parameters? ")" block
+        parameters -> IDENTIFIER ("," IDENTIFIER)*
         statement -> block
                    | print_stmt
                    | if_stmt
                    | while_stmt
                    | for_stmt
+                   | return_stmt
                    | expr_stmt
         block -> "{" declaration* "}"
         print_stmt -> "print" expression ";"
@@ -56,6 +62,7 @@ class Parser:
         while_stmt -> "while" "(" expression ")" statement
         for_stmt -> "for" "(" (var_decl | statement | ";")
                     expression? ";" expression? ")" statement
+        return_stmt -> "return" expression? ";"
         expr_stmt -> expression ";"
         expression -> assignment
         assignment -> IDENTIFIER "=" assignment | logical_or
@@ -170,6 +177,9 @@ class Parser:
         if self.match_next(TokenType.VAR):
             return self.parse_var_declaration()
 
+        if self.match_next(TokenType.FUN):
+            return self.parse_function_declaration()
+
         return self.parse_statement()
 
     def parse_var_declaration(self) -> VarDeclaration:
@@ -182,6 +192,45 @@ class Parser:
         initializer = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
         return VarDeclaration(name, initializer, index=index)
+
+    def parse_function_declaration(
+        self,
+        kind: LiteralType["function", "method"] = "function",
+    ) -> FunctionDef:
+        function_name = self.consume(TokenType.IDENTIFIER, name=f"{kind} name")
+        bracket = self.consume(TokenType.LEFT_PAREN)
+
+        parameters: list[Token] = []
+        # Case 1: No parameters
+        if self.match_next(TokenType.RIGHT_PAREN):
+            self.consume(TokenType.LEFT_BRACE)
+            block = self.parse_block()
+            return FunctionDef(function_name, parameters, block.body)
+
+        # Case 2: One parameter
+        parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
+        parameters.append(parameter)
+        if self.match_next(TokenType.RIGHT_PAREN):
+            self.consume(TokenType.LEFT_BRACE)
+            block = self.parse_block()
+            return FunctionDef(function_name, parameters, block.body)
+
+        # Case 3: upto 255 arguments, preceded by a comma
+        while self.match_next(TokenType.COMMA):
+            # Only upto 255 arguments allowed
+            if len(parameters) >= 255:
+                raise ParseError(
+                    "More than 255 parameters not allowed in a function definition",
+                    bracket,
+                )
+
+            parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
+            parameters.append(parameter)
+
+        self.consume(TokenType.RIGHT_PAREN)
+        self.consume(TokenType.LEFT_BRACE)
+        block = self.parse_block()
+        return FunctionDef(function_name, parameters, block.body)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -198,6 +247,9 @@ class Parser:
 
         if self.match_next(TokenType.FOR):
             return self.parse_for_stmt()
+
+        if self.match_next(TokenType.RETURN):
+            return self.parse_return_stmt()
 
         return self.parse_expr_stmt()
 
@@ -270,6 +322,14 @@ class Parser:
 
         body = self.parse_declaration()
         return For(initializer, condition, increment, body, index=index)
+
+    def parse_return_stmt(self) -> ReturnStmt:
+        if self.match_next(TokenType.SEMICOLON):
+            return ReturnStmt()
+
+        expression = self.parse_expression()
+        self.consume(TokenType.SEMICOLON)
+        return ReturnStmt(expression)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()
@@ -378,14 +438,16 @@ class Parser:
 
             # Case 1: No arguments
             if self.match_next(TokenType.RIGHT_PAREN):
-                return Call(callee, bracket)
+                callee = Call(callee, bracket)
+                continue
 
             arguments: list[Expr] = []
 
             # Case 2: One argument
             arguments.append(self.parse_expression())
             if self.match_next(TokenType.RIGHT_PAREN):
-                return Call(callee, bracket, arguments)
+                callee = Call(callee, bracket, arguments)
+                continue
 
             # Case 3: upto 255 arguments, preceded by a comma
             while self.match_next(TokenType.COMMA):
@@ -432,19 +494,24 @@ class Parser:
         token = self.get_token()
         raise ParseError(f"Unexpected token: {token.string!r}", token)
 
-    def consume(self, expected_type: TokenType) -> Token:
+    def consume(self, expected_type: TokenType, name: str = "") -> Token:
         """Consumes one token. If it's not of the expected type, throws."""
+        if name:
+            expected = name
+        else:
+            expected = repr(expected_type.value)
+
         token = self.get_token()
 
         if token == EOF:
             raise ParseEOFError(
-                f"Expected to find {expected_type.value!r}, found EOF",
+                f"Expected to find {expected}, found EOF",
                 token,
             )
 
         if token.token_type != expected_type:
             raise ParseError(
-                f"Expected to find {expected_type.value!r}, found {token.string!r}",
+                f"Expected to find {expected}, found {token.string!r}",
                 token,
             )
 

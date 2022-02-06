@@ -12,11 +12,13 @@ from pylox.nodes import (
     Call,
     ExprStmt,
     For,
+    FunctionDef,
     Grouping,
     If,
     Literal,
     Node,
     Print,
+    ReturnStmt,
     Unary,
     VarDeclaration,
     Variable,
@@ -25,8 +27,6 @@ from pylox.nodes import (
 from pylox.tokens import TokenType
 from pylox.utils import get_lox_type_name, is_lox_callable, is_truthy
 from pylox.visitor import Visitor
-
-GLOBALS = Environment()
 
 
 class NativeClock:
@@ -40,7 +40,52 @@ class NativeClock:
         return 0
 
 
-GLOBALS.define("clock", NativeClock())
+def create_globals() -> Environment:
+    globals = Environment()
+    globals.define("clock", NativeClock())
+    return globals
+
+
+class Return(Exception):
+    """Used to return a value from inside an executing function"""
+
+    def __init__(self, value: LoxType) -> None:
+        self.value = value
+
+
+class LoxFunction:
+    def __init__(self, declaration: FunctionDef, closure: Environment) -> None:
+        self.declaration = declaration
+        self.closure = closure
+
+    def __repr__(self) -> str:
+        function_name = self.declaration.name.string
+        return f"<function {function_name!r}>"
+
+    def arity(self) -> int:
+        return len(self.declaration.parameters)
+
+    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
+        # Each function call creates a new local environment
+        environment = Environment(self.closure)
+        for parameter, argument in zip(self.declaration.parameters, arguments):
+            # First, define the arguments
+            environment.define(parameter.string, argument)
+
+        # Then, run the code in the new context
+        # TODO: there's similar code in visit_Block. Refactor?
+        parent_enviroment = interpreter.environment
+        interpreter.environment = environment
+
+        try:
+            for statement in self.declaration.body:
+                interpreter.visit_Stmt(statement)
+        except Return as ret:
+            return ret.value
+        finally:
+            interpreter.environment = parent_enviroment
+
+        return None
 
 
 class InterpreterError(LoxError):
@@ -51,7 +96,7 @@ class InterpreterError(LoxError):
 
 class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
-        self.environment = GLOBALS
+        self.environment = create_globals()
 
     def visit_Literal(self, literal: Literal) -> LoxType:
         return literal.value
@@ -219,7 +264,8 @@ class Interpreter(Visitor[LoxType]):
             arguments.append(self.visit(argument))
 
         if not is_lox_callable(function):
-            raise InterpreterError(f"{function!r} is not callable", call)
+            object_type = get_lox_type_name(function)
+            raise InterpreterError(f"{object_type} object is not callable", call)
 
         if function.arity() != len(arguments):
             expected = function.arity()
@@ -229,3 +275,15 @@ class Interpreter(Visitor[LoxType]):
             )
 
         return function.call(self, arguments)
+
+    def visit_FunctionDef(self, function_def: FunctionDef) -> None:
+        function_object = LoxFunction(function_def, self.environment)
+        self.environment.define(function_def.name.string, function_object)
+
+    def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
+        if return_stmt.value:
+            return_value = self.visit(return_stmt.value)
+        else:
+            return_value = None
+
+        raise Return(return_value)

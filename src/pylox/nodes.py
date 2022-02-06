@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Sequence
 
 from attr import define, field
-from pylox.lox_types import LoxType
 
+from pylox.lox_types import LoxType
 from pylox.tokens import Token
 
 
@@ -76,6 +76,13 @@ class VarDeclaration(Declaration):
 
 
 @define
+class FunctionDef(Declaration):
+    name: Token
+    parameters: Sequence[Token]
+    body: Sequence[Stmt]
+
+
+@define
 class Block(Stmt):
     body: Sequence[Stmt]
 
@@ -104,6 +111,11 @@ class For(Stmt):
     condition: Expr | None
     increment: Expr | None
     body: Stmt
+
+
+@define
+class ReturnStmt(Stmt):
+    value: Expr | None = None
 
 
 @define

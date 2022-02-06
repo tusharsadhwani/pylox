@@ -234,6 +234,22 @@ def test_interpreter(
             true
             """,
         ),
+        (
+            "functions.lox",
+            """\
+            Hello
+            Hello
+            1.0
+            2.0
+            3.0
+            30.0
+            70.0
+            Counter starting
+            1.0
+            2.0
+            360.0
+            """,
+        ),
     ),
 )
 def test_interpreter_files(
@@ -255,3 +271,6 @@ def test_interpreter_files(
     stdout, stderr = capsys.readouterr()
     assert stdout.rstrip() == dedent(output).rstrip()
     assert stderr == ""
+
+
+# TODO: add benchmarks, eg. recusrive fibonacci(25)

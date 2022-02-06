@@ -66,8 +66,9 @@ What has already been implemented:
 - [x] `while` loops
 - [x] `for` loops
 - [x] Logical `and` and `or` operators
-- [ ] Function declarations, calls, first class functions and callbacks
-- [ ] Local functions and closures
+- [x] Function declarations, calls, first class functions and callbacks
+- [x] Return values
+- [x] Closures
 - [ ] Compile time variable resolution and binding
 - [ ] Class declarations, and objects
 - [ ] Class properties
@@ -86,6 +87,7 @@ Here's the full set of extra features, and their progress:
   - [ ] Modulo `%`
   - [ ] Integer division `\`
   - [ ] Power `**`
+- [ ] Augmented versions of all operators: `+=`, `**=`, etc.
 - [ ] New data types:
   - [ ] int: `42`
   - [ ] list: `[42, 56]`

@@ -108,6 +108,9 @@ def run_interactive() -> int:
                         print(output)
             else:
                 interpteter.visit(tree)
+        except KeyboardInterrupt:
+            print("\rCancelled")
+            lines = []
         except InterpreterError as exc:
             pretty_print_error(code, "<input>", exc)
 

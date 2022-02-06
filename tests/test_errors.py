@@ -92,6 +92,16 @@ def test_parse_fail_files(
             InterpreterError: Assigning to variable 'y' before declaration
             """,
         ),
+        (
+            "fail5.lox",
+            """\
+            Error in fail5.lox:2:2
+
+                  x = "This variable doesn't exist";
+                  ^
+            InterpreterError: Assigning to variable 'x' before declaration
+            """,
+        ),
     ),
 )
 def test_interpret_fail_files(
