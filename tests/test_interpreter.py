@@ -250,6 +250,14 @@ def test_interpreter(
             360.0
             """,
         ),
+        (
+            "static_resolution.lox",
+            """\
+            global
+            global
+            global
+            """,
+        ),
     ),
 )
 def test_interpreter_files(
