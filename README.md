@@ -105,6 +105,7 @@ Here's the full set of extra features, and their progress:
 - [ ] A standard library
   - [ ] `random` module
   - [ ] `io` module string and binary reads/writes to files
+  - [ ] `http` library to make a web server and client
 
 Examples of all of these will be available in the [examples][2] folder.
 
