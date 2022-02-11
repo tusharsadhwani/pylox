@@ -11,7 +11,8 @@ class AstPrinter(Visitor[str]):
     def visit(self, expr: Expr) -> str:
         return self.generic_visit(expr)
 
-    def visit_Literal(self, literal: Literal) -> str:
+    @staticmethod
+    def visit_Literal(literal: Literal) -> str:
         if literal.value is None:
             return "nil"
 
@@ -20,7 +21,8 @@ class AstPrinter(Visitor[str]):
 
         return f"{literal.value!r}"
 
-    def visit_Variable(self, variable: Variable) -> str:
+    @staticmethod
+    def visit_Variable(variable: Variable) -> str:
         return variable.name.string
 
     def visit_Unary(self, unary: Unary) -> str:

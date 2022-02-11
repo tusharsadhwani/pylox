@@ -36,10 +36,12 @@ class NativeClock:
     def __repr__(self) -> str:
         return "<native function 'clock'>"
 
-    def call(self, _: Interpreter, __: list[LoxType]) -> Number:
+    @staticmethod
+    def call(_: Interpreter, __: list[LoxType]) -> Number:
         return time.time()
 
-    def arity(self) -> int:
+    @staticmethod
+    def arity() -> int:
         return 0
 
 
@@ -111,7 +113,8 @@ class Interpreter(Visitor[LoxType]):
     def evaluate(self, expr: Expr) -> LoxType:
         return self.generic_visit(expr)
 
-    def visit_Literal(self, literal: Literal) -> LoxType:
+    @staticmethod
+    def visit_Literal(literal: Literal) -> LoxType:
         return literal.value
 
     def visit_Unary(self, unary: Unary) -> LoxType:
