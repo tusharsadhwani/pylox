@@ -1,6 +1,6 @@
 from __future__ import annotations
-from collections import UserList
 
+from collections import UserList
 from contextlib import contextmanager
 from enum import Enum, unique
 from typing import Generator, Iterator, Sequence, TypeVar
@@ -28,8 +28,8 @@ from pylox.nodes import (
     While,
 )
 from pylox.parser import ParseError
-from pylox.visitor import Visitor
 from pylox.tokens import Token
+from pylox.visitor import Visitor
 
 
 @unique
