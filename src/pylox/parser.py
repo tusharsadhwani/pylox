@@ -324,12 +324,14 @@ class Parser:
         return For(initializer, condition, increment, body, index=index)
 
     def parse_return_stmt(self) -> ReturnStmt:
+        keyword = self.previous()
+
         if self.match_next(TokenType.SEMICOLON):
-            return ReturnStmt()
+            return ReturnStmt(keyword)
 
         expression = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
-        return ReturnStmt(expression)
+        return ReturnStmt(keyword, expression)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()

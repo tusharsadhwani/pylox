@@ -69,14 +69,19 @@ What has already been implemented:
 - [x] Function declarations, calls, first class functions and callbacks
 - [x] Return values
 - [x] Closures
-- [ ] Compile time variable resolution and binding
+- [x] Compile time variable resolution and binding
 - [ ] Class declarations, and objects
 - [ ] Class properties
 - [ ] Methods
 - [ ] `this` attribute, and object properties
 - [ ] Constructors
 
-## Extra features
+## Changes / Extra features
+
+There's a small number of changes from the reference language:
+
+- Defining a variable as itself inside a block does not result in a parse error.
+  Instead, it uses the value from outer scope to define itself in local scope.
 
 Here's the full set of extra features, and their progress:
 

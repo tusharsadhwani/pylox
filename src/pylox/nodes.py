@@ -8,7 +8,7 @@ from pylox.lox_types import LoxType
 from pylox.tokens import Token
 
 
-@define(kw_only=True)
+@define(kw_only=True, frozen=True)
 class Node:
     index: int = field(default=-1, repr=False)
 
@@ -115,6 +115,7 @@ class For(Stmt):
 
 @define
 class ReturnStmt(Stmt):
+    keyword: Token
     value: Expr | None = None
 
 

@@ -63,6 +63,26 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
             Found 2 errors.
             """,
         ),
+        (
+            "fail7.lox",
+            """\
+            Error in fail7.lox:3:6
+
+                  var x = "y";
+                      ^
+            ParseError: Variable 'x' already defined in this scope
+            """,
+        ),
+        (
+            "fail8.lox",
+            """\
+            Error in fail8.lox:1:0
+
+                return "global";
+                ^
+            ParseError: Cannot return outside of a function
+            """,
+        ),
     ),
 )
 def test_parse_fail_files(

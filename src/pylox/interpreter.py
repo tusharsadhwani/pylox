@@ -99,11 +99,16 @@ class InterpreterError(LoxError):
 
 class Interpreter(Visitor[LoxType]):
     def __init__(self) -> None:
-        self.environment = create_globals()
+        self.globals = create_globals()
+        self.environment = self.globals
+        self.locals: dict[Expr, int] = {}
 
     def visit(self, node: Program | Block) -> None:
         for stmt in node.body:
             self.generic_visit(stmt)
+
+    def resolve(self, expr: Expr, depth: int) -> None:
+        self.locals[expr] = depth
 
     def execute(self, stmt: Stmt) -> None:
         self.generic_visit(stmt)
@@ -219,8 +224,12 @@ class Interpreter(Visitor[LoxType]):
         self.environment.define(variable, value)
 
     def visit_Variable(self, variable: Variable) -> LoxType:
+        depth = self.locals.get(variable)
+        if depth is not None:
+            return self.environment.get_at(depth, variable.name.string)
+
         try:
-            return self.environment.get(variable.name.string)
+            return self.globals.get(variable.name.string)
         except EnvironmentLookupError as exc:
             raise InterpreterError(exc.message, variable)
 
@@ -228,8 +237,13 @@ class Interpreter(Visitor[LoxType]):
         value = self.evaluate(assignment.value)
         variable = assignment.name.string
 
+        depth = self.locals.get(assignment)
+        if depth is not None:
+            self.environment.assign_at(depth, variable, value)
+            return value
+
         try:
-            self.environment.assign(variable, value)
+            self.globals.assign(variable, value)
         except EnvironmentLookupError as exc:
             raise InterpreterError(exc.message, assignment)
 

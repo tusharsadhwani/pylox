@@ -75,7 +75,7 @@ KEYWORD_TOKENS = {
 }
 
 
-@dataclass
+@dataclass(frozen=True)
 class Token:
     token_type: TokenType
     string: str

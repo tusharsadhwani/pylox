@@ -21,6 +21,7 @@ from pylox.nodes import (
     Variable,
 )
 from pylox.parser import Parser
+from pylox.resolver import Resolver
 from pylox.tokens import Token, TokenType
 
 
@@ -96,64 +97,64 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
             Program(
                 body=[
                     VarDeclaration(
-                        name=Token(TokenType.IDENTIFIER, "a"),
+                        name=Token(TokenType.IDENTIFIER, "a", index=4),
                         initializer=Literal(value="ga"),
                     ),
                     VarDeclaration(
-                        name=Token(TokenType.IDENTIFIER, "b"),
+                        name=Token(TokenType.IDENTIFIER, "b", index=18),
                         initializer=Literal(value="gb"),
                     ),
                     VarDeclaration(
-                        name=Token(TokenType.IDENTIFIER, "c"),
+                        name=Token(TokenType.IDENTIFIER, "c", index=32),
                         initializer=Literal(value="gc"),
                     ),
                     Block(
                         body=[
                             VarDeclaration(
-                                name=Token(TokenType.IDENTIFIER, "a"),
+                                name=Token(TokenType.IDENTIFIER, "a", index=49),
                                 initializer=Literal(value="ea"),
                             ),
                             VarDeclaration(
-                                name=Token(TokenType.IDENTIFIER, "b"),
+                                name=Token(TokenType.IDENTIFIER, "b", index=63),
                                 initializer=Literal(value="eb"),
                             ),
                             Block(
                                 body=[
                                     VarDeclaration(
-                                        name=Token(TokenType.IDENTIFIER, "a"),
+                                        name=Token(TokenType.IDENTIFIER, "a", index=85),
                                         initializer=Literal(value="la"),
                                     ),
                                     Print(
-                                        value=Variable(
-                                            name=Token(TokenType.IDENTIFIER, "a")
+                                        Variable(
+                                            Token(TokenType.IDENTIFIER, "a", index=101)
                                         )
                                     ),
                                     Print(
-                                        value=Variable(
-                                            name=Token(TokenType.IDENTIFIER, "b")
+                                        Variable(
+                                            Token(TokenType.IDENTIFIER, "b", index=110)
                                         )
                                     ),
                                     Print(
-                                        value=Variable(
-                                            name=Token(TokenType.IDENTIFIER, "c")
+                                        Variable(
+                                            Token(TokenType.IDENTIFIER, "c", index=119)
                                         )
                                     ),
                                 ]
                             ),
                             Print(
-                                value=Variable(name=Token(TokenType.IDENTIFIER, "a"))
+                                Variable(Token(TokenType.IDENTIFIER, "a", index=134))
                             ),
                             Print(
-                                value=Variable(name=Token(TokenType.IDENTIFIER, "b"))
+                                Variable(Token(TokenType.IDENTIFIER, "b", index=143))
                             ),
                             Print(
-                                value=Variable(name=Token(TokenType.IDENTIFIER, "c"))
+                                Variable(Token(TokenType.IDENTIFIER, "c", index=152))
                             ),
                         ]
                     ),
-                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "a"))),
-                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "b"))),
-                    Print(value=Variable(name=Token(TokenType.IDENTIFIER, "c"))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "a", index=163))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "b", index=172))),
+                    Print(Variable(Token(TokenType.IDENTIFIER, "c", index=181))),
                 ]
             ),
             "la\neb\ngc\nea\neb\ngc\nga\ngb\ngc",
@@ -198,7 +199,12 @@ def test_interpreter(
     output: str,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    Interpreter().visit(tree)
+    interpreter = Interpreter()
+
+    resolver = Resolver(interpreter)
+    resolver.visit(tree)
+
+    interpreter.visit(tree)
 
     stdout, stderr = capsys.readouterr()
     assert stdout.rstrip() == output
@@ -274,7 +280,13 @@ def test_interpreter_files(
     parser = Parser(tokens)
     program, errors = parser.parse()
     assert not errors
-    Interpreter().visit(program)
+
+    interpreter = Interpreter()
+
+    resolver = Resolver(interpreter)
+    resolver.visit(program)
+
+    interpreter.visit(program)
 
     stdout, stderr = capsys.readouterr()
     assert stdout.rstrip() == dedent(output).rstrip()

@@ -20,25 +20,29 @@ class Environment:
         self._environment[variable] = value
 
     def assign(self, variable: str, value: LoxType) -> None:
-        if variable in self._environment:
-            self._environment[variable] = value
-            return
+        if variable not in self._environment:
+            raise EnvironmentLookupError(
+                f"Assigning to variable {variable!r} before declaration"
+            )
 
-        if self.enclosing is not None:
-            self.enclosing.assign(variable, value)
-            return
-
-        # So this will only be raised when enclosing is None,
-        # i.e. when variable is not found even in the global scope.
-        raise EnvironmentLookupError(
-            f"Assigning to variable {variable!r} before declaration"
-        )
+        self._environment[variable] = value
 
     def get(self, variable: str) -> LoxType:
-        if variable in self._environment:
-            return self._environment[variable]
+        if variable not in self._environment:
+            raise EnvironmentLookupError(f"Undefined variable {variable!r}")
 
-        if self.enclosing is not None:
-            return self.enclosing.get(variable)
+        return self._environment[variable]
 
-        raise EnvironmentLookupError(f"Undefined variable {variable!r}")
+    def ancestor(self, depth: int) -> Environment:
+        environment = self
+        for _ in range(depth):
+            assert environment.enclosing is not None
+            environment = environment.enclosing
+
+        return environment
+
+    def assign_at(self, depth: int, name: str, value: LoxType) -> None:
+        return self.ancestor(depth).define(name, value)
+
+    def get_at(self, depth: int, name: str) -> LoxType:
+        return self.ancestor(depth).get(name)

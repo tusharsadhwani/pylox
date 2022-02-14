@@ -10,6 +10,7 @@ from pylox.interpreter import Interpreter, InterpreterError
 from pylox.lexer import Lexer, LexError
 from pylox.nodes import ExprStmt
 from pylox.parser import ParseEOFError, ParseError, Parser
+from pylox.resolver import Resolver
 
 
 def read_file(filename: str) -> str:
@@ -62,7 +63,7 @@ def main(argv: list[str] | None = None) -> None:
 
 
 def run_interactive() -> int:
-    interpteter = Interpreter()
+    interpreter = Interpreter()
     lines: list[str] = []
     while True:
         try:
@@ -77,10 +78,13 @@ def run_interactive() -> int:
             lines = []
 
         code = "\n".join(lines)
+
         try:
             tokens = Lexer(code).tokens
             parser = Parser(tokens)
             tree = parser.parse(mode="repl")
+            resolver = Resolver(interpreter)
+            resolver.visit(tree)
             lines = []
         except LexError as exc:
             pretty_print_error(code, "<input>", exc)
@@ -98,7 +102,7 @@ def run_interactive() -> int:
             # If the program is a single expression, print its output
             if len(tree.body) == 1 and isinstance(tree.body[0], ExprStmt):
                 expression = tree.body[0].expression
-                output = interpteter.evaluate(expression)
+                output = interpreter.evaluate(expression)
                 if output is not None:
                     if output is True:
                         print("true")
@@ -107,7 +111,7 @@ def run_interactive() -> int:
                     else:
                         print(output)
             else:
-                interpteter.visit(tree)
+                interpreter.visit(tree)
         except KeyboardInterrupt:
             print("\rCancelled")
             lines = []
@@ -130,8 +134,17 @@ def run(filepath: str) -> int:
         pretty_print_errors(source, filename, errors)
         return 1
 
+    interpreter = Interpreter()
+
+    resolver = Resolver(interpreter)
     try:
-        Interpreter().visit(tree)
+        resolver.visit(tree)
+    except ParseError as exc:
+        pretty_print_error(source, filename, exc)
+        return 1
+
+    try:
+        interpreter.visit(tree)
     except InterpreterError as exc:
         pretty_print_error(source, filename, exc)
         return 1
