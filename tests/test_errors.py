@@ -23,10 +23,10 @@ from pylox import main as pylox_main
         (
             "fail2.lox",
             """\
-            Error in fail2.lox:3:27
+            Error in fail2.lox:1:6
 
-                this is a multiline string.
-                                           ^
+                print "Hello!
+                      ^
             LexError: Unterminated string
             """,
         ),
