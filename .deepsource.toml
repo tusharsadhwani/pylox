@@ -14,7 +14,7 @@ enabled = true
   runtime_version = "3.x.x"
 
 [[analyzers]]
-name = "github.com/tusharsadhwani/lox-macro"
+name = "github.com/tusharsadhwani/lox-macro-test"
 enabled = true
 
 [[transformers]]
