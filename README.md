@@ -83,6 +83,8 @@ There's a small number of changes from the reference language:
 
 - Defining a variable as itself inside a block does not result in a parse error.
   Instead, it uses the value from outer scope to define itself in local scope.
+  This lets us simplify the resolver code: We don't need a separate `declare`
+  and `define` method anymore, and each scope is a set, not a dictionary.
 
 Here's the full set of extra features, and their progress:
 
