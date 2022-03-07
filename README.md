@@ -86,6 +86,12 @@ There's a small number of changes from the reference language:
   This lets us simplify the resolver code: We don't need a separate `declare`
   and `define` method anymore, and each scope is a set, not a dictionary.
 
+- You can access methods directly on a class, you don't need to necessarily
+  create an object to do so. Doing this returns an "unbound method". The main
+  reason to do this is for better DX, and to allow `dir(C)` to work. It is not
+  yet decided if unbound methods are just not usable at all, or if some sort of
+  binding mechanism will be implemented to allow for that. [TODO]
+
 Here's the full set of extra features, and their progress:
 
 - [x] _Much_ better error messages
