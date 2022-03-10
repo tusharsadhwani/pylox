@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
 
 from attr import asdict
 
-from pylox.lox_types import Boolean, Callable, LoxType, Number, String
+from pylox.lox_types import Boolean, LoxCallable, LoxType, Number, String
 from pylox.nodes import Node
 
 
@@ -32,7 +32,7 @@ def get_lox_type_name(value: LoxType) -> str:
     raise NotImplementedError(f"Unknown type for value: {value}")
 
 
-def is_lox_callable(value: LoxType) -> TypeGuard[Callable]:
+def is_lox_callable(value: LoxType) -> TypeGuard[LoxCallable]:
     return callable(getattr(value, "call", None))
 
 

@@ -10,7 +10,7 @@ Number = float
 Boolean = bool
 
 
-class Callable(Protocol):
+class LoxCallable(Protocol):
     def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         ...
 
@@ -18,4 +18,4 @@ class Callable(Protocol):
         ...
 
 
-LoxType = Union[String, Number, Boolean, Callable, None]
+LoxType = Union[String, Number, Boolean, LoxCallable, None]
