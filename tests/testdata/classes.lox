@@ -1,0 +1,7 @@
+class C {}
+
+var c = C();
+var temp = c.x = 5;
+print temp + c.x;
+
+// TODO: add method tests

@@ -264,6 +264,12 @@ def test_interpreter(
             global
             """,
         ),
+        (
+            "classes.lox",
+            """\
+            10.0
+            """,
+        ),
     ),
 )
 def test_interpreter_files(

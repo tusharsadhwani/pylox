@@ -372,7 +372,7 @@ class Interpreter(Visitor[LoxType]):
         except KeyError:
             raise InterpreterError(f"{obj!r} has no attribute {attribute!r}", get)
 
-    def visit_Set(self, set: Set) -> None:
+    def visit_Set(self, set: Set) -> LoxType:
         obj = self.evaluate(set.object)
         if not isinstance(obj, LoxInstance):
             raise InterpreterError(
@@ -382,3 +382,6 @@ class Interpreter(Visitor[LoxType]):
 
         value = self.evaluate(set.value)
         obj.set(set.name.string, value)
+
+        # Similar to visit_Assign, we return the set value
+        return value
