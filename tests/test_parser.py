@@ -217,6 +217,21 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
             [
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.SEMICOLON, ";"),
+                EOF,
+            ],
+            Program(
+                body=[
+                    VarDeclaration(
+                        name=Token(TokenType.IDENTIFIER, "x"),
+                    ),
+                ]
+            ),
+        ),
+        (
+            [
+                Token(TokenType.VAR, "var"),
+                Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
                 Token(TokenType.NUMBER, "5", 5.0),
                 Token(TokenType.SEMICOLON, ";"),

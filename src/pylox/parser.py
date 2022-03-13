@@ -194,6 +194,7 @@ class Parser:
         name = self.consume(TokenType.IDENTIFIER)
 
         if not self.match_next(TokenType.EQUAL):
+            self.consume(TokenType.SEMICOLON)
             return VarDeclaration(name, index=index)
 
         initializer = self.parse_expression()
