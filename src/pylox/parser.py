@@ -11,16 +11,19 @@ from pylox.nodes import (
     Binary,
     Block,
     Call,
+    ClassDef,
     Expr,
     ExprStmt,
     For,
     FunctionDef,
+    Get,
     Grouping,
     If,
     Literal,
     Print,
     Program,
     ReturnStmt,
+    Set,
     Stmt,
     Unary,
     VarDeclaration,
@@ -44,9 +47,10 @@ class Parser:
     """
     Current grammar:
         program -> declaration* EOF
-        declaration -> var_decl | function_decl | statement
+        declaration -> var_decl | function_decl | class_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
         function_decl -> "fun" function
+        class_decl -> "class" IDENTIFIER "{" function* "}"
         function -> IDENTIFIER "(" parameters? ")" block
         parameters -> IDENTIFIER ("," IDENTIFIER)*
         statement -> block
@@ -65,7 +69,7 @@ class Parser:
         return_stmt -> "return" expression? ";"
         expr_stmt -> expression ";"
         expression -> assignment
-        assignment -> IDENTIFIER "=" assignment | logical_or
+        assignment -> (call ".")? IDENTIFIER "=" assignment | logical_or
         logical_or -> logical_and ("or" logical_and)*
         logical_and -> equality ("and" equality)*
         equality -> comparison (("==" | "!=") comparison)*
@@ -180,6 +184,9 @@ class Parser:
         if self.match_next(TokenType.FUN):
             return self.parse_function_declaration()
 
+        if self.match_next(TokenType.CLASS):
+            return self.parse_class_declaration()
+
         return self.parse_statement()
 
     def parse_var_declaration(self) -> VarDeclaration:
@@ -231,6 +238,17 @@ class Parser:
         self.consume(TokenType.LEFT_BRACE)
         block = self.parse_block()
         return FunctionDef(function_name, parameters, block.body)
+
+    def parse_class_declaration(self) -> Stmt:
+        name = self.consume(TokenType.IDENTIFIER, name="class name")
+        self.consume(TokenType.LEFT_BRACE)
+
+        methods: list[FunctionDef] = []
+        while not self.scanned and not self.peek_next(TokenType.RIGHT_BRACE):
+            methods.append(self.parse_function_declaration(kind="method"))
+
+        self.consume(TokenType.RIGHT_BRACE)
+        return ClassDef(name, methods)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -345,12 +363,16 @@ class Parser:
         expr = self.parse_logical_or()
         if self.match_next(TokenType.EQUAL):
             equals_token = self.previous()
-            # Assume it to be assignment
-            if not isinstance(expr, Variable):
-                raise ParseError("Invalid assign target", equals_token)
 
             value = self.parse_assignment()
-            return Assignment(expr.name, value, index=expr.index)
+            if isinstance(expr, Variable):
+                return Assignment(expr.name, value, index=expr.index)
+
+            elif isinstance(expr, Get):
+                return Set(expr.object, expr.name, value, index=expr.index)
+
+            else:
+                raise ParseError("Invalid assign target", equals_token)
 
         # If it's not assignment, it's equality (or anything below)
         return expr
@@ -430,11 +452,25 @@ class Parser:
             right = self.parse_unary()
             return Unary(operator, right, index=operator.index)
 
-        return self.parse_call()
+        return self.parse_call_or_get()
 
-    def parse_call(self) -> Expr:
-        callee = self.parse_primary()
+    def parse_call_or_get(self) -> Expr:
+        expr = self.parse_primary()
 
+        while True:
+            if self.peek_next(TokenType.LEFT_PAREN):
+                expr = self.parse_call(expr)
+
+            elif self.match_next(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, name="property name")
+                expr = Get(expr, name, index=expr.index)
+
+            else:
+                break
+
+        return expr
+
+    def parse_call(self, callee: Expr) -> Expr:
         while self.match_next(TokenType.LEFT_PAREN):
             bracket = self.previous()
 

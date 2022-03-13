@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
 from attr import asdict
 
 from pylox.lox_types import Boolean, LoxCallable, LoxType, Number, String
-from pylox.nodes import Node
+from pylox.nodes import ClassDef, FunctionDef, Node
 
 
 def get_lox_type_name(value: LoxType) -> str:
@@ -26,8 +26,11 @@ def get_lox_type_name(value: LoxType) -> str:
     if isinstance(value, Number):
         return "Number"
 
-    if is_lox_callable(value):
-        return "Callable"
+    if isinstance(value, FunctionDef):
+        return "Function"
+
+    if isinstance(value, ClassDef):
+        return "Class"
 
     raise NotImplementedError(f"Unknown type for value: {value}")
 

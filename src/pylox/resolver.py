@@ -11,16 +11,19 @@ from pylox.nodes import (
     Binary,
     Block,
     Call,
+    ClassDef,
     Expr,
     ExprStmt,
     For,
     FunctionDef,
+    Get,
     Grouping,
     If,
     Literal,
     Print,
     Program,
     ReturnStmt,
+    Set,
     Stmt,
     Unary,
     VarDeclaration,
@@ -118,6 +121,9 @@ class Resolver(Visitor[None]):
 
             self.resolve(function_def.body)
 
+    def visit_ClassDef(self, class_def: ClassDef) -> None:
+        self.define(class_def.name)
+
     def visit_Variable(self, variable: Variable) -> None:
         self.resolve_local(variable, name=variable.name.string)
 
@@ -176,3 +182,10 @@ class Resolver(Visitor[None]):
 
     def visit_Literal(self, _: Literal) -> None:
         """Nothing to do here."""
+
+    def visit_Get(self, get: Get) -> None:
+        self.resolve(get.object)
+
+    def visit_Set(self, set: Set) -> None:
+        self.resolve(set.value)
+        self.resolve(set.object)

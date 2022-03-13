@@ -7,11 +7,14 @@ from pylox.nodes import (
     Assignment,
     Binary,
     Block,
+    Call,
     ExprStmt,
+    Get,
     Grouping,
     Literal,
     Print,
     Program,
+    Set,
     VarDeclaration,
     Variable,
 )
@@ -318,7 +321,61 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                     ),
                 ]
             ),
-        )
+        ),
+        (
+            [
+                Token(TokenType.IDENTIFIER, "a"),
+                Token(TokenType.DOT, "."),
+                Token(TokenType.IDENTIFIER, "b"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.IDENTIFIER, "x"),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.DOT, "."),
+                Token(TokenType.IDENTIFIER, "c"),
+                Token(TokenType.LEFT_PAREN, "("),
+                Token(TokenType.IDENTIFIER, "y"),
+                Token(TokenType.RIGHT_PAREN, ")"),
+                Token(TokenType.DOT, "."),
+                Token(TokenType.IDENTIFIER, "d"),
+                Token(TokenType.EQUAL, "="),
+                Token(TokenType.IDENTIFIER, "z"),
+                Token(TokenType.SEMICOLON, ";"),
+                EOF,
+            ],
+            Program(
+                body=[
+                    ExprStmt(
+                        expression=Set(
+                            object=Call(
+                                callee=Get(
+                                    object=Call(
+                                        callee=Get(
+                                            object=Variable(
+                                                name=Token(TokenType.IDENTIFIER, "a")
+                                            ),
+                                            name=Token(TokenType.IDENTIFIER, "b"),
+                                        ),
+                                        paren=Token(TokenType.LEFT_PAREN, "("),
+                                        arguments=[
+                                            Variable(
+                                                name=Token(TokenType.IDENTIFIER, "x")
+                                            )
+                                        ],
+                                    ),
+                                    name=Token(TokenType.IDENTIFIER, "c"),
+                                ),
+                                paren=Token(TokenType.LEFT_PAREN, "("),
+                                arguments=[
+                                    Variable(name=Token(TokenType.IDENTIFIER, "y"))
+                                ],
+                            ),
+                            name=Token(TokenType.IDENTIFIER, "d"),
+                            value=Variable(name=Token(TokenType.IDENTIFIER, "z")),
+                        )
+                    )
+                ]
+            ),
+        ),
         # TODO: add more tests
     ),
 )

@@ -60,6 +60,19 @@ class Call(Expr):
 
 
 @define
+class Get(Expr):
+    object: Expr
+    name: Token
+
+
+@define
+class Set(Expr):
+    object: Expr
+    name: Token
+    value: Expr
+
+
+@define
 class Stmt(Node):
     ...
 
@@ -80,6 +93,12 @@ class FunctionDef(Declaration):
     name: Token
     parameters: Sequence[Token]
     body: Sequence[Stmt]
+
+
+@define
+class ClassDef(Declaration):
+    name: Token
+    methods: Sequence[FunctionDef]
 
 
 @define

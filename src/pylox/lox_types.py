@@ -18,4 +18,12 @@ class LoxCallable(Protocol):
         ...
 
 
-LoxType = Union[String, Number, Boolean, LoxCallable, None]
+class LoxObject(Protocol):
+    def get(self, name: str) -> LoxType:
+        ...
+
+    def set(self, name: str, value: LoxType) -> None:
+        ...
+
+
+LoxType = Union[String, Number, Boolean, LoxCallable, LoxObject, None]

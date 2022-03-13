@@ -10,10 +10,12 @@ from pylox.nodes import (
     Binary,
     Block,
     Call,
+    ClassDef,
     Expr,
     ExprStmt,
     For,
     FunctionDef,
+    Get,
     Grouping,
     If,
     Literal,
@@ -21,6 +23,7 @@ from pylox.nodes import (
     Print,
     Program,
     ReturnStmt,
+    Set,
     Stmt,
     Unary,
     VarDeclaration,
@@ -91,6 +94,37 @@ class LoxFunction:
             interpreter.environment = parent_enviroment
 
         return None
+
+
+class LoxClass:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def __repr__(self) -> str:
+        return f"<class {self.name!r}>"
+
+    def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
+        instance = LoxInstance(self)
+        return instance
+
+    @staticmethod
+    def arity() -> int:
+        return 0
+
+
+class LoxInstance:
+    def __init__(self, class_object: LoxClass) -> None:
+        self.class_object = class_object
+        self.fields: dict[str, LoxType] = {}
+
+    def __repr__(self) -> str:
+        return f"<object of {self.class_object.name!r}>"
+
+    def get(self, name: str) -> LoxType:
+        return self.fields[name]
+
+    def set(self, name: str, value: LoxType) -> None:
+        self.fields[name] = value
 
 
 class InterpreterError(LoxError):
@@ -319,3 +353,32 @@ class Interpreter(Visitor[LoxType]):
             return_value = None
 
         raise Return(return_value)
+
+    def visit_ClassDef(self, class_def: ClassDef) -> None:
+        class_object = LoxClass(class_def.name.string)
+        self.environment.define(class_def.name.string, class_object)
+
+    def visit_Get(self, get: Get) -> LoxType:
+        obj = self.evaluate(get.object)
+        if not isinstance(obj, LoxInstance):
+            raise InterpreterError(
+                f"Cannot access properties inside {get_lox_type_name(obj)!r}",
+                get.object,
+            )
+
+        attribute = get.name.string
+        try:
+            return obj.get(attribute)
+        except KeyError:
+            raise InterpreterError(f"{obj!r} has no attribute {attribute!r}", get)
+
+    def visit_Set(self, set: Set) -> None:
+        obj = self.evaluate(set.object)
+        if not isinstance(obj, LoxInstance):
+            raise InterpreterError(
+                f"Cannot set properties on {get_lox_type_name(obj)!r}",
+                set.object,
+            )
+
+        value = self.evaluate(set.value)
+        obj.set(set.name.string, value)
