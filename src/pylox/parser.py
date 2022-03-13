@@ -204,6 +204,8 @@ class Parser:
         self,
         kind: LiteralType["function", "method"] = "function",
     ) -> FunctionDef:
+        index = self.get_index()
+
         function_name = self.consume(TokenType.IDENTIFIER, name=f"{kind} name")
         bracket = self.consume(TokenType.LEFT_PAREN)
 
@@ -212,7 +214,7 @@ class Parser:
         if self.match_next(TokenType.RIGHT_PAREN):
             self.consume(TokenType.LEFT_BRACE)
             block = self.parse_block()
-            return FunctionDef(function_name, parameters, block.body)
+            return FunctionDef(function_name, parameters, block.body, index=index)
 
         # Case 2: One parameter
         parameter = self.consume(TokenType.IDENTIFIER, name="parameter name")
@@ -220,7 +222,7 @@ class Parser:
         if self.match_next(TokenType.RIGHT_PAREN):
             self.consume(TokenType.LEFT_BRACE)
             block = self.parse_block()
-            return FunctionDef(function_name, parameters, block.body)
+            return FunctionDef(function_name, parameters, block.body, index=index)
 
         # Case 3: upto 255 arguments, preceded by a comma
         while self.match_next(TokenType.COMMA):
@@ -237,9 +239,11 @@ class Parser:
         self.consume(TokenType.RIGHT_PAREN)
         self.consume(TokenType.LEFT_BRACE)
         block = self.parse_block()
-        return FunctionDef(function_name, parameters, block.body)
+        return FunctionDef(function_name, parameters, block.body, index=index)
 
     def parse_class_declaration(self) -> Stmt:
+        index = self.get_index()
+
         name = self.consume(TokenType.IDENTIFIER, name="class name")
         self.consume(TokenType.LEFT_BRACE)
 
@@ -248,7 +252,7 @@ class Parser:
             methods.append(self.parse_function_declaration(kind="method"))
 
         self.consume(TokenType.RIGHT_BRACE)
-        return ClassDef(name, methods)
+        return ClassDef(name, methods, index=index)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -349,7 +353,7 @@ class Parser:
 
         expression = self.parse_expression()
         self.consume(TokenType.SEMICOLON)
-        return ReturnStmt(keyword, expression)
+        return ReturnStmt(keyword, expression, index=keyword.index)
 
     def parse_expr_stmt(self) -> ExprStmt:
         expression = self.parse_expression()
@@ -476,7 +480,12 @@ class Parser:
 
             # Case 1: No arguments
             if self.match_next(TokenType.RIGHT_PAREN):
-                callee = Call(callee, bracket)
+                # TODO: maybe we should be using bracket.index here?
+                # the whole call expression does span from callee to
+                # RIGHT_PAREN, but in an error message, pointing at the
+                # right LEFT_PAREN might be more helpful.
+                # Figure out a consistent answer.
+                callee = Call(callee, bracket, index=callee.index)
                 continue
 
             arguments: list[Expr] = []
@@ -484,7 +493,7 @@ class Parser:
             # Case 2: One argument
             arguments.append(self.parse_expression())
             if self.match_next(TokenType.RIGHT_PAREN):
-                callee = Call(callee, bracket, arguments)
+                callee = Call(callee, bracket, arguments, index=callee.index)
                 continue
 
             # Case 3: upto 255 arguments, preceded by a comma
