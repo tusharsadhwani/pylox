@@ -73,6 +73,11 @@ class Set(Expr):
 
 
 @define
+class This(Expr):
+    keyword: Token
+
+
+@define
 class Stmt(Node):
     ...
 

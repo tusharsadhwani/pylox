@@ -25,6 +25,7 @@ from pylox.nodes import (
     ReturnStmt,
     Set,
     Stmt,
+    This,
     Unary,
     VarDeclaration,
     Variable,
@@ -528,6 +529,9 @@ class Parser:
             return Literal(False, index=self.get_index())
         if self.match_next(TokenType.NIL):
             return Literal(None, index=self.get_index())
+
+        if self.match_next(TokenType.THIS):
+            return This(self.previous(), index=self.get_index())
 
         if self.match_next(TokenType.IDENTIFIER):
             name = self.previous()

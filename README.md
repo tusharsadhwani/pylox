@@ -72,9 +72,9 @@ What has already been implemented:
 - [x] Compile time variable resolution and binding
 - [x] Class declarations, objects, and properties
 - [x] Class properties
-- [ ] Methods
-- [ ] `this` attribute
-- [ ] Constructors
+- [x] Methods
+- [x] `this` attribute
+- [x] Constructors
 - [ ] Inheritance
 
 ## Changes / Extra features

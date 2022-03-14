@@ -4,4 +4,48 @@ var c = C();
 var temp = c.x = 5;
 print temp + c.x;
 
-// TODO: add method tests
+class Cake {
+  taste() {
+    var adjective = "delicious";
+    print "The " + this.flavor + "cake is " + adjective;
+  }
+}
+
+var cake = Cake();
+cake.flavor = "German chocolate";
+cake.taste();
+
+class Thing {
+  getCallback() {
+    fun localFunction() {
+      return this;
+    }
+
+    return localFunction;
+  }
+
+  foo() {
+    print "foo";
+  }
+}
+
+var getCallback = Thing().getCallback;
+var callback = getCallback();
+var object = callback();
+object.foo();
+
+class Person {
+  init(name) {
+    this.name = name;
+  }
+
+  sayName() {
+    print this.name;
+  }
+}
+
+var alice = Person("alice");
+var bob = Person("bob");
+bob.sayName();
+bob.sayName = alice.sayName;
+bob.sayName();

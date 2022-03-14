@@ -268,6 +268,10 @@ def test_interpreter(
             "classes.lox",
             """\
             10.0
+            The German chocolatecake is delicious
+            foo
+            bob
+            alice
             """,
         ),
     ),

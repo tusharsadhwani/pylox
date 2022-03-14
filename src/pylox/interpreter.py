@@ -25,6 +25,7 @@ from pylox.nodes import (
     ReturnStmt,
     Set,
     Stmt,
+    This,
     Unary,
     VarDeclaration,
     Variable,
@@ -95,21 +96,35 @@ class LoxFunction:
 
         return None
 
+    def bind(self, instance: LoxInstance) -> LoxFunction:
+        environment = Environment(self.closure)
+        environment.define("this", instance)
+        return LoxFunction(self.declaration, environment)
+
 
 class LoxClass:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, methods: dict[str, LoxFunction]) -> None:
         self.name = name
+        self.methods = methods
 
     def __repr__(self) -> str:
         return f"<class {self.name!r}>"
 
     def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         instance = LoxInstance(self)
+
+        initializer = self.methods.get("init")
+        if initializer is not None:
+            initializer.bind(instance).call(interpreter, arguments)
+
         return instance
 
-    @staticmethod
-    def arity() -> int:
-        return 0
+    def arity(self) -> int:
+        initializer = self.methods.get("init")
+        if initializer is None:
+            return 0
+
+        return initializer.arity()
 
 
 class LoxInstance:
@@ -121,7 +136,14 @@ class LoxInstance:
         return f"<object of {self.class_object.name!r}>"
 
     def get(self, name: str) -> LoxType:
-        return self.fields[name]
+        if name in self.fields:
+            return self.fields[name]
+
+        elif name in self.class_object.methods:
+            method = self.class_object.methods[name]
+            return method.bind(self)
+
+        raise LookupError(f"No attribute {name!r} found on {self!r}")
 
     def set(self, name: str, value: LoxType) -> None:
         self.fields[name] = value
@@ -151,6 +173,16 @@ class Interpreter(Visitor[LoxType]):
 
     def evaluate(self, expr: Expr) -> LoxType:
         return self.generic_visit(expr)
+
+    def lookup(self, name: str, expr: Expr) -> LoxType:
+        depth = self.locals.get(expr)
+        if depth is not None:
+            return self.environment.get_at(depth, name)
+
+        try:
+            return self.globals.get(name)
+        except EnvironmentLookupError as exc:
+            raise InterpreterError(exc.message, expr)
 
     @staticmethod
     def visit_Literal(literal: Literal) -> LoxType:
@@ -261,14 +293,7 @@ class Interpreter(Visitor[LoxType]):
         self.environment.define(variable, value)
 
     def visit_Variable(self, variable: Variable) -> LoxType:
-        depth = self.locals.get(variable)
-        if depth is not None:
-            return self.environment.get_at(depth, variable.name.string)
-
-        try:
-            return self.globals.get(variable.name.string)
-        except EnvironmentLookupError as exc:
-            raise InterpreterError(exc.message, variable)
+        return self.lookup(variable.name.string, variable)
 
     def visit_Assignment(self, assignment: Assignment) -> LoxType:
         value = self.evaluate(assignment.value)
@@ -355,7 +380,12 @@ class Interpreter(Visitor[LoxType]):
         raise Return(return_value)
 
     def visit_ClassDef(self, class_def: ClassDef) -> None:
-        class_object = LoxClass(class_def.name.string)
+        methods: dict[str, LoxFunction] = {}
+        for method in class_def.methods:
+            method_object = LoxFunction(method, self.environment)
+            methods[method.name.string] = method_object
+
+        class_object = LoxClass(class_def.name.string, methods)
         self.environment.define(class_def.name.string, class_object)
 
     def visit_Get(self, get: Get) -> LoxType:
@@ -369,7 +399,7 @@ class Interpreter(Visitor[LoxType]):
         attribute = get.name.string
         try:
             return obj.get(attribute)
-        except KeyError:
+        except LookupError:
             raise InterpreterError(f"{obj!r} has no attribute {attribute!r}", get)
 
     def visit_Set(self, set: Set) -> LoxType:
@@ -385,3 +415,6 @@ class Interpreter(Visitor[LoxType]):
 
         # Similar to visit_Assign, we return the set value
         return value
+
+    def visit_This(self, this: This) -> LoxType:
+        return self.lookup("this", this)
