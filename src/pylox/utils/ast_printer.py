@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pylox.lexer import Lexer
 from pylox.nodes import Binary, Call, Expr, ExprStmt, Grouping, Literal, Unary, Variable
 from pylox.parser import Parser
