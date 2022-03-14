@@ -10,7 +10,14 @@ T = TypeVar("T")
 class Visitor(Generic[T]):
     """A pythonic visitor class. Needs no boilerplate."""
 
-    def generic_visit(self, node: Node) -> T:
+    def get_visitor(self, node: Node) -> Callable[..., T]:
         visitor_name = "visit_" + node.__class__.__name__
-        visitor: Callable[..., T] = getattr(self, visitor_name)
+        visitor: Callable[..., T] = getattr(self, visitor_name, None)
+        return visitor
+
+    def generic_visit(self, node: Node) -> T:
+        visitor = self.get_visitor(node)
+        if visitor is None:
+            raise ValueError(f"Visitor for {node!r} not defined")
+
         return visitor(node)
