@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, Union
+import sys
+from typing import TYPE_CHECKING, Union
+
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
 
 if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
