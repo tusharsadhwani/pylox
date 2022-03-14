@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from pylox.nodes import Binary, Expr, Grouping, Literal

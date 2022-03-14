@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections import UserList
 from contextlib import contextmanager
 from enum import Enum, unique
-from typing import Iterator, Sequence, TypeVar
+from typing import Iterator, List, Sequence, TypeVar
 
 from pylox.interpreter import Interpreter
 from pylox.nodes import (
@@ -47,9 +46,9 @@ class ScopeType(Enum):
 T = TypeVar("T")
 
 
-class Stack(UserList[T]):
+class Stack(List[T]):
     def __repr__(self) -> str:
-        return f"Stack({self.data!r})"
+        return f"Stack({super().__repr__()})"
 
     def __iter__(self) -> Iterator[T]:
         for i in range(len(self) - 1, -1, -1):
