@@ -7,32 +7,21 @@ from typing import Iterator, List, Sequence, TypeVar
 from pylox.interpreter import Interpreter
 from pylox.nodes import (
     Assignment,
-    Binary,
     Block,
-    Call,
     ClassDef,
     Expr,
-    ExprStmt,
-    For,
     FunctionDef,
-    Get,
-    Grouping,
-    If,
-    Literal,
-    Print,
+    Node,
     Program,
     ReturnStmt,
-    Set,
-    Stmt,
     This,
-    Unary,
     VarDeclaration,
     Variable,
-    While,
 )
 from pylox.parser import ParseError
 from pylox.tokens import Token
 from pylox.visitor import Visitor
+from pylox.utils import iter_children
 
 
 @unique
@@ -100,12 +89,18 @@ class Resolver(Visitor[None]):
     def visit(self, program: Program) -> None:
         self.resolve(program.body)
 
-    def resolve(self, item: Expr | Stmt | Sequence[Stmt]) -> None:
+    def resolve(self, item: Node | Sequence[Node]) -> None:
         if isinstance(item, Sequence):
             for stmt in item:
                 self.resolve(stmt)
         else:
-            self.generic_visit(item)
+            visitor = self.get_visitor(item)
+            if visitor is not None:
+                visitor(item)
+            else:
+                # If there's no special visitor, resolve all children
+                for child in iter_children(item):
+                    self.resolve(child)
 
     def resolve_local(self, expr: Expr, name: str) -> None:
         for depth, scope in enumerate(self.scope_stack):
@@ -153,64 +148,12 @@ class Resolver(Visitor[None]):
         self.resolve(assignment.value)
         self.resolve_local(assignment, name=assignment.name.string)
 
-    def visit_Unary(self, unary: Unary) -> None:
-        self.resolve(unary.right)
-
-    def visit_Binary(self, binary: Binary) -> None:
-        self.resolve(binary.left)
-        self.resolve(binary.right)
-
-    def visit_Grouping(self, grouping: Grouping) -> None:
-        self.resolve(grouping.expression)
-
-    def visit_If(self, if_stmt: If) -> None:
-        self.resolve(if_stmt.condition)
-        self.resolve(if_stmt.body)
-        if if_stmt.else_body is not None:
-            self.resolve(if_stmt.else_body)
-
-    def visit_While(self, while_stmt: While) -> None:
-        self.resolve(while_stmt.condition)
-        self.resolve(while_stmt.body)
-
-    def visit_For(self, for_stmt: For) -> None:
-        if for_stmt.initializer is not None:
-            self.resolve(for_stmt.initializer)
-        if for_stmt.condition is not None:
-            self.resolve(for_stmt.condition)
-        if for_stmt.increment is not None:
-            self.resolve(for_stmt.increment)
-
-        self.resolve(for_stmt.body)
-
-    def visit_Call(self, call: Call) -> None:
-        self.resolve(call.callee)
-
-        for argument in call.arguments:
-            self.resolve(argument)
-
-    def visit_Print(self, print_stmt: Print) -> None:
-        self.resolve(print_stmt.value)
-
     def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
         if self.current_scope != ScopeType.FUNCTION:
             raise ParseError("Cannot return outside of a function", return_stmt.keyword)
 
         if return_stmt.value is not None:
             self.resolve(return_stmt.value)
-
-    def visit_ExprStmt(self, expr_stmt: ExprStmt) -> None:
-        self.resolve(expr_stmt.expression)
-
-    def visit_Literal(self, _: Literal) -> None:
-        """Nothing to do here."""
-
-    def visit_Get(self, get: Get) -> None:
-        self.resolve(get.object)
-
-    def visit_Set(self, set: Set) -> None:
-        self.resolve(set.value)
-        self.resolve(set.object)
 
     def visit_This(self, this: This) -> None:
         if self.current_class != ScopeType.CLASS:
