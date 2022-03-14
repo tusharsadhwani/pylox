@@ -20,8 +20,8 @@ from pylox.nodes import (
 )
 from pylox.parser import ParseError
 from pylox.tokens import Token
-from pylox.visitor import Visitor
 from pylox.utils import iter_children
+from pylox.visitor import Visitor
 
 
 @unique
