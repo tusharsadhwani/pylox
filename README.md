@@ -70,10 +70,10 @@ What has already been implemented:
 - [x] Return values
 - [x] Closures
 - [x] Compile time variable resolution and binding
-- [ ] Class declarations, and objects
-- [ ] Class properties
+- [x] Class declarations, objects, and properties
+- [x] Class properties
 - [ ] Methods
-- [ ] `this` attribute, and object properties
+- [ ] `this` attribute
 - [ ] Constructors
 - [ ] Inheritance
 
