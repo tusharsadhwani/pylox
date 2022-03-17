@@ -14,6 +14,7 @@ from pylox.nodes import (
     Node,
     Program,
     ReturnStmt,
+    Super,
     This,
     VarDeclaration,
     Variable,
@@ -30,6 +31,7 @@ class ScopeType(Enum):
     BLOCK = "block"
     FUNCTION = "function"
     CLASS = "class"
+    SUBCLASS = "subclass"
 
 
 T = TypeVar("T")
@@ -56,7 +58,7 @@ class Resolver(Visitor[None]):
         old_scope = self.current_scope
 
         # For classes, we need a different variable
-        if scope_type == ScopeType.CLASS:
+        if scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
             self.current_class = scope_type
         else:
             self.current_scope = scope_type
@@ -65,7 +67,7 @@ class Resolver(Visitor[None]):
         yield
         self.scope_stack.pop()
 
-        if scope_type == ScopeType.CLASS:
+        if scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
             self.current_class = old_scope
         else:
             self.current_scope = old_scope
@@ -129,17 +131,30 @@ class Resolver(Visitor[None]):
     def visit_ClassDef(self, class_def: ClassDef) -> None:
         self.define(class_def.name)
 
-        with self.new_scope(ScopeType.CLASS):
-            scope = self.peek()
-            scope.add("this")
+        # Edge case: Trying to inherit a class from itself
+        if (
+            class_def.superclass is not None
+            and class_def.name.string == class_def.superclass.name.string
+        ):
+            raise ParseError("A class cannot inherit from itself", class_def.name)
 
-            for method in class_def.methods:
-                self.define(method.name)
-                with self.new_scope(ScopeType.FUNCTION):
-                    for parameter in method.parameters:
-                        self.define(parameter)
+        with self.new_scope():
+            if class_def.superclass is not None:
+                scope = self.peek()
+                scope.add("super")
 
-                    self.resolve(method.body)
+            scope_type = ScopeType.SUBCLASS if class_def.superclass else ScopeType.CLASS
+            with self.new_scope(scope_type):
+                scope = self.peek()
+                scope.add("this")
+
+                for method in class_def.methods:
+                    self.define(method.name)
+                    with self.new_scope(ScopeType.FUNCTION):
+                        for parameter in method.parameters:
+                            self.define(parameter)
+
+                        self.resolve(method.body)
 
     def visit_Variable(self, variable: Variable) -> None:
         self.resolve_local(variable, name=variable.name.string)
@@ -160,3 +175,15 @@ class Resolver(Visitor[None]):
             raise ParseError("Cannot use 'this' outside of a class", this.keyword)
 
         self.resolve_local(this, this.keyword.string)
+
+    def visit_Super(self, super: Super) -> None:
+        if self.current_class == ScopeType.CLASS:
+            raise ParseError(
+                "Cannot use 'super' in a class with no superclass",
+                super.keyword,
+            )
+
+        if self.current_class != ScopeType.SUBCLASS:
+            raise ParseError("Cannot use 'super' outside of a class", super.keyword)
+
+        self.resolve_local(super, super.keyword.string)

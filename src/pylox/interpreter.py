@@ -25,6 +25,7 @@ from pylox.nodes import (
     ReturnStmt,
     Set,
     Stmt,
+    Super,
     This,
     Unary,
     VarDeclaration,
@@ -103,12 +104,28 @@ class LoxFunction:
 
 
 class LoxClass:
-    def __init__(self, name: str, methods: dict[str, LoxFunction]) -> None:
+    def __init__(
+        self,
+        name: str,
+        superclass: LoxClass | None,
+        methods: dict[str, LoxFunction],
+    ) -> None:
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
     def __repr__(self) -> str:
         return f"<class {self.name!r}>"
+
+    def find_method(self, name: str) -> LoxFunction | None:
+        if name in self.methods:
+            method = self.methods[name]
+            return method
+
+        elif self.superclass is not None:
+            return self.superclass.find_method(name)
+
+        return None
 
     def call(self, interpreter: Interpreter, arguments: list[LoxType]) -> LoxType:
         instance = LoxInstance(self)
@@ -139,8 +156,8 @@ class LoxInstance:
         if name in self.fields:
             return self.fields[name]
 
-        elif name in self.class_object.methods:
-            method = self.class_object.methods[name]
+        method = self.class_object.find_method(name)
+        if method is not None:
             return method.bind(self)
 
         raise LookupError(f"No attribute {name!r} found on {self!r}")
@@ -380,12 +397,33 @@ class Interpreter(Visitor[LoxType]):
         raise Return(return_value)
 
     def visit_ClassDef(self, class_def: ClassDef) -> None:
+
+        # We want `super` to be defined in a new environment
+        class_environment = self.environment
+        super_environment = Environment(class_environment)
+        self.environment = super_environment
+
+        superclass = None
+        if class_def.superclass is not None:
+            superclass_value = self.evaluate(class_def.superclass)
+            if not isinstance(superclass_value, LoxClass):
+                superclass_type = get_lox_type_name(superclass)
+                raise InterpreterError(
+                    f"Can only inherit from classes, found {superclass_type!r}",
+                    class_def.superclass,
+                )
+            superclass = superclass_value
+            self.environment.define("super", superclass_value)
+
+        # We also want the methods to be able to access `super`
         methods: dict[str, LoxFunction] = {}
         for method in class_def.methods:
             method_object = LoxFunction(method, self.environment)
             methods[method.name.string] = method_object
 
-        class_object = LoxClass(class_def.name.string, methods)
+        # Reset it back once all methods use the super environment
+        self.environment = class_environment
+        class_object = LoxClass(class_def.name.string, superclass, methods)
         self.environment.define(class_def.name.string, class_object)
 
     def visit_Get(self, get: Get) -> LoxType:
@@ -418,3 +456,16 @@ class Interpreter(Visitor[LoxType]):
 
     def visit_This(self, this: This) -> LoxType:
         return self.lookup("this", this)
+
+    def visit_Super(self, super: Super) -> LoxType:
+        depth = self.locals[super]
+        breakpoint()
+        superclass = self.environment.get_at(depth, "super")
+        instance = self.environment.get_at(depth - 1, "this")
+
+        assert isinstance(superclass, LoxClass)
+        assert isinstance(instance, LoxInstance)
+
+        super_method = superclass.find_method(super.method.name.string)
+        assert super_method is not None
+        return super_method.bind(instance)

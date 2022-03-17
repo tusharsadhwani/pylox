@@ -27,6 +27,7 @@ from pylox.nodes import (
     ReturnStmt,
     Set,
     Stmt,
+    Super,
     This,
     Unary,
     VarDeclaration,
@@ -53,7 +54,7 @@ class Parser:
         declaration -> var_decl | function_decl | class_decl | statement
         var_decl -> "var" IDENTIFIER ("=" expression)? ";"
         function_decl -> "fun" function
-        class_decl -> "class" IDENTIFIER "{" function* "}"
+        class_decl -> "class" IDENTIFIER ("<" IDENTIFIER)? "{" function* "}"
         function -> IDENTIFIER "(" parameters? ")" block
         parameters -> IDENTIFIER ("," IDENTIFIER)*
         statement -> block
@@ -83,7 +84,7 @@ class Parser:
         call -> primary ("(" arguments? ")")*
         arguments -> expression ("," expression)*
         primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
-                | IDENTIFIER
+                | IDENTIFIER | "super" "." IDENTIFIER
     """
 
     def __init__(self, tokens: list[Token]) -> None:
@@ -249,6 +250,12 @@ class Parser:
         index = self.get_index()
 
         name = self.consume(TokenType.IDENTIFIER, name="class name")
+
+        superclass = None
+        if self.match_next(TokenType.LESS):
+            superclass_name = self.consume(TokenType.IDENTIFIER, name="superclass name")
+            superclass = Variable(superclass_name)
+
         self.consume(TokenType.LEFT_BRACE)
 
         methods: list[FunctionDef] = []
@@ -256,7 +263,7 @@ class Parser:
             methods.append(self.parse_function_declaration(kind="method"))
 
         self.consume(TokenType.RIGHT_BRACE)
-        return ClassDef(name, methods, index=index)
+        return ClassDef(name, superclass, methods, index=index)
 
     def parse_statement(self) -> Stmt:
         if self.match_next(TokenType.LEFT_BRACE):
@@ -535,9 +542,15 @@ class Parser:
         if self.match_next(TokenType.THIS):
             return This(self.previous(), index=self.get_index())
 
+        if self.match_next(TokenType.SUPER):
+            self.consume(TokenType.DOT)
+            method_token = self.consume(TokenType.IDENTIFIER, name="method name")
+            method = Variable(method_token)
+            return Super(self.previous(), method, index=self.get_index())
+
         if self.match_next(TokenType.IDENTIFIER):
-            name = self.previous()
-            return Variable(name, index=name.index)
+            token = self.previous()
+            return Variable(token, index=token.index)
 
         if self.match_next(TokenType.LEFT_PAREN):
             index = self.get_index()
