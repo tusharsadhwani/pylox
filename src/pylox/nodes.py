@@ -78,6 +78,12 @@ class This(Expr):
 
 
 @define
+class Super(Expr):
+    keyword: Token
+    method: Variable
+
+
+@define
 class Stmt(Node):
     ...
 
@@ -103,6 +109,7 @@ class FunctionDef(Declaration):
 @define
 class ClassDef(Declaration):
     name: Token
+    superclass: Variable | None
     methods: Sequence[FunctionDef]
 
 
