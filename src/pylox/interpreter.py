@@ -459,7 +459,6 @@ class Interpreter(Visitor[LoxType]):
 
     def visit_Super(self, super: Super) -> LoxType:
         depth = self.locals[super]
-        breakpoint()
         superclass = self.environment.get_at(depth, "super")
         instance = self.environment.get_at(depth - 1, "this")
 

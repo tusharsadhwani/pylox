@@ -543,10 +543,11 @@ class Parser:
             return This(self.previous(), index=self.get_index())
 
         if self.match_next(TokenType.SUPER):
+            token = self.previous()
             self.consume(TokenType.DOT)
             method_token = self.consume(TokenType.IDENTIFIER, name="method name")
             method = Variable(method_token)
-            return Super(self.previous(), method, index=self.get_index())
+            return Super(token, method, index=self.get_index())
 
         if self.match_next(TokenType.IDENTIFIER):
             token = self.previous()
