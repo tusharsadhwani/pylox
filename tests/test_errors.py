@@ -1,6 +1,6 @@
 from __future__ import annotations
-import io
 
+import io
 import os.path
 from textwrap import dedent
 
