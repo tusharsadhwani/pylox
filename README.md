@@ -75,7 +75,7 @@ What has already been implemented:
 - [x] Methods
 - [x] `this` attribute
 - [x] Constructors
-- [ ] Inheritance
+- [x] Inheritance
 
 ## Changes / Extra features
 
