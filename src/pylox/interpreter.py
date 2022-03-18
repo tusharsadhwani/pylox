@@ -122,7 +122,7 @@ class LoxClass:
             method = self.methods[name]
             return method
 
-        elif self.superclass is not None:
+        if self.superclass is not None:
             return self.superclass.find_method(name)
 
         return None
