@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Generator, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator, Iterable
 
 if TYPE_CHECKING:
     from typing_extensions import TypeGuard

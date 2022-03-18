@@ -1,9 +1,9 @@
 from __future__ import annotations
-import io
 
-from unittest.mock import patch
+import io
 import os.path
 from textwrap import dedent
+from unittest.mock import patch
 
 import pytest
 from pytest import CaptureFixture, MonkeyPatch
