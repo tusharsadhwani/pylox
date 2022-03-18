@@ -7,11 +7,6 @@ from pylox.tokens import Token, TokenType
 from pylox.utils.ast_printer import AstPrinter
 
 
-def read_file(filepath: str) -> str:
-    with open(filepath) as file:
-        return file.read()
-
-
 @pytest.mark.parametrize(
     ("tree", "output"),
     (
