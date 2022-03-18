@@ -373,7 +373,7 @@ class Interpreter(Visitor[LoxType]):
 
         if not is_lox_callable(function):
             object_type = get_lox_type_name(function)
-            raise InterpreterError(f"{object_type} object is not callable", call)
+            raise InterpreterError(f"{object_type!r} object is not callable", call)
 
         if function.arity() != len(arguments):
             expected = function.arity()
@@ -407,7 +407,7 @@ class Interpreter(Visitor[LoxType]):
         if class_def.superclass is not None:
             superclass_value = self.evaluate(class_def.superclass)
             if not isinstance(superclass_value, LoxClass):
-                superclass_type = get_lox_type_name(superclass)
+                superclass_type = get_lox_type_name(superclass_value)
                 raise InterpreterError(
                     f"Can only inherit from classes, found {superclass_type!r}",
                     class_def.superclass,

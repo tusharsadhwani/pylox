@@ -52,7 +52,7 @@ def main(argv: list[str] | None = None) -> None:
         argv = sys.argv
 
     if len(argv) > 2:
-        print("Usage: pylox [filename]")
+        print("Usage: lox [filename]")
         raise SystemExit(1)
 
     if len(argv) == 1:
@@ -62,7 +62,7 @@ def main(argv: list[str] | None = None) -> None:
     raise SystemExit(run(filepath))
 
 
-def run_interactive() -> int:
+def run_interactive() -> int:  # pragma: no cover
     interpreter = Interpreter()
     lines: list[str] = []
     while True:

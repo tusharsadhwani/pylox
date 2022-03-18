@@ -17,7 +17,7 @@ class Visitor(Generic[T]):
 
     def generic_visit(self, node: Node) -> T:
         visitor = self.get_visitor(node)
-        if visitor is None:
-            raise ValueError(f"Visitor for {node!r} not defined")
+        if visitor is None:  # pragma: no cover
+            raise NotImplementedError(f"Visitor for {node!r} not defined")
 
         return visitor(node)

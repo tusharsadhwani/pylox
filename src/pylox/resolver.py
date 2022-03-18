@@ -38,7 +38,7 @@ T = TypeVar("T")
 
 
 class Stack(List[T]):
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # pragma: no cover -- internal only
         return f"Stack({super().__repr__()})"
 
     def __iter__(self) -> Iterator[T]:
@@ -51,7 +51,7 @@ class Resolver(Visitor[None]):
         self.interpreter = interpreter
         self.scope_stack: Stack[set[str]] = Stack()
         self.current_scope = ScopeType.GLOBAL
-        self.current_class = ScopeType.CLASS
+        self.current_class = ScopeType.GLOBAL
 
     @contextmanager
     def new_scope(self, scope_type: ScopeType = ScopeType.BLOCK) -> Iterator[None]:

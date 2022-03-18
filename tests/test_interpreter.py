@@ -220,6 +220,12 @@ def test_interpreter(
     ("filename", "output"),
     (
         (
+            "operators.lox",
+            """\
+            true
+            """,
+        ),
+        (
             "control_flow.lox",
             """\
             Number is positive
@@ -238,6 +244,7 @@ def test_interpreter(
         (
             "native_functions.lox",
             """\
+            <native function 'clock'>
             true
             true
             """,
@@ -274,6 +281,15 @@ def test_interpreter(
             foo
             bob
             alice
+            """,
+        ),
+        (
+            "inheritance.lox",
+            """\
+            Fry until golden brown
+            C
+            D
+            A
             """,
         ),
     ),

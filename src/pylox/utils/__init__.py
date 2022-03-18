@@ -1,19 +1,20 @@
 from __future__ import annotations
 
-import typing
 from collections import deque
-from typing import Generator, Iterable
+from typing import Generator, Iterable, TYPE_CHECKING
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing_extensions import TypeGuard
 
 from attr import asdict
 
 from pylox.lox_types import Boolean, LoxCallable, LoxType, Number, String
-from pylox.nodes import ClassDef, FunctionDef, Node
+from pylox.nodes import Node
 
 
 def get_lox_type_name(value: LoxType) -> str:
+    from pylox.interpreter import LoxClass, LoxFunction
+
     if value is None:
         return "nil"
 
@@ -26,10 +27,10 @@ def get_lox_type_name(value: LoxType) -> str:
     if isinstance(value, Number):
         return "Number"
 
-    if isinstance(value, FunctionDef):
+    if isinstance(value, LoxFunction):
         return "Function"
 
-    if isinstance(value, ClassDef):
+    if isinstance(value, LoxClass):
         return "Class"
 
     raise NotImplementedError(f"Unknown type for value: {value}")
@@ -46,8 +47,9 @@ def is_truthy(value: LoxType) -> bool:
     if isinstance(value, (String, Number, Boolean)):
         return bool(value)
 
-    type_name = get_lox_type_name(value)
-    raise NotImplementedError(f"Truthiness not implemented for {type_name}")
+    raise NotImplementedError(
+        f"Truthiness not implemented for {get_lox_type_name(value)}"
+    )
 
 
 def attrs_fields(node: Node) -> Generator[Node, None, None]:

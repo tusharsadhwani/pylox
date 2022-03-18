@@ -1,3 +1,5 @@
+print clock;
+
 var t1 = clock();
 var t2 = clock();
 

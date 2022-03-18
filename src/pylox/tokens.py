@@ -82,7 +82,7 @@ class Token:
     value: LoxType | None = None
     index: int = -1
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # pragma: no cover
         if self.value is None:
             return f"Token({self.token_type}, {self.string!r}, index={self.index})"
 

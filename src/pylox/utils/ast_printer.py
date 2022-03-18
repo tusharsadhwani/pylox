@@ -47,16 +47,12 @@ class AstPrinter(Visitor[str]):
         )
 
 
-def main() -> None:
-    tokens = Lexer("(8 / 2) + 3 * 5").tokens
+if __name__ == "__main__":
+    tokens = Lexer("(8 / 2) + 3 * 5;").tokens
     parser = Parser(tokens)
     tree = parser.parse(mode="repl")
     assert len(tree.body) == 1
-    stmt = tree.body
+    stmt = tree.body[0]
     assert isinstance(stmt, ExprStmt)
     tree_str = AstPrinter().visit(stmt.expression)
     print(tree_str)
-
-
-if __name__ == "__main__":
-    main()
