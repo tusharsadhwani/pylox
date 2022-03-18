@@ -1,7 +1,6 @@
 from __future__ import annotations
 import io
 
-from unittest.mock import patch
 import os.path
 from textwrap import dedent
 
