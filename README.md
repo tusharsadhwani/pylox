@@ -115,7 +115,7 @@ Here's the full set of extra features, and their progress:
   - [ ] `format` (Python equivalent, for string interpolation)
   - [ ] `min`, `max` and `abs`
   - [ ] `map`, `filter` and `reduce` that take lists and return new lists
-  - [ ] `dir` to print out an object's attributes
+  - [x] `dir` to print out an object's attributes
 - [ ] An `import` system
 - [ ] A standard library
   - [ ] `random` module
