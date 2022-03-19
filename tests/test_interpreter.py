@@ -265,6 +265,9 @@ def test_interpreter(
             <native function 'clock'>
             true
             true
+            <native function 'dir'>
+            ['bar', 'foo']
+            ['bar', 'baz', 'bruh', 'foo']
             """,
         ),
         (

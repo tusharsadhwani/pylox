@@ -183,6 +183,7 @@ def test_parse_fail_files(
         ("print 3 / 0;", "Division by zero"),
         ("fun f(a) {print a;} f();", "<function 'f'> expected 1 arguments, got 0"),
         ("class C {init(a, b) {}} C(10);", "<class 'C'> expected 2 arguments, got 1"),
+        ("dir(10);", "dir() can only be used on classes and objects, not 'Number'"),
     ),
 )
 def test_interpreter_fail(source: str, error: str) -> None:
