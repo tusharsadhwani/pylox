@@ -30,6 +30,19 @@ def read_file(filepath: str) -> str:
         return file.read()
 
 
+def test_parser_no_eof() -> None:
+    with pytest.raises(ValueError) as exc:
+        Parser([])
+
+    assert exc.value.args[0] == "Cannot parse empty list of tokens"
+
+    tokens = [Token(TokenType.VAR, "var"), Token(TokenType.IDENTIFIER, "x")]
+    with pytest.raises(ValueError) as exc:
+        Parser(tokens)
+
+    assert exc.value.args[0] == "Expected EOF as the last token, found 'Identifier'"
+
+
 @pytest.mark.parametrize(
     ("tokens", "expected_tree"),
     (

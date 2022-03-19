@@ -88,8 +88,14 @@ class Parser:
     """
 
     def __init__(self, tokens: list[Token]) -> None:
-        if tokens[-1] != EOF:
-            raise ValueError(f"Expected EOF as the last token, found {tokens[-1]}")
+        if len(tokens) == 0:
+            raise ValueError(f"Cannot parse empty list of tokens")
+
+        last_token = tokens[-1]
+        if last_token != EOF:
+            token_type = last_token.token_type.value
+            raise ValueError(f"Expected EOF as the last token, found {token_type!r}")
+
         self.tokens = tokens
         self.index = 0
 
@@ -137,9 +143,6 @@ class Parser:
         return False
 
     def previous(self) -> Token:
-        if self.index == 0:
-            raise RuntimeError("previous() ran at beginning of file")
-
         return self.tokens[self.index - 1]
 
     def synchronize(self) -> None:
@@ -147,7 +150,9 @@ class Parser:
         Current synchronization process: keep scanning till next statement
         (a.k.a. find a semicolon).
         """
-        while not self.scanned and not self.match_next(TokenType.SEMICOLON):
+        while not self.scanned and not self.match_next(
+            TokenType.SEMICOLON, TokenType.RIGHT_BRACE
+        ):
             self.advance()
 
     @overload
@@ -387,7 +392,11 @@ class Parser:
                 return Set(expr.object, expr.name, value, index=expr.index)
 
             else:
-                raise ParseError("Invalid assign target", equals_token)
+                type_name = expr.__class__.__name__
+                raise ParseError(
+                    f"Invalid assign target: {type_name!r}",
+                    equals_token,
+                )
 
         # If it's not assignment, it's equality (or anything below)
         return expr
@@ -481,7 +490,7 @@ class Parser:
                 expr = Get(expr, name, index=expr.index)
 
             else:
-                break
+                break  # pragma: no cover -- bug with Python parser upto 3.9
 
         return expr
 
@@ -587,14 +596,10 @@ class Parser:
         return token
 
 
-def main() -> None:
+if __name__ == "__main__":
     source = " ".join(sys.argv[1:])
     tokens = Lexer(source).tokens
 
     parser = Parser(tokens)
     program = parser.parse()
     print(program)
-
-
-if __name__ == "__main__":
-    main()

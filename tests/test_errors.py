@@ -16,13 +16,19 @@ from pylox.resolver import Resolver
 
 @pytest.mark.parametrize(
     ("source", "error"),
-    (("if (2 >", "Unexpected end of file while parsing"),),
+    (
+        ("if (2 >", "Unexpected end of file while parsing"),
+        ("super.", "Expected to find method name, found EOF"),
+        ("class 5 {}", "Expected to find class name, found '5'"),
+    ),
 )
 def test_parse_fail(source: str, error: str) -> None:
     tokens = Lexer(source).tokens
-    _, errors = Parser(tokens).parse()
-    assert len(errors) == 1
-    assert errors[0].message == error
+
+    with pytest.raises(ParseError) as exc:
+        Parser(tokens).parse(mode="repl")
+
+    assert exc.value.message == error
 
 
 @pytest.mark.parametrize(
@@ -64,6 +70,7 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
     ("source", "error"),
     (
         ("class C < C {}", "A class cannot inherit from itself"),
+        ("return 'global';", "Cannot return outside of a function"),
         ("print this.x;", "Cannot use 'this' outside of a class"),
         ("print super.x;", "Cannot use 'super' outside of a class"),
         (
@@ -96,14 +103,6 @@ def test_resolver_fail(source: str, error: str) -> None:
                 i++;
                   ^
             ParseError: Unexpected token: '+'
-
-            Error in fail3.lox:4:0
-
-                ++j;
-                ^
-            ParseError: Unexpected token: '+'
-
-            Found 2 errors.
             """,
         ),
         (
@@ -119,11 +118,25 @@ def test_resolver_fail(source: str, error: str) -> None:
         (
             "fail8.lox",
             """\
-            Error in fail8.lox:1:0
+            Error in fail8.lox:1:5
 
-                return "global";
-                ^
-            ParseError: Cannot return outside of a function
+                fun f(
+                     ^
+            ParseError: More than 255 parameters not allowed in a function definition
+
+            Error in fail8.lox:14:4
+
+                f() = 10;
+                    ^
+            ParseError: Invalid assign target: 'Call'
+
+            Error in fail8.lox:16:9
+
+                value = f(
+                         ^
+            ParseError: More than 255 arguments not allowed in a function call
+            
+            Found 3 errors.
             """,
         ),
     ),

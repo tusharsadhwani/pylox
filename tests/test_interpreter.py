@@ -283,6 +283,7 @@ def test_interpreter(
             2.0
             360.0
             nil
+            1.0
             """,
         ),
         (
