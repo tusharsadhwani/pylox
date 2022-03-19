@@ -9,7 +9,7 @@ from pytest import CaptureFixture, MonkeyPatch
 
 from pylox import main as pylox_main
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import LexError, Lexer
+from pylox.lexer import Lexer, LexError
 from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
 
