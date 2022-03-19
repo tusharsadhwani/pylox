@@ -597,9 +597,9 @@ class Parser:
 
 
 if __name__ == "__main__":
-    source = " ".join(sys.argv[1:])
-    tokens = Lexer(source).tokens
+    _source = " ".join(sys.argv[1:])
+    _tokens = Lexer(_source).tokens
 
-    parser = Parser(tokens)
-    program = parser.parse()
-    print(program)
+    _parser = Parser(_tokens)
+    _program, _ = _parser.parse()
+    print(_program)

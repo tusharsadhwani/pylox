@@ -205,5 +205,5 @@ class Lexer:
 
 
 if __name__ == "__main__":
-    source = " ".join(sys.argv[1:])
-    print(Lexer(source).tokens)
+    _source = " ".join(sys.argv[1:])
+    print(Lexer(_source).tokens)
