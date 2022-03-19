@@ -314,6 +314,16 @@ def test_interpreter(
             A
             """,
         ),
+        (
+            "escapes.lox",
+            """\
+            a
+            \tb
+            a\\b\\c\\d
+            'hello'
+            "This is lox's lexer"
+            """,
+        ),
     ),
 )
 def test_interpreter_files(

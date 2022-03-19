@@ -1,5 +1,4 @@
-print "Hello!";
-
-for (int i = 0; i < @; i++) {
-  print i;
-}
+x = "\
+So this is a long string.
+And it has \na few \escapes.
+"

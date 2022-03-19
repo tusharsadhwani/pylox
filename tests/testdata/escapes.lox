@@ -1,0 +1,9 @@
+print "a\n\tb";
+print "\
+a\\b\\c\\\
+d";
+
+var part1 = '\'hello\'';
+var part2 = "\"This is lox's lexer\"";
+
+print part1 + '\n' + part2;

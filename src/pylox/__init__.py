@@ -7,7 +7,7 @@ from typing import Sequence
 
 from pylox.errors import LoxError
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import Lexer, LexError
+from pylox.lexer import Lexer, LexError, LexIncompleteError
 from pylox.nodes import ExprStmt
 from pylox.parser import ParseEOFError, ParseError, Parser
 from pylox.resolver import Resolver
@@ -86,6 +86,9 @@ def run_interactive() -> int:  # pragma: no cover
             resolver = Resolver(interpreter)
             resolver.visit(tree)
             lines = []
+        except LexIncompleteError:
+            # Incomplete string
+            continue
         except LexError as exc:
             pretty_print_error(code, "<input>", exc)
             lines = []

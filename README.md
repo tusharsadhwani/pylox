@@ -96,7 +96,7 @@ Here's the full set of extra features, and their progress:
 
 - [x] _Much_ better error messages
 - [x] Allowing single quotes for strings
-- [ ] String escapes (things like `\n`, `\\` and `\"`)
+- [x] String escapes: `\n`, `\t`, `\'`, `\"`, `\\` and `\↵`
 - [ ] New operators:
   - [x] Modulo `%`
   - [ ] Integer division `\`
