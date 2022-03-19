@@ -89,7 +89,7 @@ class Parser:
 
     def __init__(self, tokens: list[Token]) -> None:
         if len(tokens) == 0:
-            raise ValueError(f"Cannot parse empty list of tokens")
+            raise ValueError("Cannot parse empty list of tokens")
 
         last_token = tokens[-1]
         if last_token != EOF:
