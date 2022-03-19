@@ -32,7 +32,7 @@ from pylox.nodes import (
     Variable,
     While,
 )
-from pylox.tokens import TokenType
+from pylox.tokens import Token, TokenType
 from pylox.utils import get_lox_type_name, is_lox_callable, is_truthy
 from pylox.visitor import Visitor
 
@@ -50,9 +50,35 @@ class NativeClock:
         return 0
 
 
+class Dir:
+    def __repr__(self) -> str:
+        return "<native function 'dir'>"
+
+    @staticmethod
+    def call(_: Interpreter, arguments: list[LoxType]) -> str:
+        (item,) = arguments
+        if isinstance(item, LoxClass):
+            class_object = item
+        elif isinstance(item, LoxInstance):
+            class_object = item.class_object
+        else:
+            obj_type = get_lox_type_name(item)
+            raise ValueError(
+                f"dir() can only be used on classes and objects, not {obj_type!r}"
+            )
+
+        methods = sorted(class_object.get_methods())
+        return str(methods)  # TODO: return an actual list type here
+
+    @staticmethod
+    def arity() -> int:
+        return 1
+
+
 def create_globals() -> Environment:
     globals = Environment()
     globals.define("clock", NativeClock())
+    globals.define("dir", Dir())
     return globals
 
 
@@ -117,6 +143,13 @@ class LoxClass:
     def __repr__(self) -> str:
         return f"<class {self.name!r}>"
 
+    def get_methods(self) -> set[str]:
+        methods = set(self.methods)
+        if self.superclass is not None:
+            methods = methods.union(self.superclass.get_methods())
+
+        return methods
+
     def find_method(self, name: str) -> LoxFunction | None:
         if name in self.methods:
             method = self.methods[name]
@@ -167,7 +200,7 @@ class LoxInstance:
 
 
 class InterpreterError(LoxError):
-    def __init__(self, message: str, node: Node) -> None:
+    def __init__(self, message: str, node: Node | Token) -> None:
         super().__init__(message, node.index)
         self.node = node
 
@@ -384,7 +417,12 @@ class Interpreter(Visitor[LoxType]):
                 f"{function!r} expected {expected} arguments, got {got}", call
             )
 
-        return function.call(self, arguments)
+        try:
+            return_value = function.call(self, arguments)
+            return return_value
+        except ValueError as exc:
+            (message,) = exc.args
+            raise InterpreterError(message, call.paren)
 
     def visit_FunctionDef(self, function_def: FunctionDef) -> None:
         function_object = LoxFunction(function_def, self.environment)
