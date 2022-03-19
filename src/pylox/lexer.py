@@ -11,7 +11,7 @@ class LexError(LoxError):
     ...
 
 
-class LexIncompleteError(LexError):
+class LexIncompleteError(Exception):
     ...
 
 
