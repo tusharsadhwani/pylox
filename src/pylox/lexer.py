@@ -152,7 +152,7 @@ class Lexer:
             self.scan_identifier()
 
         else:
-            raise LexError(f"Unknown character found: {char!r}", self.start)
+            raise LexError(f"Unknown character found: '{char}'", self.start)
 
     def scan_comment(self) -> None:
         """Reads and discards a comment. A comment goes on till a newline."""
@@ -176,17 +176,45 @@ class Lexer:
             self.add_token(TokenType.IDENTIFIER)
 
     def scan_string(self, quote_char: str) -> None:
-        while not self.scanned and self.peek() != quote_char:
+        unescaped_chars = []
+        while not self.scanned:
+            char = self.peek()
             self.advance()
 
-        if self.scanned:
+            if char == quote_char:
+                break
+
+            if char != "\\":
+                unescaped_chars.append(char)
+                continue
+
+            # Escaping the next character
+            next_char = self.peek()
+            if next_char == "\n":
+                pass  # trailing backslash means ignore the newline
+            elif next_char == "\\":
+                unescaped_chars.append("\\")
+            elif next_char == "n":
+                unescaped_chars.append("\n")
+            elif next_char == "t":
+                unescaped_chars.append("\t")
+            elif next_char == "'":
+                unescaped_chars.append("'")
+            elif next_char == '"':
+                unescaped_chars.append('"')
+            else:
+                escape = char + next_char
+                raise LexError(
+                    f"Unknown escape sequence: '{escape}'",
+                    index=self.current,
+                )
+
+            self.advance()
+        else:
+            # No end quote found, so no break
             raise LexError("Unterminated string", self.start)
 
-        string = self.source[self.start + 1 : self.current]
-
-        # Advance past the closing quote
-        self.advance()
-
+        string = "".join(unescaped_chars)
         self.add_token(TokenType.STRING, string)
 
     def scan_number(self) -> None:

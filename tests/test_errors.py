@@ -9,24 +9,18 @@ from pytest import CaptureFixture, MonkeyPatch
 
 from pylox import main as pylox_main
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import Lexer
+from pylox.lexer import LexError, Lexer
 from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
 
 
 @pytest.mark.parametrize(
     ("source", "error"),
-    (
-        ("if (2 >", "Unexpected end of file while parsing"),
-        ("super.", "Expected to find method name, found EOF"),
-        ("class 5 {}", "Expected to find class name, found '5'"),
-    ),
+    ((r'"a\b"', r"Unknown escape sequence: '\b'"),),
 )
-def test_parse_fail(source: str, error: str) -> None:
-    tokens = Lexer(source).tokens
-
-    with pytest.raises(ParseError) as exc:
-        Parser(tokens).parse(mode="repl")
+def test_lex_fail(source: str, error: str) -> None:
+    with pytest.raises(LexError) as exc:
+        Lexer(source)
 
     assert exc.value.message == error
 
@@ -39,9 +33,9 @@ def test_parse_fail(source: str, error: str) -> None:
             """\
             Error in fail1.lox:3:20
 
-                for (int i = 0; i < @; i++) {
+                And it has \\na few \\escapes.
                                     ^
-            LexError: Unknown character found: '@'
+            LexError: Unknown escape sequence: '\\e'
             """,
         ),
         (
@@ -64,6 +58,23 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
 
     stdout, _ = capsys.readouterr()
     assert stdout.rstrip() == dedent(error).rstrip()
+
+
+@pytest.mark.parametrize(
+    ("source", "error"),
+    (
+        ("if (2 >", "Unexpected end of file while parsing"),
+        ("super.", "Expected to find method name, found EOF"),
+        ("class 5 {}", "Expected to find class name, found '5'"),
+    ),
+)
+def test_parse_fail(source: str, error: str) -> None:
+    tokens = Lexer(source).tokens
+
+    with pytest.raises(ParseError) as exc:
+        Parser(tokens).parse(mode="repl")
+
+    assert exc.value.message == error
 
 
 @pytest.mark.parametrize(
