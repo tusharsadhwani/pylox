@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Union
 if sys.version_info >= (3, 8):
     from typing import Protocol
 else:
-    from typing_extensions import Protocol
+    Protocol = object  # pragma: no cover
 
 if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
