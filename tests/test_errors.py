@@ -9,9 +9,20 @@ from pytest import CaptureFixture, MonkeyPatch
 
 from pylox import main as pylox_main
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import Lexer
+from pylox.lexer import LexError, Lexer
 from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
+
+
+@pytest.mark.parametrize(
+    ("source", "error"),
+    (("if (2 >", "Unexpected end of file while parsing"),),
+)
+def test_parse_fail(source: str, error: str) -> None:
+    tokens = Lexer(source).tokens
+    _, errors = Parser(tokens).parse()
+    assert len(errors) == 1
+    assert errors[0].message == error
 
 
 @pytest.mark.parametrize(
