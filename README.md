@@ -98,7 +98,7 @@ Here's the full set of extra features, and their progress:
 - [x] Allowing single quotes for strings
 - [ ] String escapes (things like `\n`, `\\` and `\"`)
 - [ ] New operators:
-  - [ ] Modulo `%`
+  - [x] Modulo `%`
   - [ ] Integer division `\`
   - [ ] Power `**`
 - [ ] Augmented versions of all operators: `+=`, `**=`, etc.
