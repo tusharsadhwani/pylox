@@ -87,7 +87,7 @@ def run_interactive() -> int:  # pragma: no cover
             resolver.visit(tree)
             lines = []
         except LexIncompleteError:
-            # Incomplete command
+            # Incomplete string
             continue
         except LexError as exc:
             pretty_print_error(code, "<input>", exc)
