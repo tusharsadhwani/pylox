@@ -2,6 +2,7 @@ fun hello() {
   print "Hello";
 }
 
+print hello;
 hello();
 
 var hello2 = hello;
@@ -53,3 +54,6 @@ fun a(x) {
   return b;
 }
 print a(10)(20)(30);
+
+fun f() { return; }
+print f();

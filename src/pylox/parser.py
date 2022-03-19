@@ -453,7 +453,7 @@ class Parser:
     def parse_factor(self) -> Expr:
         left = self.parse_unary()
 
-        while self.match_next(TokenType.STAR, TokenType.SLASH):
+        while self.match_next(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT):
             operator = self.previous()
             right = self.parse_unary()
 

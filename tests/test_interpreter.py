@@ -220,9 +220,27 @@ def test_interpreter(
     ("filename", "output"),
     (
         (
+            "simple.lox",
+            """\
+            Hello
+            5.0
+            false
+            27.0
+            """,
+        ),
+        (
             "operators.lox",
             """\
             true
+            false
+            false
+            -3.0
+            0.0
+            true
+            false
+            0.25
+            0.5
+            abcdef
             """,
         ),
         (
@@ -252,6 +270,7 @@ def test_interpreter(
         (
             "functions.lox",
             """\
+            <function 'hello'>
             Hello
             Hello
             1.0
@@ -263,6 +282,7 @@ def test_interpreter(
             1.0
             2.0
             360.0
+            nil
             """,
         ),
         (
@@ -276,6 +296,7 @@ def test_interpreter(
         (
             "classes.lox",
             """\
+            <class 'C'>
             10.0
             The German chocolatecake is delicious
             foo
