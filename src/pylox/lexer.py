@@ -11,6 +11,10 @@ class LexError(LoxError):
     ...
 
 
+class LexIncompleteError(LexError):
+    ...
+
+
 class Lexer:
     def __init__(self, source: str) -> None:
         self.source = source
@@ -190,6 +194,11 @@ class Lexer:
 
             # Escaping the next character
             next_char = self.peek()
+            if next_char == "":
+                # Happens in interactive mode, when writing multiline
+                # strings. Treat it as EOF.
+                raise LexIncompleteError  # pragma: no cover -- not sure how to test
+
             if next_char == "\n":
                 pass  # trailing backslash means ignore the newline
             elif next_char == "\\":
