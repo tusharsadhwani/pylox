@@ -51,26 +51,28 @@ class Resolver(Visitor[None]):
         self.interpreter = interpreter
         self.scope_stack: Stack[set[str]] = Stack()
         self.current_scope = ScopeType.GLOBAL
-        self.current_class = ScopeType.GLOBAL
+        self.function_scope = ScopeType.GLOBAL
+        self.class_scope = ScopeType.GLOBAL
 
     @contextmanager
     def new_scope(self, scope_type: ScopeType = ScopeType.BLOCK) -> Iterator[None]:
         old_scope = self.current_scope
 
-        # For classes, we need a different variable
-        if scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
-            self.current_class = scope_type
-        else:
-            self.current_scope = scope_type
+        self.current_scope = scope_type
+        if scope_type == ScopeType.FUNCTION:
+            self.function_scope = scope_type
+        elif scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
+            self.class_scope = scope_type
 
         self.scope_stack.append(set())
         yield
         self.scope_stack.pop()
 
-        if scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
-            self.current_class = old_scope
-        else:
-            self.current_scope = old_scope
+        self.current_scope = old_scope
+        if scope_type == ScopeType.FUNCTION:
+            self.function_scope = old_scope
+        elif scope_type in (ScopeType.CLASS, ScopeType.SUBCLASS):
+            self.class_scope = old_scope
 
     def peek(self) -> set[str]:
         return self.scope_stack[-1]
@@ -164,26 +166,26 @@ class Resolver(Visitor[None]):
         self.resolve_local(assignment, name=assignment.name.string)
 
     def visit_ReturnStmt(self, return_stmt: ReturnStmt) -> None:
-        if self.current_scope != ScopeType.FUNCTION:
+        if self.function_scope != ScopeType.FUNCTION:
             raise ParseError("Cannot return outside of a function", return_stmt.keyword)
 
         if return_stmt.value is not None:
             self.resolve(return_stmt.value)
 
     def visit_This(self, this: This) -> None:
-        if self.current_class != ScopeType.CLASS:
+        if self.class_scope != ScopeType.CLASS:
             raise ParseError("Cannot use 'this' outside of a class", this.keyword)
 
         self.resolve_local(this, this.keyword.string)
 
     def visit_Super(self, super: Super) -> None:
-        if self.current_class == ScopeType.CLASS:
+        if self.class_scope == ScopeType.CLASS:
             raise ParseError(
                 "Cannot use 'super' in a class with no superclass",
                 super.keyword,
             )
 
-        if self.current_class != ScopeType.SUBCLASS:
+        if self.class_scope != ScopeType.SUBCLASS:
             raise ParseError("Cannot use 'super' outside of a class", super.keyword)
 
         self.resolve_local(super, super.keyword.string)

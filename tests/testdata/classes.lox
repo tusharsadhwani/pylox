@@ -1,5 +1,6 @@
 class C {}
 
+print C;
 var c = C();
 var temp = c.x = 5;
 print temp + c.x;

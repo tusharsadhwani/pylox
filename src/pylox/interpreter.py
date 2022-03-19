@@ -209,8 +209,9 @@ class Interpreter(Visitor[LoxType]):
         if unary.operator.token_type == TokenType.MINUS:
             right_value = self.evaluate(unary.right)
             if not isinstance(right_value, Number):
+                value_type = get_lox_type_name(right_value)
                 raise InterpreterError(
-                    f"Expected number for unary '-', got {right_value}",
+                    f"Expected 'Number' for unary '-', got {value_type!r}",
                     unary,
                 )
 
@@ -263,7 +264,8 @@ class Interpreter(Visitor[LoxType]):
             if binary.operator.token_type == TokenType.STAR:
                 return left_value * right_value
             if binary.operator.token_type == TokenType.SLASH:
-                # TODO: catch ZeroDivisionError
+                if right_value == 0:
+                    raise InterpreterError("Division by zero", binary.right)
                 return left_value / right_value
             if binary.operator.token_type == TokenType.PERCENT:
                 return left_value % right_value
@@ -438,7 +440,9 @@ class Interpreter(Visitor[LoxType]):
         try:
             return obj.get(attribute)
         except LookupError:
-            raise InterpreterError(f"{obj!r} has no attribute {attribute!r}", get)
+            raise InterpreterError(
+                f"{obj.class_object.name!r} object has no attribute {attribute!r}", get
+            )
 
     def visit_Set(self, set: Set) -> LoxType:
         obj = self.evaluate(set.object)

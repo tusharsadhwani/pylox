@@ -21,6 +21,14 @@ def read_file(filepath: str) -> str:
         ("nil", [Token(TokenType.NIL, "nil", index=0), EOF]),
         ("12", [Token(TokenType.NUMBER, "12", 12, index=0), EOF]),
         (
+            "2.",
+            [
+                Token(TokenType.NUMBER, "2", 2.0, index=0),
+                Token(TokenType.DOT, ".", index=1),
+                EOF,
+            ],
+        ),
+        (
             '"abc\n123"',
             [Token(TokenType.STRING, '"abc\n123"', "abc\n123", index=0), EOF],
         ),

@@ -48,9 +48,6 @@ class Lexer:
         Reads one character from the source.
         If the source has been exhausted, returns an empty string.
         """
-        if self.scanned:
-            return ""
-
         char = self.source[self.current]
         # current will always point at the next character to read.
         self.advance()
@@ -207,10 +204,6 @@ class Lexer:
         self.add_token(TokenType.NUMBER, number)
 
 
-def main() -> None:
-    source = " ".join(sys.argv[1:])
-    print(Lexer(source).tokens)
-
-
 if __name__ == "__main__":
-    main()
+    _source = " ".join(sys.argv[1:])
+    print(Lexer(_source).tokens)

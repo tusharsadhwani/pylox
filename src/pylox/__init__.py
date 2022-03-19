@@ -131,7 +131,10 @@ def run(filepath: str) -> int:
     parser = Parser(tokens)
     tree, errors = parser.parse()
     if errors:
-        pretty_print_errors(source, filename, errors)
+        if len(errors) > 1:
+            pretty_print_errors(source, filename, errors)
+        else:
+            pretty_print_error(source, filename, errors[0])
         return 1
 
     interpreter = Interpreter()
