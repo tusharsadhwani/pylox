@@ -7,7 +7,8 @@ from textwrap import dedent
 import pytest
 from pytest import CaptureFixture, MonkeyPatch
 
-from pylox import main as pylox_main, run_interactive
+from pylox import main as pylox_main
+from pylox import run_interactive
 from pylox.interpreter import Interpreter, InterpreterError
 from pylox.lexer import Lexer, LexError
 from pylox.parser import ParseError, Parser
