@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os.path
+import re
 from textwrap import dedent
 
 import pytest
@@ -293,11 +294,11 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     expected = dedent(
         """\
         Internal Error:
-        RecursionError: maximum recursion depth exceeded
+        RecursionError: maximum recursion depth exceeded(.*)
         Use the --debug flag to generate a stack trace.
         """
     )
-    assert stdout.strip() == expected.strip()
+    assert re.fullmatch(expected.strip(), stdout.strip()) is not None
 
     monkeypatch.setattr("sys.argv", ["lox", "tests/testdata/fail9.lox", "--debug"])
     with pytest.raises(SystemExit) as exc:
@@ -308,7 +309,7 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
 
     output = stderr.splitlines()
     assert len(output) > 1000
-    assert output[-1] == "RecursionError: maximum recursion depth exceeded"
+    assert output[-1].startswith("RecursionError: maximum recursion depth exceeded")
 
 
 def test_crash_handling(
