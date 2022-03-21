@@ -1,8 +1,9 @@
 """pylox - A Lox interpreter written in Python."""
 from __future__ import annotations
 
+import argparse
 import os.path
-import sys
+import traceback
 from typing import Sequence
 
 from pylox.errors import LoxError
@@ -47,22 +48,29 @@ def get_snippet_line_col(source: str, index: int) -> tuple[int, int, str]:
     return line, col, snippet
 
 
+class PyloxArgs(argparse.Namespace):
+    debug: bool
+    interactive: bool
+    filename: str
+
+
 def main(argv: list[str] | None = None) -> None:
-    if argv is None:
-        argv = sys.argv
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run in interactive mode",
+    )
+    parser.add_argument("filename", help="Name of file to run", nargs="?")
+    args = parser.parse_args(argv, namespace=PyloxArgs())
 
-    if len(argv) > 2:
-        print("Usage: lox [filename]")
-        raise SystemExit(1)
+    if args.filename is None:
+        raise SystemExit(run_interactive(debug=args.debug))
 
-    if len(argv) == 1:
-        raise SystemExit(run_interactive())
-
-    filepath = argv[1]
-    raise SystemExit(run(filepath))
+    raise SystemExit(run(args.filename, debug=args.debug))
 
 
-def run_interactive() -> int:  # pragma: no cover
+def run_interactive(debug: bool = False) -> int:  # pragma: no cover
     interpreter = Interpreter()
     lines: list[str] = []
     while True:
@@ -120,9 +128,11 @@ def run_interactive() -> int:  # pragma: no cover
             lines = []
         except InterpreterError as exc:
             pretty_print_error(code, "<input>", exc)
+        except Exception as exc:
+            print_exception(exc, debug=debug)
 
 
-def run(filepath: str) -> int:
+def run(filepath: str, debug: bool = False) -> int:
     source = read_file(filepath)
     filename = os.path.basename(filepath)
     try:
@@ -154,8 +164,20 @@ def run(filepath: str) -> int:
     except InterpreterError as exc:
         pretty_print_error(source, filename, exc)
         return 1
+    except Exception as exc:
+        print_exception(exc, debug=debug)
 
     return 0
+
+
+def print_exception(exc: Exception, debug: bool = False) -> None:
+    if debug:
+        traceback.print_exc()
+    else:
+        error_name = exc.__class__.__name__
+        print("Internal Error:")
+        print(f"{error_name}: {exc}")
+        print("Use the --debug flag to generate a stack trace.")
 
 
 def pretty_print_errors(source: str, filename: str, errors: Sequence[LoxError]) -> None:
