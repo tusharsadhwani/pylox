@@ -209,8 +209,8 @@ def test_interpreter(
     interpreter.visit(tree)
 
     stdout, stderr = capsys.readouterr()
-    assert stdout.rstrip() == output
     assert stderr == ""
+    assert stdout.rstrip() == output
 
 
 # TODO: add failing tests

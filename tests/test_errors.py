@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import io
 import os.path
+import re
 from textwrap import dedent
 
 import pytest
 from pytest import CaptureFixture, MonkeyPatch
 
 from pylox import main as pylox_main
+from pylox import run_interactive
 from pylox.interpreter import Interpreter, InterpreterError
 from pylox.lexer import Lexer, LexError
 from pylox.parser import ParseError, Parser
@@ -54,9 +56,10 @@ def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) 
     with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
-        pylox_main(argv=["pylox", filepath])
+        pylox_main(argv=[filepath])
 
-    stdout, _ = capsys.readouterr()
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
     assert stdout.rstrip() == dedent(error).rstrip()
 
 
@@ -160,9 +163,10 @@ def test_parse_fail_files(
     with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
-        pylox_main(argv=["pylox", filepath])
+        pylox_main(argv=[filepath])
 
-    stdout, _ = capsys.readouterr()
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
     assert stdout.rstrip() == dedent(error).rstrip()
 
 
@@ -233,9 +237,10 @@ def test_interpret_fail_files(
     with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
-        pylox_main(argv=["pylox", filepath])
+        pylox_main(argv=[filepath])
 
-    stdout, _ = capsys.readouterr()
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
     assert stdout.rstrip() == dedent(error).rstrip()
 
 
@@ -245,8 +250,12 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     with pytest.raises(SystemExit):
         pylox_main()
 
-    stdout, _ = capsys.readouterr()
-    assert stdout == "Usage: lox [filename]\n"
+    stdout, stderr = capsys.readouterr()
+    assert stderr == (
+        "usage: lox [-h] [--debug] [filename]\n"
+        "lox: error: unrecognized arguments: b.lox\n"
+    )
+    assert stdout == ""
 
     monkeypatch.setattr("sys.argv", ["lox"])
     monkeypatch.setattr("sys.stdin", io.StringIO("var x = 5;\nprint x;\nprint y;"))
@@ -254,7 +263,8 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     with pytest.raises(SystemExit):
         pylox_main()
 
-    stdout, _ = capsys.readouterr()
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
     expected = dedent(
         """\
         > > 5.0
@@ -272,4 +282,51 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     with pytest.raises(SystemExit) as exc:
         pylox_main()
 
+    capsys.readouterr()  # to flush the output
     assert exc.value.code == 0
+
+    monkeypatch.setattr("sys.argv", ["lox", "tests/testdata/fail9.lox"])
+    with pytest.raises(SystemExit) as exc:
+        pylox_main()
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    expected = dedent(
+        """\
+        Internal Error:
+        RecursionError: maximum recursion depth exceeded(.*)
+        Use the --debug flag to generate a stack trace.
+        """
+    )
+    assert re.fullmatch(expected.strip(), stdout.strip()) is not None
+
+    monkeypatch.setattr("sys.argv", ["lox", "tests/testdata/fail9.lox", "--debug"])
+    with pytest.raises(SystemExit) as exc:
+        pylox_main()
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout == ""
+
+    output = stderr.splitlines()
+    assert len(output) > 1000
+    assert output[-1].startswith("RecursionError: maximum recursion depth exceeded")
+
+
+def test_crash_handling(
+    capsys: CaptureFixture[str],
+    monkeypatch: MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("fun f() { f(); } f();\nprint 10;"))
+    run_interactive()
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+
+    expected = """\
+        > Internal Error:
+        RecursionError: maximum recursion depth exceeded while calling a Python object
+        Use the --debug flag to generate a stack trace.
+        > 10.0
+        >
+    """
+    assert stdout.rstrip() == dedent(expected).rstrip()
