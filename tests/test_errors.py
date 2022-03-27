@@ -11,7 +11,7 @@ from pytest import CaptureFixture, MonkeyPatch
 from pylox import main as pylox_main
 from pylox import run_interactive
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import LexIncompleteError, Lexer, LexError
+from pylox.lexer import Lexer, LexError
 from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
 
@@ -53,7 +53,7 @@ def test_lex_fail(source: str, error: str) -> None:
     ),
 )
 def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) -> None:
-    with pytest.raises(BaseException):
+    with pytest.raises(SystemExit):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
         pylox_main(argv=[filepath])
