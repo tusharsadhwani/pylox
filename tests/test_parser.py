@@ -406,7 +406,6 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                 ]
             ),
         ),
-        # TODO: add more tests
     ),
 )
 def test_parser(tokens: list[Token], expected_tree: Program) -> None:
@@ -485,6 +484,3 @@ def test_parser_files(filename: str, expected_tree: Program) -> None:
     program, errors = parser.parse()
     assert not errors
     assert program == expected_tree
-
-
-# TODO: add failing tests

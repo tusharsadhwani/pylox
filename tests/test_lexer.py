@@ -178,6 +178,3 @@ def test_lex_fail(code: str, error_msg: str) -> None:
         Lexer(code).tokens
 
     assert exc.value.args[0] == error_msg
-
-
-# TODO: add run_interactive tests

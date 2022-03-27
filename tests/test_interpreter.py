@@ -42,7 +42,6 @@ from pylox.tokens import Token, TokenType
             ),
             17.0,
         ),
-        # TODO: add more tests
     ),
 )
 def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
@@ -192,8 +191,7 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
                 ]
             ),
             "7.0",
-        )
-        # TODO: add more tests
+        ),
     ),
 )
 def test_interpreter(
@@ -211,9 +209,6 @@ def test_interpreter(
     stdout, stderr = capsys.readouterr()
     assert stderr == ""
     assert stdout.rstrip() == output
-
-
-# TODO: add failing tests
 
 
 @pytest.mark.parametrize(
