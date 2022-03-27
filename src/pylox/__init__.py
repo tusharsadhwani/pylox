@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> None:
     raise SystemExit(run(args.filename, debug=args.debug))
 
 
-def run_interactive(debug: bool = False) -> int:  # pragma: no cover
+def run_interactive(debug: bool = False) -> int:
     interpreter = Interpreter()
     lines: list[str] = []
     while True:
@@ -123,8 +123,8 @@ def run_interactive(debug: bool = False) -> int:  # pragma: no cover
                         print(output)
             else:
                 interpreter.visit(tree)
-        except KeyboardInterrupt:
-            print("\rCancelled")
+        except KeyboardInterrupt:  # pragma: no cover -- dunno how to test this.
+            print(" -- Cancelled")
             lines = []
         except InterpreterError as exc:
             pretty_print_error(code, "<input>", exc)
