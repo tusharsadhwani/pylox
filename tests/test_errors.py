@@ -11,7 +11,7 @@ from pytest import CaptureFixture, MonkeyPatch
 from pylox import main as pylox_main
 from pylox import run_interactive
 from pylox.interpreter import Interpreter, InterpreterError
-from pylox.lexer import Lexer, LexError
+from pylox.lexer import LexIncompleteError, Lexer, LexError
 from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
 
@@ -47,13 +47,13 @@ def test_lex_fail(source: str, error: str) -> None:
 
                 print "Hello!
                       ^
-            LexError: Unterminated string
+            LexIncompleteError: Unterminated string
             """,
         ),
     ),
 )
 def test_lex_fail_files(filename: str, error: str, capsys: CaptureFixture[str]) -> None:
-    with pytest.raises(SystemExit):
+    with pytest.raises(BaseException):
         test_dir = os.path.join(os.path.dirname(__file__), "testdata")
         filepath = os.path.join(test_dir, filename)
         pylox_main(argv=[filepath])
@@ -310,6 +310,90 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     output = stderr.splitlines()
     assert len(output) > 1000
     assert output[-1].startswith("RecursionError: maximum recursion depth exceeded")
+
+
+def test_run_interactive(
+    capsys: CaptureFixture[str],
+    monkeypatch: MonkeyPatch,
+) -> None:
+    input_counter = 0
+    lines = [
+        "var x = (",
+        "",  # Supposed to test Ctrl+C behaviour here. See below.
+        "var x = 5;",
+        "print x;",
+        "print '",
+        "abc';",
+        "print '\\",
+        "def';",
+        "@",
+        "return;",
+        "true;",
+        "false;",
+        "2 + 2;",
+    ]
+
+    def fake_input(prompt: str = "") -> str:
+        print(prompt, end="")
+        nonlocal input_counter
+
+        # After lines end, just raise EOFError
+        if input_counter == len(lines):
+            raise EOFError
+
+        # For line 2, emulate Ctrl+C
+        if input_counter == 1:
+            input_counter += 1
+            raise KeyboardInterrupt
+
+        line = lines[input_counter]
+        input_counter += 1
+
+        # This emulates user input
+        print(line)
+
+        return line
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    run_interactive()
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+
+    expected = """\
+    > var x = (
+    ... 
+    > var x = 5;
+    > print x;
+    5.0
+    > print '
+    ... abc';
+
+    abc
+    > print '\\
+    ... def';
+    def
+    > @
+    Error in <input>:1:0
+
+        @
+        ^
+    LexError: Unknown character found: '@'
+    > return;
+    Error in <input>:1:0
+
+        return;
+        ^
+    ParseError: Cannot return outside of a function
+    > true;
+    true
+    > false;
+    false
+    > 2 + 2;
+    4.0
+    > 
+    """
+    assert stdout.rstrip() == dedent(expected).rstrip()
 
 
 def test_crash_handling(

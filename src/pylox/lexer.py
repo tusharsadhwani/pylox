@@ -11,7 +11,7 @@ class LexError(LoxError):
     ...
 
 
-class LexIncompleteError(Exception):
+class LexIncompleteError(LexError):
     ...
 
 
@@ -181,8 +181,13 @@ class Lexer:
 
     def scan_string(self, quote_char: str) -> None:
         unescaped_chars = []
-        while not self.scanned:
+        while True:
             char = self.peek()
+            if char == "":
+                # Happens in interactive mode, when writing multiline
+                # strings. Treat it as EOF.
+                raise LexIncompleteError("Unterminated string", index=self.start)
+
             self.advance()
 
             if char == quote_char:
@@ -195,9 +200,7 @@ class Lexer:
             # Escaping the next character
             next_char = self.peek()
             if next_char == "":
-                # Happens in interactive mode, when writing multiline
-                # strings. Treat it as EOF.
-                raise LexIncompleteError  # pragma: no cover -- not sure how to test
+                raise LexIncompleteError("Unterminated string", index=self.start)
 
             if next_char == "\n":
                 pass  # trailing backslash means ignore the newline
@@ -219,9 +222,6 @@ class Lexer:
                 )
 
             self.advance()
-        else:
-            # No end quote found, so no break
-            raise LexError("Unterminated string", self.start)
 
         string = "".join(unescaped_chars)
         self.add_token(TokenType.STRING, string)
