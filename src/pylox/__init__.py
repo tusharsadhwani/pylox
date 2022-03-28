@@ -12,6 +12,7 @@ from pylox.lexer import Lexer, LexError, LexIncompleteError
 from pylox.nodes import ExprStmt
 from pylox.parser import ParseEOFError, ParseError, Parser
 from pylox.resolver import Resolver
+from pylox.utils import get_snippet_line_col
 
 
 def read_file(filename: str) -> str:
@@ -19,33 +20,6 @@ def read_file(filename: str) -> str:
         source = file.read()
 
     return source
-
-
-def get_snippet_line_col(source: str, index: int) -> tuple[int, int, str]:
-    """Returns line number, column number and line of code at the given index."""
-    line, col = 1, 0
-
-    current = 0
-    snippet_start_index = 0
-    for char in source:
-        if current == index:
-            break
-
-        if char == "\n":
-            snippet_start_index = current + 1
-            line += 1
-            col = 0
-        else:
-            col += 1
-
-        current += 1
-
-    while current < len(source) and source[current] != "\n":
-        current += 1
-
-    snippet_end_index = current
-    snippet = source[snippet_start_index:snippet_end_index]
-    return line, col, snippet
 
 
 class PyloxArgs(argparse.Namespace):
