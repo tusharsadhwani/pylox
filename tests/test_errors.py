@@ -252,7 +252,7 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
 
     stdout, stderr = capsys.readouterr()
     assert stderr == (
-        "usage: lox [-h] [--debug] [filename]\n"
+        "usage: lox [-h] [-i] [--debug] [filename]\n"
         "lox: error: unrecognized arguments: b.lox\n"
     )
     assert stdout == ""
@@ -310,6 +310,31 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     output = stderr.splitlines()
     assert len(output) > 1000
     assert output[-1].startswith("RecursionError: maximum recursion depth exceeded")
+
+
+def test_interactive_flag(
+    capsys: CaptureFixture[str],
+    monkeypatch: MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("sys.argv", ["lox", "-i", "tests/testdata/simple.lox"])
+    monkeypatch.setattr("sys.stdin", io.StringIO("print !a;"))
+
+    with pytest.raises(SystemExit):
+        pylox_main()
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    expected = dedent(
+        """\
+        Hello
+        5.0
+        false
+        27.0
+        > true
+        >
+        """
+    )
+    assert stdout.strip() == expected.strip()
 
 
 def test_run_interactive(
