@@ -236,6 +236,8 @@ def test_interpreter(
             0.25
             0.5
             abcdef
+            8.0
+            522.0
             """,
         ),
         (

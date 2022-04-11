@@ -80,7 +80,8 @@ class Parser:
         comparison -> term ((">" | ">=" | "<" | "<=") term)*
         term -> factor (("+" / "-") factor)*
         factor -> unary (("*" / "/") unary)*
-        unary -> ("-" | "!") unary | call
+        unary -> ("-" | "!") unary | power
+        power -> call ** power | call
         call -> primary ("(" arguments? ")")*
         arguments -> expression ("," expression)*
         primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
@@ -462,7 +463,12 @@ class Parser:
     def parse_factor(self) -> Expr:
         left = self.parse_unary()
 
-        while self.match_next(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT):
+        while self.match_next(
+            TokenType.STAR,
+            TokenType.SLASH,
+            TokenType.PERCENT,
+            TokenType.BACKSLASH,
+        ):
             operator = self.previous()
             right = self.parse_unary()
 
@@ -476,7 +482,16 @@ class Parser:
             right = self.parse_unary()
             return Unary(operator, right, index=operator.index)
 
-        return self.parse_call_or_get()
+        return self.parse_power()
+
+    def parse_power(self) -> Expr:
+        left = self.parse_call_or_get()
+        if self.match_next(TokenType.STARSTAR):
+            operator = self.previous()
+            right = self.parse_power()
+            left = Binary(left, operator, right, index=left.index)
+
+        return left
 
     def parse_call_or_get(self) -> Expr:
         expr = self.parse_primary()

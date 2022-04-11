@@ -112,9 +112,14 @@ class Lexer:
         elif char == "-":
             self.add_token(TokenType.MINUS)
         elif char == "*":
-            self.add_token(TokenType.STAR)
+            if self.match_next("*"):
+                self.add_token(TokenType.STARSTAR)
+            else:
+                self.add_token(TokenType.STAR)
         elif char == "%":
             self.add_token(TokenType.PERCENT)
+        elif char == "\\":
+            self.add_token(TokenType.BACKSLASH)
 
         elif char == "/":
             if self.match_next("/"):

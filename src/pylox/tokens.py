@@ -21,6 +21,8 @@ class TokenType(Enum):
     STAR = "*"
     SLASH = "/"
     PERCENT = "%"
+    STARSTAR = "**"
+    BACKSLASH = "\\"
 
     EQUAL = "="
     EQUAL_EQUAL = "=="

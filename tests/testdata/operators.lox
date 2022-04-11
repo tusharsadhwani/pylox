@@ -9,3 +9,5 @@ print 1 / 4;
 print 3.3 % 0.7;
 
 print "abc" + "def";
+print 17 \ 2;
+print 2 ** 3 ** 2 + 10;

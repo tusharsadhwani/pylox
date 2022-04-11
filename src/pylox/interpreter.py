@@ -296,12 +296,16 @@ class Interpreter(Visitor[LoxType]):
                 return left_value - right_value
             if binary.operator.token_type == TokenType.STAR:
                 return left_value * right_value
+            if binary.operator.token_type == TokenType.STARSTAR:
+                return left_value ** right_value
             if binary.operator.token_type == TokenType.SLASH:
                 if right_value == 0:
                     raise InterpreterError("Division by zero", binary.right)
                 return left_value / right_value
             if binary.operator.token_type == TokenType.PERCENT:
                 return left_value % right_value
+            if binary.operator.token_type == TokenType.BACKSLASH:
+                return left_value // right_value
 
             if binary.operator.token_type == TokenType.GREATER:
                 return left_value > right_value
@@ -313,7 +317,7 @@ class Interpreter(Visitor[LoxType]):
                 return left_value <= right_value
 
         raise InterpreterError(
-            f"Unsupported types for {binary.operator.token_type.value!r}: "
+            f"Unsupported types for '{binary.operator.token_type.value}': "
             f"{get_lox_type_name(left_value)!r} and {get_lox_type_name(right_value)!r}",
             binary,
         )

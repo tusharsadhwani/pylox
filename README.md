@@ -97,10 +97,10 @@ Here's the full set of extra features, and their progress:
 - [x] _Much_ better error messages
 - [x] Allowing single quotes for strings
 - [x] String escapes: `\n`, `\t`, `\'`, `\"`, `\\` and `\↵`
-- [ ] New operators:
+- [x] New operators:
   - [x] Modulo `%`
-  - [ ] Integer division `\`
-  - [ ] Power `**`
+  - [x] Integer division `\`
+  - [x] Power `**`
 - [ ] Augmented versions of all operators: `+=`, `**=`, etc.
 - [ ] New data types:
   - [ ] int: `42`
