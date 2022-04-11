@@ -374,7 +374,7 @@ def test_run_interactive(
         line = lines[input_counter]
         input_counter += 1
 
-        # This emulates user input
+        # This emulates user input showing up on terminal
         print(line)
 
         return line
