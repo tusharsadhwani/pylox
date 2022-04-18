@@ -391,6 +391,7 @@ class Parser:
 
             if isinstance(expr, Get):
                 return Set(expr.object, expr.name, value, index=expr.index)
+
             type_name = expr.__class__.__name__
             raise ParseError(
                 f"Invalid assign target: {type_name!r}",
