@@ -4,7 +4,7 @@ import time
 
 from pylox.environment import Environment, EnvironmentLookupError
 from pylox.errors import LoxError
-from pylox.lox_types import LoxType, Number
+from pylox.lox_types import Boolean, Float, Integer, LoxType
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -42,7 +42,7 @@ class NativeClock:
         return "<native function 'clock'>"
 
     @staticmethod
-    def call(_: Interpreter, __: list[LoxType]) -> Number:
+    def call(_: Interpreter, __: list[LoxType]) -> Float:
         return time.time()
 
     @staticmethod
@@ -241,10 +241,12 @@ class Interpreter(Visitor[LoxType]):
     def visit_Unary(self, unary: Unary) -> LoxType:
         if unary.operator.token_type == TokenType.MINUS:
             right_value = self.evaluate(unary.right)
-            if not isinstance(right_value, Number):
+            if isinstance(right_value, Boolean) or not isinstance(
+                right_value, (Integer, Float)
+            ):
                 value_type = get_lox_type_name(right_value)
                 raise InterpreterError(
-                    f"Expected 'Number' for unary '-', got {value_type!r}",
+                    f"Expected 'Integer' or 'Float' for unary '-', got {value_type!r}",
                     unary,
                 )
 
@@ -289,7 +291,9 @@ class Interpreter(Visitor[LoxType]):
         ):
             return left_value + right_value
 
-        if isinstance(left_value, Number) and isinstance(right_value, Number):
+        if isinstance(left_value, (Integer, Float)) and isinstance(
+            right_value, (Integer, Float)
+        ):
             if binary.operator.token_type == TokenType.PLUS:
                 return left_value + right_value
             if binary.operator.token_type == TokenType.MINUS:
@@ -297,7 +301,7 @@ class Interpreter(Visitor[LoxType]):
             if binary.operator.token_type == TokenType.STAR:
                 return left_value * right_value
             if binary.operator.token_type == TokenType.STARSTAR:
-                return left_value**right_value
+                return left_value ** right_value
             if binary.operator.token_type == TokenType.SLASH:
                 if right_value == 0:
                     raise InterpreterError("Division by zero", binary.right)

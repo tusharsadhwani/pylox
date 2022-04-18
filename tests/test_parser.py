@@ -52,7 +52,7 @@ def test_parser_no_eof() -> None:
             [
                 Token(TokenType.IDENTIFIER, "a"),
                 Token(TokenType.PLUS, "+"),
-                Token(TokenType.NUMBER, "1", 1),
+                Token(TokenType.INTEGER, "1", 1),
                 EOF,
             ],
             "(a + 1)",
@@ -76,7 +76,7 @@ def test_parser_no_eof() -> None:
                 Token(TokenType.IDENTIFIER, "y"),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.PLUS, "+"),
-                Token(TokenType.NUMBER, "2", 2),
+                Token(TokenType.INTEGER, "2", 2),
                 Token(TokenType.STAR, "*"),
                 Token(TokenType.IDENTIFIER, "z"),
                 EOF,
@@ -106,19 +106,19 @@ def test_parser_no_eof() -> None:
                 Token(TokenType.EQUAL_EQUAL, "=="),
                 Token(TokenType.LEFT_PAREN, "("),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "2", 2.0),
+                Token(TokenType.INTEGER, "2", 2),
                 Token(TokenType.PLUS, "+"),
-                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.INTEGER, "3", 3),
                 Token(TokenType.BANG_EQUAL, "!="),
-                Token(TokenType.NUMBER, "10", 10.0),
+                Token(TokenType.INTEGER, "10", 10),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.BANG_EQUAL, "!="),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "1", 1.0),
+                Token(TokenType.INTEGER, "1", 1),
                 Token(TokenType.PLUS, "+"),
-                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.INTEGER, "3", 3),
                 Token(TokenType.GREATER, ">"),
-                Token(TokenType.NUMBER, "5", 5.0),
+                Token(TokenType.INTEGER, "5", 5),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 EOF,
@@ -126,9 +126,9 @@ def test_parser_no_eof() -> None:
             """
             (((x == y) == true) == 
                 (group
-                    ((group ((2.0 + 3.0) != 10.0))
+                    ((group ((2 + 3) != 10))
                     !=
-                    (group ((1.0 + 3.0) > 5.0)))))
+                    (group ((1 + 3) > 5)))))
             """,
         ),
         (
@@ -155,37 +155,37 @@ def test_parser_no_eof() -> None:
             [
                 Token(TokenType.IDENTIFIER, "fibonacci"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "5", 5.0),
+                Token(TokenType.INTEGER, "5", 5),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.EQUAL_EQUAL, "=="),
                 Token(TokenType.IDENTIFIER, "fibonacci"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "4", 4.0),
+                Token(TokenType.INTEGER, "4", 4),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.PLUS, "+"),
                 Token(TokenType.IDENTIFIER, "fibonacci"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.INTEGER, "3", 3),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 EOF,
             ],
-            "((fibonacci 5.0) == ((fibonacci 4.0) + (fibonacci 3.0)))",
+            "((fibonacci 5) == ((fibonacci 4) + (fibonacci 3)))",
         ),
         (
             [
                 Token(TokenType.IDENTIFIER, "a"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "10", 10.0),
+                Token(TokenType.INTEGER, "10", 10),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "20", 20.0),
+                Token(TokenType.INTEGER, "20", 20),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 Token(TokenType.LEFT_PAREN, "("),
-                Token(TokenType.NUMBER, "30", 30.0),
+                Token(TokenType.INTEGER, "30", 30),
                 Token(TokenType.RIGHT_PAREN, ")"),
                 EOF,
             ],
-            "(((a 10.0) 20.0) 30.0)",
+            "(((a 10) 20) 30)",
         ),
     ),
 )
@@ -201,13 +201,13 @@ def test_parser_exprs(tokens: list[Token], expected_tree: str) -> None:
     (
         (
             "expression.lox",
-            "(2.0 + (3.0 * 5.0))",
+            "(2 + (3 * 5))",
         ),
         (
             "expression_long.lox",
             """
             ((group
-                ((((2.0 > 3.0) > (4.0 + 5.0)) != x) == ((y * z) / w)))
+                ((((2 > 3) > (4 + 5)) != x) == ((y * z) / w)))
                 == (false + true))
             """,
         ),
@@ -248,7 +248,7 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "5", 5.0),
+                Token(TokenType.INTEGER, "5", 5),
                 Token(TokenType.SEMICOLON, ";"),
                 Token(TokenType.PRINT, "print"),
                 Token(TokenType.IDENTIFIER, "x"),
@@ -271,9 +271,9 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                 Token(TokenType.EQUAL, "="),
                 Token(TokenType.IDENTIFIER, "b"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "2", 2.0),
+                Token(TokenType.INTEGER, "2", 2),
                 Token(TokenType.PLUS, "+"),
-                Token(TokenType.NUMBER, "3", 3.0),
+                Token(TokenType.INTEGER, "3", 3),
                 Token(TokenType.SEMICOLON, ";"),
                 EOF,
             ],
@@ -285,9 +285,9 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                             value=Assignment(
                                 name=Token(TokenType.IDENTIFIER, "b"),
                                 value=Binary(
-                                    left=Literal(2.0),
+                                    left=Literal(2),
                                     operator=Token(TokenType.PLUS, "+"),
-                                    right=Literal(3.0),
+                                    right=Literal(3),
                                 ),
                             ),
                         ),
@@ -300,26 +300,26 @@ def test_parser_expr_files(filename: str, expected_tree: str) -> None:
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "5", 5),
+                Token(TokenType.INTEGER, "5", 5),
                 Token(TokenType.SEMICOLON, ";"),
                 Token(TokenType.LEFT_BRACE, "{"),
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "10", 10),
+                Token(TokenType.INTEGER, "10", 10),
                 Token(TokenType.SEMICOLON, ";"),
                 Token(TokenType.LEFT_BRACE, "{"),
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "20", 20),
+                Token(TokenType.INTEGER, "20", 20),
                 Token(TokenType.SEMICOLON, ";"),
                 Token(TokenType.RIGHT_BRACE, "}"),
                 Token(TokenType.RIGHT_BRACE, "}"),
                 Token(TokenType.VAR, "var"),
                 Token(TokenType.IDENTIFIER, "x"),
                 Token(TokenType.EQUAL, "="),
-                Token(TokenType.NUMBER, "40", 40),
+                Token(TokenType.INTEGER, "40", 40),
                 Token(TokenType.SEMICOLON, ";"),
                 EOF,
             ],
@@ -425,7 +425,7 @@ def test_parser(tokens: list[Token], expected_tree: Program) -> None:
                     Print(Literal("Hello", index=6), index=0),
                     VarDeclaration(
                         name=Token(TokenType.IDENTIFIER, "a", index=19),
-                        initializer=Literal(5.0, index=23),
+                        initializer=Literal(5, index=23),
                         index=15,
                     ),
                     Print(
@@ -449,11 +449,11 @@ def test_parser(tokens: list[Token], expected_tree: Program) -> None:
                                     operator=Token(TokenType.STAR, "*", index=71),
                                     right=Grouping(
                                         expression=Binary(
-                                            left=Literal(3.0, index=74),
+                                            left=Literal(3, index=74),
                                             operator=Token(
                                                 TokenType.PLUS, "+", index=76
                                             ),
-                                            right=Literal(5.0, index=78),
+                                            right=Literal(5, index=78),
                                             index=74,
                                         ),
                                         index=73,
@@ -461,7 +461,7 @@ def test_parser(tokens: list[Token], expected_tree: Program) -> None:
                                     index=66,
                                 ),
                                 operator=Token(TokenType.SLASH, "/", index=81),
-                                right=Literal(2.0, index=83),
+                                right=Literal(2, index=83),
                                 index=66,
                             ),
                             index=65,

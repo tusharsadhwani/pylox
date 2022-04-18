@@ -52,7 +52,8 @@ class TokenType(Enum):
 
     IDENTIFIER = "Identifier"
     STRING = "String"
-    NUMBER = "Number"
+    INTEGER = "Integer"
+    FLOAT = "Float"
 
     EOF = "EOF"
 

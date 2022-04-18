@@ -32,15 +32,15 @@ from pylox.tokens import Token, TokenType
     (
         (
             Binary(
-                left=Literal(value=2.0),
+                left=Literal(value=2),
                 operator=Token(token_type=TokenType.PLUS, string="+", value=None),
                 right=Binary(
-                    left=Literal(value=3.0),
+                    left=Literal(value=3),
                     operator=Token(token_type=TokenType.STAR, string="*", value=None),
-                    right=Literal(value=5.0),
+                    right=Literal(value=5),
                 ),
             ),
-            17.0,
+            17,
         ),
     ),
 )
@@ -81,9 +81,9 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
                             value=Assignment(
                                 name=Token(TokenType.IDENTIFIER, "b"),
                                 value=Binary(
-                                    left=Literal(2.0),
+                                    left=Literal(2),
                                     operator=Token(TokenType.PLUS, "+"),
-                                    right=Literal(3.0),
+                                    right=Literal(3),
                                 ),
                             ),
                         ),
@@ -92,7 +92,7 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
                     Print(Variable(Token(TokenType.IDENTIFIER, "b"))),
                 ],
             ),
-            "5.0\n5.0",
+            "5\n5",
         ),
         (
             Program(
@@ -165,23 +165,23 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
                 body=[
                     Print(
                         Binary(
-                            left=Literal(value=0.0),
+                            left=Literal(value=0),
                             operator=Token(TokenType.OR, "or"),
                             right=Binary(
                                 left=Binary(
                                     left=Literal(value=True),
                                     operator=Token(TokenType.AND, "and"),
-                                    right=Literal(value=3.0),
+                                    right=Literal(value=3),
                                 ),
                                 operator=Token(TokenType.AND, "and"),
                                 right=Grouping(
                                     Binary(
-                                        left=Literal(value=7.0),
+                                        left=Literal(value=7),
                                         operator=Token(TokenType.OR, "or"),
                                         right=Binary(
-                                            left=Literal(value=0.0),
+                                            left=Literal(value=0),
                                             operator=Token(TokenType.SLASH, "/"),
-                                            right=Literal(value=0.0),
+                                            right=Literal(value=0),
                                         ),
                                     )
                                 ),
@@ -190,7 +190,7 @@ def test_interpreter_expr(tree: Expr, expected: LoxType) -> None:
                     )
                 ]
             ),
-            "7.0",
+            "7",
         ),
     ),
 )
@@ -218,7 +218,7 @@ def test_interpreter(
             "simple.lox",
             """\
             Hello
-            5.0
+            5
             false
             27.0
             """,
@@ -229,15 +229,15 @@ def test_interpreter(
             true
             false
             false
-            -3.0
-            0.0
+            -3
+            0
             true
             false
             0.25
             0.5
             abcdef
-            8.0
-            522.0
+            8
+            522
             """,
         ),
         (
@@ -246,14 +246,14 @@ def test_interpreter(
             Number is positive
             Number is small
             Should run
-            2.0
-            4.0
-            8.0
-            0.0
-            1.0
-            2.0
-            10.0
-            20.0
+            2
+            4
+            8
+            0
+            1
+            2
+            10
+            20
             """,
         ),
         (
@@ -273,17 +273,17 @@ def test_interpreter(
             <function 'hello'>
             Hello
             Hello
-            1.0
-            2.0
-            3.0
-            30.0
-            70.0
+            1
+            2
+            3
+            30
+            70
             Counter starting
-            1.0
-            2.0
-            360.0
+            1
+            2
+            360
             nil
-            1.0
+            1
             """,
         ),
         (
@@ -298,7 +298,7 @@ def test_interpreter(
             "classes.lox",
             """\
             <class 'C'>
-            10.0
+            10
             The German chocolatecake is delicious
             foo
             bob

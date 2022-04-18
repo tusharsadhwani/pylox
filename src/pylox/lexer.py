@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 
 from pylox.errors import LoxError
-from pylox.lox_types import LoxType, Number
+from pylox.lox_types import Float, Integer, LoxType
 from pylox.tokens import EOF, KEYWORD_TOKENS, Token, TokenType
 
 
@@ -232,18 +232,26 @@ class Lexer:
         self.add_token(TokenType.STRING, string)
 
     def scan_number(self) -> None:
+        """Returns an Integer or Float token."""
+        is_float = False
+
         while self.peek().isdigit():
             self.advance()
 
         # decimal support
         if self.peek() == ".":
             if self.peek_next().isdigit():
+                is_float = True
                 self.advance()
                 while self.peek().isdigit():
                     self.advance()
 
-        number = Number(self.source[self.start : self.current])
-        self.add_token(TokenType.NUMBER, number)
+        if is_float:
+            token = Float(self.source[self.start : self.current])
+            self.add_token(TokenType.FLOAT, token)
+        else:
+            token = Integer(self.source[self.start : self.current])
+            self.add_token(TokenType.INTEGER, token)
 
 
 if __name__ == "__main__":
