@@ -250,7 +250,7 @@ class Interpreter(Visitor[LoxType]):
 
             return -right_value
 
-        elif unary.operator.token_type == TokenType.BANG:
+        if unary.operator.token_type == TokenType.BANG:
             right_value = self.evaluate(unary.right)
             if is_truthy(right_value):
                 return False

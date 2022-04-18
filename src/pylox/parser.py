@@ -389,15 +389,13 @@ class Parser:
             if isinstance(expr, Variable):
                 return Assignment(expr.name, value, index=expr.index)
 
-            elif isinstance(expr, Get):
+            if isinstance(expr, Get):
                 return Set(expr.object, expr.name, value, index=expr.index)
-
-            else:
-                type_name = expr.__class__.__name__
-                raise ParseError(
-                    f"Invalid assign target: {type_name!r}",
-                    equals_token,
-                )
+            type_name = expr.__class__.__name__
+            raise ParseError(
+                f"Invalid assign target: {type_name!r}",
+                equals_token,
+            )
 
         # If it's not assignment, it's equality (or anything below)
         return expr
