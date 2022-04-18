@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 from attr import asdict
 
-from pylox.lox_types import Boolean, LoxCallable, LoxType, Number, String
+from pylox.lox_types import Boolean, Float, Integer, LoxCallable, LoxType, String
 from pylox.nodes import Node
 
 
@@ -51,8 +51,11 @@ def get_lox_type_name(value: LoxType) -> str:
     if isinstance(value, String):
         return "String"
 
-    if isinstance(value, Number):
-        return "Number"
+    if isinstance(value, Integer):
+        return "Integer"
+
+    if isinstance(value, Float):
+        return "Float"
 
     if isinstance(value, LoxFunction):
         return "Function"
@@ -71,7 +74,7 @@ def is_truthy(value: LoxType) -> bool:
     if value is None:
         return False
 
-    if isinstance(value, (String, Number, Boolean)):
+    if isinstance(value, (String, Integer, Float, Boolean)):
         return bool(value)
 
     raise NotImplementedError(

@@ -174,8 +174,8 @@ def test_parse_fail_files(
     ("source", "error"),
     (
         ("x;", "Undefined variable 'x'"),
-        ("print -true;", "Expected 'Number' for unary '-', got 'Boolean'"),
-        ("2 > '3';", "Unsupported types for '>': 'Number' and 'String'"),
+        ("print -true;", "Expected 'Integer' or 'Float' for unary '-', got 'Boolean'"),
+        ("2 > '3';", "Unsupported types for '>': 'Integer' and 'String'"),
         ("nil();", "'nil' object is not callable"),
         ("fun f(){} f.foo;", "Cannot access properties inside 'Function'"),
         ("class C {} C.foo = 5;", "Cannot set properties on 'Class'"),
@@ -187,7 +187,7 @@ def test_parse_fail_files(
         ("print 3 / 0;", "Division by zero"),
         ("fun f(a) {print a;} f();", "<function 'f'> expected 1 arguments, got 0"),
         ("class C {init(a, b) {}} C(10);", "<class 'C'> expected 2 arguments, got 1"),
-        ("dir(10);", "dir() can only be used on classes and objects, not 'Number'"),
+        ("dir(5.5);", "dir() can only be used on classes and objects, not 'Float'"),
     ),
 )
 def test_interpreter_fail(source: str, error: str) -> None:
@@ -267,7 +267,7 @@ def test_run(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     assert stderr == ""
     expected = dedent(
         """\
-        > > 5.0
+        > > 5
         > Error in <input>:1:6
 
             print y;
@@ -327,7 +327,7 @@ def test_interactive_flag(
     expected = dedent(
         """\
         Hello
-        5.0
+        5
         false
         27.0
         > true
@@ -390,7 +390,7 @@ def test_run_interactive(
     ... 
     > var x = 5;
     > print x;
-    5.0
+    5
     > print '
     ... abc';
 
@@ -415,7 +415,7 @@ def test_run_interactive(
     > false;
     false
     > 2 + 2;
-    4.0
+    4
     > 
     """
     assert stdout.rstrip() == dedent(expected).rstrip()
@@ -435,7 +435,7 @@ def test_crash_handling(
         > Internal Error:
         RecursionError: maximum recursion depth exceeded while calling a Python object
         Use the --debug flag to generate a stack trace.
-        > 10.0
+        > 10
         >
     """
     assert stdout.rstrip() == dedent(expected).rstrip()

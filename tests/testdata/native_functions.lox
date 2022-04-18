@@ -4,7 +4,7 @@ var t1 = clock();
 var t2 = clock();
 
 print t2 > t1;        // Asserting positively increasing time
-print t2 - t1 < 1.0;  // Our language can't be /that/ slow
+print t2 - t1 < 1;    // Our language can't be /that/ slow
 
 print dir;
 

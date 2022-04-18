@@ -12,7 +12,8 @@ if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
 
 String = str
-Number = float
+Integer = int
+Float = float
 Boolean = bool
 
 
@@ -32,4 +33,4 @@ class LoxObject(Protocol):
         ...
 
 
-LoxType = Union[String, Number, Boolean, LoxCallable, LoxObject, None]
+LoxType = Union[String, Integer, Float, Boolean, LoxCallable, LoxObject, None]

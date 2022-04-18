@@ -84,8 +84,15 @@ class Parser:
         power -> call ** power | call
         call -> primary ("(" arguments? ")")*
         arguments -> expression ("," expression)*
-        primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
-                | IDENTIFIER | "super" "." IDENTIFIER
+        primary -> INTEGER
+                 | FLOAT
+                 | STRING
+                 | "true"
+                 | "false"
+                 | "nil"
+                 | "(" expression ")"
+                 | IDENTIFIER
+                 | "super" "." IDENTIFIER
     """
 
     def __init__(self, tokens: list[Token]) -> None:
@@ -551,7 +558,7 @@ class Parser:
             eof_token = self.get_token()
             raise ParseEOFError("Unexpected end of file while parsing", eof_token)
 
-        if self.match_next(TokenType.STRING, TokenType.NUMBER):
+        if self.match_next(TokenType.STRING, TokenType.INTEGER, TokenType.FLOAT):
             token = self.previous()
             return Literal(token.value, index=token.index)
 

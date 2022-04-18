@@ -103,7 +103,7 @@ Here's the full set of extra features, and their progress:
   - [x] Power `**`
 - [ ] Augmented versions of all operators: `+=`, `**=`, etc.
 - [ ] New data types:
-  - [ ] int: `42`
+  - [x] int: `42`
   - [ ] list: `[42, 56]`
   - [ ] dictionary: `{42: "Forty two"}`
 - [ ] Indexing support: for lists, dictionaries and strings
