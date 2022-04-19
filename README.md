@@ -110,9 +110,11 @@ Here's the full set of extra features, and their progress:
 - [ ] Comparison operators work on strings
 - [ ] `break` and `continue` semantics in loops
 - [ ] Exceptions, `try` / `except` blocks and `raise` statements
+- [ ] Default values for function parameters
+- [ ] `*args`
 - [ ] Added builtin functions:
   - [x] `input`
-  - [ ] `format` (Python equivalent, for string interpolation)
+  - [ ] `format` (Python `str.format` equivalent, for string interpolation)
   - [ ] `min`, `max` and `abs`
   - [ ] `map`, `filter` and `reduce` that take lists and return new lists
   - [x] `dir` to print out an object's attributes
