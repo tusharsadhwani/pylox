@@ -4,7 +4,7 @@ import os.path
 from textwrap import dedent
 
 import pytest
-from pytest import CaptureFixture
+from pytest import CaptureFixture, MonkeyPatch
 
 from pylox.interpreter import Interpreter
 from pylox.lexer import Lexer
@@ -351,6 +351,48 @@ def test_interpreter_files(
     stdout, stderr = capsys.readouterr()
     assert stdout.rstrip() == dedent(output).rstrip()
     assert stderr == ""
+
+
+def test_input(monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]) -> None:
+    code = dedent(
+        """\
+        print input;
+        var name = input("Enter your name: ");
+        print "Hello, " + name;
+        """
+    )
+
+    expected = dedent(
+        """\
+        <native function 'input'>
+        Enter your name: Tushar
+        Hello, Tushar
+        """
+    )
+
+    def fake_input(prompt: str) -> str:
+        print(prompt, end="")
+        print("Tushar")
+        return "Tushar"
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+    tokens = Lexer(code).tokens
+    parser = Parser(tokens)
+    program, errors = parser.parse()
+    assert not errors
+
+    interpreter = Interpreter()
+
+    resolver = Resolver(interpreter)
+    resolver.visit(program)
+
+    interpreter.visit(program)
+
+    stdout, stderr = capsys.readouterr()
+
+    assert stderr == ""
+    assert stdout == expected
 
 
 # TODO: add benchmarks, eg. recusrive fibonacci(25)

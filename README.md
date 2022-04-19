@@ -111,7 +111,7 @@ Here's the full set of extra features, and their progress:
 - [ ] `break` and `continue` semantics in loops
 - [ ] Exceptions, `try` / `except` blocks and `raise` statements
 - [ ] Added builtin functions:
-  - [ ] `input`
+  - [x] `input`
   - [ ] `format` (Python equivalent, for string interpolation)
   - [ ] `min`, `max` and `abs`
   - [ ] `map`, `filter` and `reduce` that take lists and return new lists
