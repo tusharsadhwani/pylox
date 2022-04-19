@@ -4,7 +4,7 @@ import time
 
 from pylox.environment import Environment, EnvironmentLookupError
 from pylox.errors import LoxError
-from pylox.lox_types import Boolean, Float, Integer, LoxType
+from pylox.lox_types import Boolean, Float, Integer, LoxType, String
 from pylox.nodes import (
     Assignment,
     Binary,
@@ -75,10 +75,25 @@ class Dir:
         return 1
 
 
+class Input:
+    def __repr__(self) -> str:
+        return "<native function 'input'>"
+
+    @staticmethod
+    def call(_: Interpreter, arguments: list[LoxType]) -> String:
+        (prompt,) = arguments
+        return input(prompt)
+
+    @staticmethod
+    def arity() -> int:
+        return 1
+
+
 def create_globals() -> Environment:
     globals = Environment()
     globals.define("clock", NativeClock())
     globals.define("dir", Dir())
+    globals.define("input", Input())
     return globals
 
 
@@ -301,7 +316,7 @@ class Interpreter(Visitor[LoxType]):
             if binary.operator.token_type == TokenType.STAR:
                 return left_value * right_value
             if binary.operator.token_type == TokenType.STARSTAR:
-                return left_value**right_value
+                return left_value ** right_value
             if binary.operator.token_type == TokenType.SLASH:
                 if right_value == 0:
                     raise InterpreterError("Division by zero", binary.right)
