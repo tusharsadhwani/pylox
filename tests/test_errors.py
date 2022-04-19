@@ -337,10 +337,7 @@ def test_interactive_flag(
     assert stdout.strip() == expected.strip()
 
 
-def test_run_interactive(
-    capsys: CaptureFixture[str],
-    monkeypatch: MonkeyPatch,
-) -> None:
+def test_run_interactive(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     input_counter = 0
     lines = [
         "var x = (",
@@ -421,10 +418,7 @@ def test_run_interactive(
     assert stdout.rstrip() == dedent(expected).rstrip()
 
 
-def test_crash_handling(
-    capsys: CaptureFixture[str],
-    monkeypatch: MonkeyPatch,
-) -> None:
+def test_crash_handling(capsys: CaptureFixture[str], monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr("sys.stdin", io.StringIO("fun f() { f(); } f();\nprint 10;"))
     run_interactive()
 
