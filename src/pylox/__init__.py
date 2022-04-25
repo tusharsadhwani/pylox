@@ -16,8 +16,15 @@ from pylox.utils import get_snippet_line_col
 
 
 def read_file(filename: str) -> str:
-    with open(filename) as file:
-        source = file.read()
+    try:
+        with open(filename) as file:
+            source = file.read()
+    except IsADirectoryError:
+        print("Error: given path is a directory")
+        raise SystemExit(1)
+    except FileNotFoundError:
+        print("Error: given path does not exist")
+        raise SystemExit(1)
 
     return source
 
