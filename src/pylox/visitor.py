@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, TypeVar
+from typing import Callable, Generic, TypeVar, cast
 
 from pylox.nodes import Node
 
@@ -12,7 +12,7 @@ class Visitor(Generic[T]):
 
     def get_visitor(self, node: Node) -> Callable[..., T]:
         visitor_name = "visit_" + node.__class__.__name__
-        visitor: Callable[..., T] = getattr(self, visitor_name, None)
+        visitor = cast("Callable[..., T]", getattr(self, visitor_name, None))
         return visitor
 
     def generic_visit(self, node: Node) -> T:
