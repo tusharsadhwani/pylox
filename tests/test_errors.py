@@ -24,7 +24,7 @@ def test_file_not_found(capsys: CaptureFixture[str]) -> None:
     stdout, stderr = capsys.readouterr()
     assert stderr == ""
     assert stdout == "Error: given path does not exist\n"
-    
+
     with pytest.raises(SystemExit):
         pylox_main(argv=["tests"])
 
