@@ -16,6 +16,23 @@ from pylox.parser import ParseError, Parser
 from pylox.resolver import Resolver
 
 
+def test_file_not_found(capsys: CaptureFixture[str]) -> None:
+    """Tests the error message when a wrong path is passed to pylox."""
+    with pytest.raises(SystemExit):
+        pylox_main(argv=["nonexistent_file.py"])
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    assert stdout == "Error: given path does not exist\n"
+
+    with pytest.raises(SystemExit):
+        pylox_main(argv=["tests"])
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    assert stdout == "Error: given path is a directory\n"
+
+
 @pytest.mark.parametrize(
     ("source", "error"),
     ((r'"a\b"', r"Unknown escape sequence: '\b'"),),
