@@ -239,12 +239,11 @@ class Lexer:
             self.advance()
 
         # decimal support
-        if self.peek() == ".":
-            if self.peek_next().isdigit():
-                is_float = True
+        if self.peek() == "." and self.peek_next().isdigit():
+            is_float = True
+            self.advance()
+            while self.peek().isdigit():
                 self.advance()
-                while self.peek().isdigit():
-                    self.advance()
 
         if is_float:
             token = Float(self.source[self.start : self.current])
